@@ -1,0 +1,863 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.5, user-scalable=yes" />
+    <title>ARC-GLASS · Dashboard</title>
+
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,300;14..32,400;14..32,500;14..32,600;14..32,700&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet" />
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@latest/tabler-icons.min.css" />
+
+    <style>
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+
+        :root {
+            --bg: #f0f0f0;
+            --surface: #ffffff;
+            --surface-soft: #f8f8f8;
+            --surface-soft-2: #f5f5f5;
+            --border: rgba(0,0,0,0.05);
+            --accent: #22c55e;
+            --accent-soft: #bbf7d0;
+            --accent-dim: #16a34a;
+            --ink: #1a1a1a;
+            --text-secondary: #666666;
+            --text-muted: #999999;
+            --warning: #f59e0b;
+            --warning-soft: #fef3c7;
+            --danger: #ef4444;
+            --danger-soft: #fee2e2;
+            --shadow: 0 2px 12px rgba(0,0,0,0.05);
+            --shadow-lift: 0 4px 20px rgba(0,0,0,0.08);
+            --radius-lg: 20px;
+            --radius-md: 14px;
+            --radius-sm: 10px;
+        }
+
+        html, body {
+            min-height: 100%;
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+            background: var(--bg);
+            color: var(--ink);
+        }
+
+        body { padding-bottom: 0; }
+
+        a { text-decoration: none; color: inherit; }
+
+        /* ── TOP NAVBAR ── */
+        .navbar {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 16px 32px;
+            max-width: 1600px;
+            margin: 0 auto;
+        }
+
+        .nav-left { display: flex; align-items: center; gap: 32px; }
+
+        .logo-mark {
+            width: 36px;
+            height: 36px;
+            background: var(--ink);
+            border-radius: 10px;
+            position: relative;
+            flex-shrink: 0;
+        }
+        .logo-mark::before, .logo-mark::after, .logo-mark .logo-inner {
+            content: '';
+            position: absolute;
+            width: 13px;
+            height: 13px;
+            background: var(--accent);
+            border-radius: 50%;
+        }
+        .logo-mark::before { top: 3px; left: 50%; transform: translateX(-50%); }
+        .logo-mark::after { bottom: 3px; left: 5px; }
+        .logo-mark .logo-inner { bottom: 3px; right: 5px; }
+
+        .brand-name {
+            font-weight: 700;
+            font-size: 13px;
+            letter-spacing: 0.5px;
+            color: var(--ink);
+        }
+
+        .nav-tabs { display: flex; gap: 4px; background: transparent; }
+
+        .nav-tab {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            padding: 9px 18px;
+            border-radius: 24px;
+            font-size: 13px;
+            font-weight: 500;
+            color: var(--text-secondary);
+            cursor: pointer;
+            transition: all 0.2s;
+            border: none;
+            background: transparent;
+            font-family: inherit;
+        }
+
+        .nav-tab .ti { font-size: 15px; }
+
+        .nav-tab.active {
+            background: #fff;
+            color: var(--ink);
+            box-shadow: var(--shadow);
+        }
+
+        .nav-tab:not(.active):hover { color: var(--ink); }
+
+        .nav-right { display: flex; align-items: center; gap: 12px; }
+
+        .header-time {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 13px;
+            color: var(--text-secondary);
+            background: #fff;
+            padding: 10px 16px;
+            border-radius: 24px;
+            box-shadow: var(--shadow);
+            display: none;
+        }
+
+        .sound-btn {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            background: #fff;
+            border: none;
+            border-radius: 24px;
+            padding: 10px 16px;
+            font-size: 13px;
+            font-weight: 500;
+            color: var(--text-secondary);
+            cursor: pointer;
+            box-shadow: var(--shadow);
+            transition: opacity 0.2s;
+            font-family: inherit;
+        }
+        .sound-btn.muted { opacity: 0.6; }
+
+        .sound-dot { width: 7px; height: 7px; border-radius: 50%; flex-shrink: 0; }
+        .sound-dot.active { background: var(--accent); animation: pulse-dot 2s infinite; }
+        .sound-dot.inactive { background: #d4d4d4; }
+        @keyframes pulse-dot { 0%,100% { opacity:1; transform:scale(1);} 50% { opacity:.35; transform:scale(.8);} }
+
+        .icon-btn {
+            width: 40px; height: 40px;
+            border-radius: 50%;
+            background: #fff;
+            border: none;
+            display: flex; align-items: center; justify-content: center;
+            cursor: pointer;
+            box-shadow: var(--shadow);
+            position: relative;
+            color: var(--text-secondary);
+            font-size: 17px;
+        }
+        .notification-badge {
+            position: absolute; top: 8px; right: 9px;
+            width: 7px; height: 7px; border-radius: 50%;
+            background: var(--danger); border: 2px solid #fff;
+        }
+
+        .user-profile {
+            display: flex; align-items: center; gap: 10px;
+            background: #fff;
+            padding: 6px 14px 6px 6px;
+            border-radius: 24px;
+            box-shadow: var(--shadow);
+            cursor: pointer;
+        }
+        .user-avatar {
+            width: 32px; height: 32px; border-radius: 50%;
+            background: var(--ink);
+            display: flex; align-items: center; justify-content: center;
+            color: #fff; font-size: 13px; font-weight: 600;
+        }
+        .user-info { display: none; flex-direction: column; }
+        .user-name { font-size: 13px; font-weight: 600; color: var(--ink); line-height: 1.2; }
+        .user-plan { font-size: 11px; color: var(--text-muted); line-height: 1.2; }
+
+        @media (min-width: 640px) {
+            .header-time { display: block; }
+            .user-info { display: flex; }
+        }
+
+        /* ── BOTTOM NAV (mobile) ── */
+        .bottom-nav {
+            display: none;
+            position: fixed; bottom: 0; left: 0; right: 0;
+            background: #fff;
+            border-top: 1px solid var(--border);
+            padding: 8px 0 calc(8px + env(safe-area-inset-bottom));
+            z-index: 99;
+            justify-content: space-around;
+            align-items: center;
+            box-shadow: 0 -2px 16px rgba(0,0,0,0.05);
+        }
+        .bottom-nav .nav-item {
+            display: flex; flex-direction: column; align-items: center; gap: 3px;
+            padding: 6px 10px;
+            color: var(--text-muted);
+            font-size: 10px; font-weight: 500;
+        }
+        .bottom-nav .nav-item .ti { font-size: 21px; }
+        .bottom-nav .nav-item.active { color: var(--accent-dim); }
+
+        /* ── MAIN ── */
+        .main-content {
+            max-width: 1600px;
+            margin: 0 auto;
+            padding: 8px 32px 40px;
+        }
+
+        .page-heading {
+            font-size: 22px;
+            font-weight: 600;
+            margin: 8px 0 20px;
+        }
+
+        /* ── STATS GRID ── */
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 16px;
+            margin-bottom: 20px;
+        }
+
+        .stat-card {
+            background: #fff;
+            border-radius: var(--radius-lg);
+            padding: 20px 22px;
+            box-shadow: var(--shadow);
+            position: relative;
+            transition: transform 0.2s ease;
+        }
+        .stat-card:hover { transform: translateY(-2px); }
+
+        .stat-card .stat-icon {
+            position: absolute; top: 20px; right: 20px;
+            font-size: 20px; color: var(--text-muted); opacity: 0.4;
+        }
+        .stat-value {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 28px; font-weight: 600;
+            color: var(--ink);
+            display: block;
+            margin-bottom: 6px;
+        }
+        .stat-label {
+            font-size: 11px; font-weight: 500;
+            color: var(--text-muted);
+            text-transform: uppercase;
+            letter-spacing: 0.06em;
+        }
+        .stat-change {
+            display: inline-block;
+            margin-top: 10px;
+            padding: 3px 10px;
+            border-radius: 20px;
+            font-size: 11px; font-weight: 600;
+            background: var(--accent-soft);
+            color: var(--accent-dim);
+        }
+        .stat-change.danger { background: var(--danger-soft); color: #b91c1c; }
+
+        /* ── SECTION TITLE ── */
+        .section-title {
+            display: flex; align-items: center; gap: 9px;
+            font-size: 15px; font-weight: 600;
+            color: var(--ink);
+            margin: 24px 0 14px;
+        }
+        .section-title .ti { color: var(--accent-dim); font-size: 18px; }
+
+        /* ── UNITS GRID ── */
+        .units-grid {
+            display: grid;
+            grid-template-columns: repeat(5, 1fr);
+            gap: 14px;
+            margin-bottom: 20px;
+        }
+
+        .unit-card {
+            background: #fff;
+            border-radius: var(--radius-md);
+            padding: 16px 16px 14px;
+            box-shadow: var(--shadow);
+            position: relative;
+            transition: transform 0.2s ease;
+        }
+        .unit-card:hover { transform: translateY(-2px); }
+
+        .unit-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; }
+        .unit-name { font-size: 13px; font-weight: 600; color: var(--ink); }
+        .unit-status { display: flex; align-items: center; gap: 5px; font-size: 10px; font-weight: 500; color: var(--text-muted); }
+        .status-dot { width: 7px; height: 7px; border-radius: 50%; }
+        .status-dot.active { background: var(--accent); }
+        .status-dot.inactive { background: #d4d4d4; }
+
+        .unit-readings {
+            display: grid; grid-template-columns: 1fr 1fr 1fr;
+            gap: 6px;
+            background: var(--surface-soft);
+            border-radius: var(--radius-sm);
+            padding: 10px 6px;
+            margin-bottom: 10px;
+        }
+        .unit-reading { text-align: center; }
+        .reading-value {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 13px; font-weight: 600;
+            color: var(--ink);
+            display: block;
+        }
+        .reading-value.alert { color: var(--warning); }
+        .reading-value.danger { color: var(--danger); }
+        .reading-label {
+            font-size: 9px; font-weight: 500; color: var(--text-muted);
+            text-transform: uppercase; letter-spacing: 0.04em;
+        }
+
+        .sparkline { display: flex; align-items: flex-end; gap: 2px; height: 18px; margin-bottom: 12px; }
+        .sparkline .bar { flex: 1; background: var(--accent); border-radius: 1px; opacity: 0.45; min-height: 2px; }
+        .sparkline .bar.danger { background: var(--danger); }
+
+        .unit-control-btn {
+            width: 100%;
+            padding: 9px 0;
+            background: var(--ink);
+            border: none;
+            border-radius: var(--radius-sm);
+            color: #fff;
+            font-size: 12px; font-weight: 500;
+            cursor: pointer;
+            display: flex; align-items: center; justify-content: center; gap: 6px;
+            font-family: inherit;
+            transition: opacity 0.2s;
+        }
+        .unit-control-btn:hover { opacity: 0.88; }
+
+        .unit-alert-badge {
+            position: absolute; top: -6px; right: -6px;
+            background: var(--danger); color: #fff;
+            font-size: 9px; font-weight: 700;
+            padding: 2px 8px; border-radius: 12px;
+            border: 2px solid var(--bg);
+        }
+
+        /* ── SUMMARY STRIP ── */
+        .summary-strip {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 16px;
+            background: #fff;
+            border-radius: var(--radius-lg);
+            padding: 20px 24px;
+            box-shadow: var(--shadow);
+        }
+        .summary-item { display: flex; flex-direction: column; gap: 4px; }
+        .summary-label {
+            font-size: 11px; font-weight: 500; color: var(--text-muted);
+            text-transform: uppercase; letter-spacing: 0.05em;
+        }
+        .summary-value {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 19px; font-weight: 600; color: var(--ink);
+        }
+
+        /* ── TOASTS ── */
+        .toast-container {
+            position: fixed; top: 16px; right: 16px; z-index: 999;
+            display: flex; flex-direction: column; gap: 8px;
+        }
+        .toast {
+            background: #fff;
+            border-radius: var(--radius-sm);
+            padding: 14px 18px;
+            color: var(--ink);
+            font-size: 13px;
+            box-shadow: var(--shadow-lift);
+            min-width: 260px;
+            border-left: 3px solid var(--accent);
+            animation: slideIn 0.3s ease;
+        }
+        .toast.error { border-left-color: var(--danger); }
+        .toast.warning { border-left-color: var(--warning); }
+        @keyframes slideIn { from { transform: translateX(100%); opacity:0;} to { transform: translateX(0); opacity:1;} }
+
+        /* ── RESPONSIVE ── */
+        @media (max-width: 1200px) {
+            .units-grid { grid-template-columns: repeat(4, 1fr); }
+        }
+
+        @media (max-width: 1024px) {
+            .units-grid { grid-template-columns: repeat(3, 1fr); }
+            .stats-grid { grid-template-columns: repeat(2, 1fr); }
+            .summary-strip { grid-template-columns: repeat(2, 1fr); }
+            .nav-tabs .nav-tab span.label { display: none; }
+        }
+
+        @media (max-width: 768px) {
+            body { padding-bottom: 76px; }
+            .navbar { padding: 14px 16px; }
+            .nav-tabs { display: none; }
+            .bottom-nav { display: flex; }
+            .main-content { padding: 4px 16px 24px; }
+            .units-grid { grid-template-columns: repeat(2, 1fr); gap: 10px; }
+            .stats-grid { grid-template-columns: 1fr 1fr; gap: 10px; }
+            .stat-value { font-size: 22px; }
+            .page-heading { font-size: 19px; }
+            .summary-strip { grid-template-columns: 1fr 1fr; gap: 10px; padding: 14px 16px; }
+        }
+
+        @media (max-width: 480px) {
+            .units-grid { grid-template-columns: 1fr 1fr; gap: 8px; }
+            .stats-grid { grid-template-columns: 1fr 1fr; gap: 8px; }
+            .stat-card { padding: 14px 16px; }
+            .stat-value { font-size: 19px; }
+            .unit-readings { grid-template-columns: 1fr; gap: 4px; }
+            .summary-value { font-size: 14px; }
+            .sound-btn span.label { display: none; }
+        }
+    </style>
+    <link rel="stylesheet" href="theme.css" />
+</head>
+<body>
+
+    <!-- ── SIDEBAR ── -->
+    <nav class="sidebar" id="sidebar">
+        <div class="sidebar-brand">
+            <div class="logo-mark"><div class="logo-inner"></div></div>
+            <span class="brand-text">ARC·GLASSHOUSE</span>
+        </div>
+        <div class="sidebar-nav">
+            <a href="dashboard.html" class="nav-item active"><span class="nav-icon ti ti-layout-dashboard"></span><span class="nav-label">Overview</span></a>
+            <a href="control.html" class="nav-item"><span class="nav-icon ti ti-adjustments-horizontal"></span><span class="nav-label">Control</span></a>
+            <a href="energy.html" class="nav-item"><span class="nav-icon ti ti-bolt"></span><span class="nav-label">Energy</span></a>
+            <a href="auditlog.html" class="nav-item"><span class="nav-icon ti ti-clipboard-list"></span><span class="nav-label">Audit Log</span></a>
+            <a href="settings.html" class="nav-item"><span class="nav-icon ti ti-settings"></span><span class="nav-label">Settings</span></a>
+        </div>
+        <div class="sidebar-footer">
+            <button class="nav-item" id="soundToggle" title="Toggle alert sounds">
+                <span class="nav-icon ti ti-bell-ringing" id="soundDot"></span>
+                <span class="nav-label" id="soundStatus">Sound On</span>
+            </button>
+        </div>
+    </nav>
+
+    <!-- ── BOTTOM NAV (mobile) ── -->
+    <nav class="bottom-nav" id="bottomNav">
+        <a href="dashboard.html" class="nav-item active"><i class="ti ti-layout-dashboard"></i><span>Overview</span></a>
+        <a href="control.html" class="nav-item"><i class="ti ti-adjustments-horizontal"></i><span>Control</span></a>
+        <a href="energy.html" class="nav-item"><i class="ti ti-bolt"></i><span>Energy</span></a>
+        <a href="auditlog.html" class="nav-item"><i class="ti ti-clipboard-list"></i><span>Audit</span></a>
+        <a href="settings.html" class="nav-item"><i class="ti ti-settings"></i><span>Settings</span></a>
+    </nav>
+
+    <!-- ── MAIN ── -->
+    <main class="main-content">
+        <div class="topbar">
+            <div class="topbar-titles">
+                <h1>Overview</h1>
+                <p>Live status across all 10 greenhouse units · <span class="mono" id="headerTime">--:--</span></p>
+            </div>
+            <div class="topbar-actions">
+                <label class="topbar-search">
+                    <i class="ti ti-search"></i>
+                    <input type="text" id="unitSearch" placeholder="Search units…" />
+                </label>
+                <button class="topbar-icon-btn"><i class="ti ti-bell"></i></button>
+                <a href="settings.html" class="topbar-icon-btn"><i class="ti ti-settings"></i></a>
+                <div class="topbar-avatar" title="Operator">TJ</div>
+            </div>
+        </div>
+
+        <div class="stats-grid" id="statsGrid">
+            <div class="stat-card">
+                <span class="stat-icon ti ti-cube"></span>
+                <span class="stat-value" id="totalUnits">10</span>
+                <span class="stat-label">Total Units</span>
+                <span class="stat-change" id="totalUnitsChange">10 active</span>
+            </div>
+            <div class="stat-card">
+                <span class="stat-icon ti ti-leaf"></span>
+                <span class="stat-value" id="activeGreenhouses">10</span>
+                <span class="stat-label">Active Greenhouses</span>
+                <span class="stat-change" id="uptimeChange">100% uptime</span>
+            </div>
+            <div class="stat-card">
+                <span class="stat-icon ti ti-temperature"></span>
+                <span class="stat-value" id="avgTemp">22.4°C</span>
+                <span class="stat-label">Average Temperature</span>
+                <span class="stat-change" id="tempChange">+0.8°C</span>
+            </div>
+            <div class="stat-card">
+                <span class="stat-icon ti ti-bell-ringing"></span>
+                <span class="stat-value" id="totalAlerts">0</span>
+                <span class="stat-label">Total Alerts</span>
+                <span class="stat-change" id="alertChange">All clear</span>
+            </div>
+        </div>
+
+        <div class="section-title"><i class="ti ti-building-greenhouse"></i>Greenhouse Units</div>
+        <div class="units-grid" id="unitsGrid"></div>
+
+        <div class="summary-strip">
+            <div class="summary-item">
+                <span class="summary-label">Average Temperature</span>
+                <span class="summary-value" id="avgTempSummary">22.4°C</span>
+            </div>
+            <div class="summary-item">
+                <span class="summary-label">Average Humidity</span>
+                <span class="summary-value" id="avgHumiditySummary">58%</span>
+            </div>
+            <div class="summary-item">
+                <span class="summary-label">Average CO₂</span>
+                <span class="summary-value" id="avgCo2Summary">415 ppm</span>
+            </div>
+            <div class="summary-item">
+                <span class="summary-label">Energy Today</span>
+                <span class="summary-value" id="energySummary">44.3 kWh</span>
+            </div>
+        </div>
+    </main>
+
+    <div class="toast-container" id="toastContainer"></div>
+
+    <script>
+    (function() {
+        'use strict';
+
+        if (localStorage.getItem('arc_auth') !== 'true') {
+            setTimeout(() => showToast('Please log in to access the system', 'warning'), 500);
+        }
+
+        // ── SOUND SYSTEM ──
+        let audioCtx = null;
+        let isSoundEnabled = true;
+        let beepInterval = null;
+        let isBeeping = false;
+
+        try {
+            const savedSound = localStorage.getItem('arc_sound_enabled');
+            if (savedSound !== null) isSoundEnabled = savedSound === 'true';
+        } catch (e) {}
+
+        document.addEventListener('click', function unlockAudio() {
+            try {
+                if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+                if (audioCtx.state === 'suspended') audioCtx.resume();
+            } catch (e) {}
+        }, { once: true });
+
+        function playBeep() {
+            if (!isSoundEnabled) return;
+            try {
+                if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+                if (audioCtx.state === 'suspended') audioCtx.resume();
+                const oscillator = audioCtx.createOscillator();
+                const gainNode = audioCtx.createGain();
+                oscillator.connect(gainNode);
+                gainNode.connect(audioCtx.destination);
+                oscillator.type = 'sine';
+                oscillator.frequency.setValueAtTime(880, audioCtx.currentTime);
+                oscillator.frequency.exponentialRampToValueAtTime(660, audioCtx.currentTime + 0.15);
+                const now = audioCtx.currentTime;
+                gainNode.gain.setValueAtTime(0.10, now);
+                gainNode.gain.exponentialRampToValueAtTime(0.001, now + 0.2);
+                oscillator.start(now);
+                oscillator.stop(now + 0.2);
+            } catch (error) { console.warn('Beep failed:', error); }
+        }
+
+        function startBeeping() {
+            if (isBeeping || !isSoundEnabled) return;
+            playBeep();
+            isBeeping = true;
+            beepInterval = setInterval(() => {
+                if (!isBeeping || !isSoundEnabled) { stopBeeping(); return; }
+                playBeep();
+            }, 3000);
+        }
+
+        function stopBeeping() {
+            isBeeping = false;
+            if (beepInterval) { clearInterval(beepInterval); beepInterval = null; }
+        }
+
+        function toggleSound() {
+            isSoundEnabled = !isSoundEnabled;
+            localStorage.setItem('arc_sound_enabled', String(isSoundEnabled));
+            updateSoundUI();
+            if (isSoundEnabled) {
+                const alertCount = parseInt(document.getElementById('totalAlerts').textContent) || 0;
+                if (alertCount > 0) startBeeping();
+            } else {
+                stopBeeping();
+            }
+        }
+
+        function updateSoundUI() {
+            const status = document.getElementById('soundStatus');
+            const dot = document.getElementById('soundDot');
+            const btn = document.getElementById('soundToggle');
+            if (isSoundEnabled) {
+                status.textContent = 'Sound On';
+                dot.className = 'nav-icon ti ti-bell-ringing';
+                btn.classList.remove('muted');
+            } else {
+                status.textContent = 'Sound Off';
+                dot.className = 'nav-icon ti ti-bell-off';
+                btn.classList.add('muted');
+            }
+        }
+
+        document.getElementById('soundToggle').addEventListener('click', toggleSound);
+        updateSoundUI();
+
+        // ── UNIT SEARCH (topbar) ──
+        const unitSearchInput = document.getElementById('unitSearch');
+        if (unitSearchInput) {
+            unitSearchInput.addEventListener('input', function() {
+                const q = this.value.trim().toLowerCase();
+                document.querySelectorAll('#unitsGrid .unit-card').forEach(card => {
+                    const name = card.querySelector('.unit-name');
+                    const match = !q || (name && name.textContent.toLowerCase().includes(q));
+                    card.style.display = match ? '' : 'none';
+                });
+            });
+        }
+
+        window.addEventListener('beforeunload', stopBeeping);
+
+        document.addEventListener('visibilitychange', function() {
+            if (document.hidden) {
+                if (isBeeping) { stopBeeping(); window._beepPaused = true; }
+            } else if (window._beepPaused) {
+                window._beepPaused = false;
+                const alertCount = parseInt(document.getElementById('totalAlerts').textContent) || 0;
+                if (alertCount > 0 && isSoundEnabled) startBeeping();
+            }
+        });
+
+        // ── UNIT STATE ──
+        function loadUnitStates() {
+            const defaultState = {};
+            for (let i = 1; i <= 10; i++) defaultState['UNIT' + i] = { enabled: true, status: 'Active' };
+
+            try {
+                const stored = localStorage.getItem('arc_unit_state');
+                if (stored) {
+                    const parsed = JSON.parse(stored);
+                    for (const key of Object.keys(defaultState)) {
+                        if (parsed[key]) {
+                            const unit = parsed[key];
+                            defaultState[key] = {
+                                enabled: unit.UNIT_ENABLE !== undefined ? unit.UNIT_ENABLE : true,
+                                status: unit.UNIT_STATUS || (unit.UNIT_ENABLE ? 'Active' : 'Inactive')
+                            };
+                        }
+                    }
+                }
+            } catch (e) { console.warn('Failed to load unit states:', e); }
+            return defaultState;
+        }
+
+        function buildGreenhouseData() {
+            const unitStates = loadUnitStates();
+            const baseData = [
+                { id: 1, name: 'Greenhouse 1', unitKey: 'UNIT1', temp: 23.2, humidity: 58, co2: 415, alerts: 0 },
+                { id: 2, name: 'Greenhouse 2', unitKey: 'UNIT2', temp: 21.8, humidity: 63, co2: 408, alerts: 0 },
+                { id: 3, name: 'Greenhouse 3', unitKey: 'UNIT3', temp: 24.1, humidity: 55, co2: 420, alerts: 1 },
+                { id: 4, name: 'Greenhouse 4', unitKey: 'UNIT4', temp: 22.0, humidity: 60, co2: 410, alerts: 0 },
+                { id: 5, name: 'Greenhouse 5', unitKey: 'UNIT5', temp: 19.5, humidity: 45, co2: 390, alerts: 0 },
+                { id: 6, name: 'Greenhouse 6', unitKey: 'UNIT6', temp: 22.9, humidity: 62, co2: 418, alerts: 0 },
+                { id: 7, name: 'Greenhouse 7', unitKey: 'UNIT7', temp: 23.7, humidity: 57, co2: 425, alerts: 2 },
+                { id: 8, name: 'Greenhouse 8', unitKey: 'UNIT8', temp: 21.2, humidity: 65, co2: 405, alerts: 0 },
+                { id: 9, name: 'Greenhouse 9', unitKey: 'UNIT9', temp: 24.5, humidity: 52, co2: 430, alerts: 0 },
+                { id: 10, name: 'Greenhouse 10', unitKey: 'UNIT10', temp: 22.6, humidity: 59, co2: 412, alerts: 0 }
+            ];
+
+            return baseData.map(unit => {
+                const state = unitStates[unit.unitKey];
+                return state ? { ...unit, status: state.enabled ? 'active' : 'inactive' } : unit;
+            });
+        }
+
+        function createReading(value, label, isAlert) {
+            const div = document.createElement('div');
+            div.className = 'unit-reading';
+            const val = document.createElement('span');
+            val.className = `reading-value${isAlert ? ' alert' : ''}`;
+            val.textContent = value;
+            const lbl = document.createElement('span');
+            lbl.className = 'reading-label';
+            lbl.textContent = label;
+            div.appendChild(val);
+            div.appendChild(lbl);
+            return div;
+        }
+
+        function renderUnits() {
+            const greenhouseData = buildGreenhouseData();
+            const grid = document.getElementById('unitsGrid');
+            grid.innerHTML = '';
+
+            greenhouseData.forEach(unit => {
+                const card = document.createElement('div');
+                card.className = 'unit-card';
+
+                if (unit.alerts > 0) {
+                    const badge = document.createElement('span');
+                    badge.className = 'unit-alert-badge';
+                    badge.textContent = unit.alerts;
+                    card.appendChild(badge);
+                }
+
+                const header = document.createElement('div');
+                header.className = 'unit-header';
+                const name = document.createElement('span');
+                name.className = 'unit-name';
+                name.textContent = unit.name;
+                const status = document.createElement('span');
+                status.className = 'unit-status';
+                const dot = document.createElement('span');
+                dot.className = `status-dot ${unit.status}`;
+                status.appendChild(dot);
+                status.appendChild(document.createTextNode(unit.status === 'active' ? 'Active' : 'Inactive'));
+                header.appendChild(name);
+                header.appendChild(status);
+                card.appendChild(header);
+
+                const readings = document.createElement('div');
+                readings.className = 'unit-readings';
+                readings.appendChild(createReading(unit.temp.toFixed(1) + '°C', 'Temp', unit.temp > 26 || unit.temp < 18));
+                readings.appendChild(createReading(unit.humidity + '%', 'Humidity', unit.humidity > 80 || unit.humidity < 30));
+                readings.appendChild(createReading(unit.co2 + 'ppm', 'CO₂', unit.co2 > 800 || unit.co2 < 300));
+                card.appendChild(readings);
+
+                const sparkline = document.createElement('div');
+                sparkline.className = 'sparkline';
+                const values = [12, 18, 14, 22, 16, 20, 15, 19, 17, 21, 13, 18];
+                values.forEach(v => {
+                    const bar = document.createElement('div');
+                    bar.className = 'bar';
+                    bar.style.height = (v / 22 * 100) + '%';
+                    if (unit.status === 'inactive') bar.style.opacity = '0.2';
+                    sparkline.appendChild(bar);
+                });
+                card.appendChild(sparkline);
+
+                const btn = document.createElement('button');
+                btn.className = 'unit-control-btn';
+                btn.innerHTML = '<i class="ti ti-adjustments-horizontal"></i> Control';
+                btn.addEventListener('click', function(e) {
+                    e.stopPropagation();
+                    localStorage.setItem('selectedUnit', unit.unitKey);
+                    showToast(`Navigating to ${unit.name} controls...`, 'info');
+                    window.location.href = 'control.html';
+                });
+                card.appendChild(btn);
+
+                grid.appendChild(card);
+            });
+
+            updateStats(greenhouseData);
+        }
+
+        function updateStats(greenhouseData) {
+            const total = greenhouseData.length;
+            const active = greenhouseData.filter(u => u.status === 'active').length;
+            const inactive = total - active;
+            const temps = greenhouseData.filter(u => u.status === 'active').map(u => u.temp);
+            const avgTemp = temps.length ? (temps.reduce((a, b) => a + b, 0) / temps.length) : 0;
+            const alerts = greenhouseData.reduce((sum, u) => sum + u.alerts, 0);
+
+            document.getElementById('totalUnits').textContent = total;
+            document.getElementById('activeGreenhouses').textContent = active;
+            document.getElementById('avgTemp').textContent = avgTemp.toFixed(1) + '°C';
+            document.getElementById('totalAlerts').textContent = alerts;
+
+            if (alerts > 0 && isSoundEnabled) startBeeping(); else stopBeeping();
+
+            const totalChange = document.getElementById('totalUnitsChange');
+            totalChange.textContent = `${active} active, ${inactive} inactive`;
+            totalChange.className = `stat-change ${active === total ? '' : 'danger'}`;
+
+            const uptimeChange = document.getElementById('uptimeChange');
+            const uptime = total > 0 ? Math.round((active / total) * 100) : 0;
+            uptimeChange.textContent = `${uptime}% uptime`;
+            uptimeChange.className = `stat-change ${uptime < 80 ? 'danger' : ''}`;
+
+            const tempChange = document.getElementById('tempChange');
+            const tempDiff = (avgTemp - 22).toFixed(1);
+            tempChange.textContent = `${tempDiff >= 0 ? '+' : ''}${tempDiff}°C`;
+            tempChange.className = `stat-change ${Math.abs(avgTemp - 22) > 3 ? 'danger' : ''}`;
+
+            const alertChange = document.getElementById('alertChange');
+            alertChange.textContent = alerts === 0 ? 'All clear' : `${alerts} alerts`;
+            alertChange.className = `stat-change ${alerts > 0 ? 'danger' : ''}`;
+
+            const humidities = greenhouseData.filter(u => u.status === 'active').map(u => u.humidity);
+            const avgHumidity = humidities.length ? (humidities.reduce((a, b) => a + b, 0) / humidities.length) : 0;
+            const co2s = greenhouseData.filter(u => u.status === 'active').map(u => u.co2);
+            const avgCo2 = co2s.length ? (co2s.reduce((a, b) => a + b, 0) / co2s.length) : 0;
+            const energy = 40 + Math.random() * 15;
+
+            document.getElementById('avgTempSummary').textContent = avgTemp.toFixed(1) + '°C';
+            document.getElementById('avgHumiditySummary').textContent = Math.round(avgHumidity) + '%';
+            document.getElementById('avgCo2Summary').textContent = Math.round(avgCo2) + ' ppm';
+            document.getElementById('energySummary').textContent = energy.toFixed(1) + ' kWh';
+        }
+
+        function updateClock() {
+            const now = new Date();
+            document.getElementById('headerTime').textContent =
+                now.toLocaleTimeString('en-ZA', { hour: '2-digit', minute: '2-digit', second: '2-digit', hour12: false });
+        }
+
+        function showToast(message, type = 'info') {
+            const container = document.getElementById('toastContainer');
+            const toast = document.createElement('div');
+            toast.className = `toast ${type}`;
+            const icon = type === 'error' ? '⚠️' : type === 'warning' ? '⚡' : '✓';
+            toast.textContent = `${icon} ${message}`;
+            container.appendChild(toast);
+            setTimeout(() => {
+                toast.style.opacity = '0';
+                toast.style.transform = 'translateX(100%)';
+                toast.style.transition = 'all 0.3s ease';
+                setTimeout(() => toast.remove(), 300);
+            }, 3000);
+        }
+        window.showToast = showToast;
+
+        window.addEventListener('storage', function(e) {
+            if (e.key === 'arc_unit_state') renderUnits();
+        });
+
+        let lastState = JSON.stringify(loadUnitStates());
+        setInterval(() => {
+            const currentState = JSON.stringify(loadUnitStates());
+            if (currentState !== lastState) { lastState = currentState; renderUnits(); }
+        }, 3000);
+
+        renderUnits();
+        updateClock();
+        setInterval(updateClock, 1000);
+
+        window.refreshDashboard = renderUnits;
+        console.log('🌱 ARC-GLASS Dashboard (light theme) loaded');
+    })();
+    </script>
+</body>
+</html>

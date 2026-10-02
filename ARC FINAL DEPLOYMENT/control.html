@@ -1,0 +1,1383 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>ARC Glasshouse · Control</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,400;14..32,500;14..32,600;14..32,700&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet" />
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@latest/tabler-icons.min.css" />
+    <script src="chart.umd.min.js"></script>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        :root {
+            --bg: #f0f0f0;
+            --surface: #ffffff;
+            --field-bg: #f8f8f8;
+            --field-bg-2: #f5f5f5;
+            --border: rgba(0,0,0,0.06);
+            --accent: #22c55e;
+            --accent-soft: #bbf7d0;
+            --accent-dim: #16a34a;
+            --ink: #1a1a1a;
+            --text-secondary: #666666;
+            --text-muted: #999999;
+            --warning: #f59e0b;
+            --warning-soft: #fef3c7;
+            --danger: #ef4444;
+            --danger-soft: #fee2e2;
+            --shadow: 0 2px 12px rgba(0,0,0,0.05);
+            --shadow-lift: 0 4px 24px rgba(0,0,0,0.08);
+            --radius-lg: 20px;
+            --radius-md: 14px;
+            --radius-sm: 10px;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            min-height: 100vh;
+            background: var(--bg);
+            color: var(--ink);
+            padding: 1.5rem;
+        }
+
+        .container { position: relative; z-index: 1; max-width: 1600px; margin: 0 auto; }
+
+        .navbar {
+            background: var(--surface);
+            border-radius: 2rem;
+            padding: 1rem 2rem;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            flex-wrap: wrap;
+            gap: 1rem;
+            margin-bottom: 1.5rem;
+            box-shadow: var(--shadow);
+        }
+
+        .navbar-left { display: flex; align-items: center; gap: 1rem; }
+
+        .back-btn {
+            background: var(--field-bg);
+            border: none;
+            border-radius: 2rem;
+            padding: 0.55rem 1.2rem;
+            color: var(--text-secondary);
+            font-family: 'Inter', sans-serif;
+            font-size: 0.85rem;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .back-btn:hover { background: var(--accent-soft); color: var(--accent-dim); }
+
+        .navbar-title { font-size: 1.3rem; font-weight: 600; color: var(--ink); letter-spacing: -0.01em; }
+        .navbar-title span { color: var(--accent-dim); }
+        .navbar-right { display: flex; align-items: center; gap: 1rem; flex-wrap: wrap; }
+        .last-updated { font-family: 'JetBrains Mono', monospace; font-size: 0.78rem; color: var(--text-muted); background: var(--field-bg); padding: 8px 14px; border-radius: 2rem; }
+        .last-updated strong { color: var(--ink); }
+        .api-status { font-family: 'JetBrains Mono', monospace; font-size: 0.7rem; padding: 0.35rem 0.9rem; border-radius: 1rem; background: var(--field-bg); color: var(--text-muted); }
+
+        .control-grid { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 1.5rem; margin-bottom: 1.5rem; }
+
+        .glass-card {
+            background: var(--surface);
+            border-radius: var(--radius-lg);
+            padding: 1.6rem;
+            box-shadow: var(--shadow);
+            transition: transform 0.2s ease;
+        }
+
+        .card-title { font-size: 1.05rem; font-weight: 600; color: var(--ink); margin-bottom: 1.2rem; border-bottom: 1px solid var(--border); padding-bottom: 0.7rem; }
+
+        /* ── ALERT BANNER ── */
+        .alert-banner {
+            border-radius: var(--radius-sm);
+            padding: 0.7rem 1rem;
+            margin-bottom: 1rem;
+            font-size: 0.85rem;
+            font-weight: 500;
+            display: none;
+            align-items: center;
+            gap: 0.6rem;
+        }
+        .alert-banner.show { display: flex; }
+        .alert-banner.danger  { background: var(--danger-soft);  color: #b91c1c; }
+        .alert-banner.warning { background: var(--warning-soft); color: #b45309; }
+        .alert-banner.success { background: var(--accent-soft);  color: var(--accent-dim); }
+
+        .unit-header-info { display: flex; align-items: center; gap: 1rem; flex-wrap: wrap; margin-bottom: 1.2rem; }
+
+        .unit-status-badge { font-family: 'JetBrains Mono', monospace; font-size: 0.68rem; text-transform: uppercase; padding: 0.3rem 1rem; border-radius: 1.5rem; font-weight: 600; }
+        .unit-status-badge.active   { background: var(--accent-soft); color: var(--accent-dim); }
+        .unit-status-badge.inactive { background: var(--field-bg-2); color: var(--text-muted); }
+        .unit-status-badge.unconfirmed { background: repeating-linear-gradient(135deg, #fde68a, #fde68a 4px, #fbbf24 4px, #fbbf24 8px); color: #7c2d12; }
+
+        .unit-mode-label { font-family: 'JetBrains Mono', monospace; font-size: 0.78rem; color: var(--text-muted); }
+        .unit-mode-label strong { color: var(--ink); }
+
+        .readings-grid { display: grid; grid-template-columns: 1fr; gap: 1rem; }
+
+        .reading-card {
+            background: var(--field-bg);
+            border-radius: var(--radius-md);
+            padding: 1.2rem;
+            text-align: center;
+            border: 2px solid transparent;
+            transition: all 0.3s ease;
+        }
+
+        .reading-card.alert-high { border-color: rgba(239,68,68,0.4);  background: var(--danger-soft); }
+        .reading-card.alert-low  { border-color: rgba(245,158,11,0.4); background: var(--warning-soft); }
+
+        .reading-value { font-family: 'JetBrains Mono', monospace; font-size: 2.1rem; font-weight: 600; color: var(--ink); display: block; }
+        .reading-label { font-size: 0.73rem; text-transform: uppercase; letter-spacing: 0.06em; color: var(--text-muted); margin-top: 0.2rem; }
+
+        .alert-badge { display: inline-block; font-size: 0.68rem; font-family: 'JetBrains Mono', monospace; padding: 0.15rem 0.6rem; border-radius: 1rem; margin-top: 0.3rem; font-weight: 600; }
+        .alert-badge.high { background: rgba(239,68,68,0.15);  color: #b91c1c; }
+        .alert-badge.low  { background: rgba(245,158,11,0.18); color: #b45309; }
+
+        .reading-sparkline { margin-top: 0.6rem; height: 40px; }
+
+        .control-group { margin-bottom: 1.4rem; }
+        .control-group:last-child { margin-bottom: 0; }
+
+        .control-label { display: flex; justify-content: space-between; align-items: center; font-size: 0.83rem; color: var(--text-secondary); margin-bottom: 0.5rem; }
+        .control-label .value-display { font-family: 'JetBrains Mono', monospace; color: var(--accent-dim); font-weight: 600; }
+
+        .toggle-container { display: flex; align-items: center; gap: 1rem; padding: 0.8rem 1rem; background: var(--field-bg); border-radius: 1.5rem; }
+        .toggle-label { font-size: 0.95rem; font-weight: 600; color: var(--ink); }
+
+        .toggle-switch { position: relative; width: 52px; height: 30px; background: #d9d9d9; border-radius: 2rem; cursor: pointer; transition: all 0.2s ease; flex-shrink: 0; }
+        .toggle-switch.active { background: var(--accent); }
+        .toggle-switch .toggle-knob { position: absolute; top: 3px; left: 3px; width: 24px; height: 24px; background: #fff; border-radius: 50%; transition: all 0.2s ease; box-shadow: 0 1px 3px rgba(0,0,0,0.2); }
+        .toggle-switch.active .toggle-knob { left: 25px; }
+
+        /* ── UNCONFIRMED STATE ── added 2026-10-01: a point whose last read failed and is
+           showing stale/mock data. Visually distinct from both ON (green) and OFF (grey) —
+           diagonal amber stripes + pulse, so it reads as "don't trust this" at a glance
+           rather than quietly agreeing with whatever the mock value happened to be. */
+        .toggle-switch.unconfirmed {
+            background: repeating-linear-gradient(135deg, #fde68a, #fde68a 6px, #fbbf24 6px, #fbbf24 12px);
+            animation: unconfirmed-pulse 1.4s ease-in-out infinite;
+        }
+        .toggle-switch.unconfirmed .toggle-knob { background: #fff; box-shadow: 0 0 0 2px #f59e0b; }
+        @keyframes unconfirmed-pulse { 0%, 100% { opacity: 1; } 50% { opacity: 0.6; } }
+
+        .toggle-status { font-family: 'JetBrains Mono', monospace; font-size: 0.78rem; color: var(--text-muted); }
+        .toggle-status.on  { color: var(--accent-dim); }
+        .toggle-status.off { color: var(--text-muted); }
+        .toggle-status.unconfirmed { color: var(--warning); font-weight: 700; }
+
+        input[type="range"] { width: 100%; height: 6px; -webkit-appearance: none; appearance: none; background: var(--field-bg-2); border-radius: 1rem; outline: none; }
+        input[type="range"]::-webkit-slider-thumb { -webkit-appearance: none; appearance: none; width: 18px; height: 18px; border-radius: 50%; background: var(--ink); cursor: pointer; transition: all 0.2s ease; }
+        input[type="range"]::-webkit-slider-thumb:hover { transform: scale(1.15); }
+        input[type="range"]::-moz-range-thumb { width: 18px; height: 18px; border-radius: 50%; background: var(--ink); cursor: pointer; border: none; }
+
+        .apply-btn { width: 100%; padding: 0.9rem; background: var(--ink); border: none; border-radius: 2rem; font-family: 'Inter', sans-serif; font-size: 0.95rem; font-weight: 600; letter-spacing: 0.01em; color: #fff; cursor: pointer; transition: opacity 0.2s ease; margin-top: 0.5rem; }
+        .apply-btn:hover { opacity: 0.88; }
+        .apply-btn:active { transform: translateY(0); }
+        .apply-btn:disabled { opacity: 0.45; cursor: not-allowed; }
+
+        .demand-grid { display: grid; gap: 1rem; }
+        .demand-item { display: flex; justify-content: space-between; align-items: center; padding: 0.8rem 1rem; background: var(--field-bg); border-radius: 1.2rem; }
+        .demand-label { font-size: 0.83rem; color: var(--text-secondary); font-weight: 500; }
+        .demand-value { font-family: 'JetBrains Mono', monospace; font-size: 0.78rem; padding: 0.2rem 0.8rem; border-radius: 1rem; font-weight: 600; }
+        .demand-value.on  { color: var(--accent-dim); background: var(--accent-soft); }
+        .demand-value.off { color: var(--text-muted); background: var(--field-bg-2); }
+        .demand-value.unconfirmed { color: #b45309; background: var(--warning-soft); }
+
+        .schedule-item { display: flex; justify-content: space-between; align-items: center; padding: 0.6rem 1rem; background: var(--field-bg); border-radius: 1rem; }
+        .schedule-label { font-size: 0.78rem; color: var(--text-muted); font-family: 'JetBrains Mono', monospace; }
+        .schedule-status { font-size: 0.75rem; font-weight: 600; }
+        .schedule-status.active   { color: var(--accent-dim); }
+        .schedule-status.inactive { color: var(--text-muted); }
+        .schedule-status.unconfirmed { color: #b45309; }
+
+        .notes-textarea { width: 100%; height: 80px; background: var(--field-bg); border: 1px solid var(--border); border-radius: 1.2rem; padding: 0.8rem 1rem; color: var(--ink); font-family: 'Inter', sans-serif; font-size: 0.85rem; resize: vertical; outline: none; transition: all 0.2s ease; margin-top: 0.5rem; }
+        .notes-textarea:focus { border-color: var(--accent); box-shadow: 0 0 0 3px rgba(34,197,94,0.08); }
+        .notes-textarea::placeholder { color: var(--text-muted); }
+
+        .chart-section { background: var(--surface); border-radius: var(--radius-lg); padding: 1.6rem; box-shadow: var(--shadow); }
+        .chart-wrapper { position: relative; height: 300px; }
+
+        /* ── OVERRIDES PANEL ── */
+        .overrides-section { margin-bottom: 1.5rem; }
+        .overrides-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 1.5rem; }
+
+        .override-item {
+            background: var(--surface);
+            border-radius: var(--radius-lg);
+            padding: 1.6rem;
+            box-shadow: var(--shadow);
+            transition: all 0.2s ease;
+            border: 2px solid transparent;
+        }
+
+        .override-item.active-override { border-color: rgba(245,158,11,0.4); background: var(--warning-soft); }
+        .override-item.unconfirmed { border-color: rgba(245,158,11,0.6); border-style: dashed; }
+
+        .override-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 1rem; }
+        .override-title { font-size: 1rem; font-weight: 600; color: var(--ink); }
+
+        .override-status-badge { font-family: 'JetBrains Mono', monospace; font-size: 0.62rem; padding: 0.2rem 0.7rem; border-radius: 1rem; text-transform: uppercase; font-weight: 600; }
+        .override-status-badge.active   { background: var(--warning-soft); color: #b45309; }
+        .override-status-badge.inactive { background: var(--field-bg-2); color: var(--text-muted); }
+        .override-status-badge.unconfirmed { background: repeating-linear-gradient(135deg, #fde68a, #fde68a 4px, #fbbf24 4px, #fbbf24 8px); color: #7c2d12; }
+
+        .override-value-big { font-family: 'JetBrains Mono', monospace; font-size: 1.9rem; font-weight: 700; color: #b45309; display: block; text-align: center; margin: 0.8rem 0; }
+        .override-value-big.dim { color: var(--text-muted); }
+
+        .override-toggle-row { display: flex; align-items: center; gap: 1rem; margin-bottom: 1rem; padding: 0.7rem 1rem; background: var(--field-bg); border-radius: 1.2rem; }
+        .override-toggle-label { font-size: 0.83rem; color: var(--text-secondary); flex: 1; }
+
+        /* ── REPORT / CSV ── */
+        .report-section { margin-bottom: 1.5rem; }
+        .report-card { background: var(--surface); border-radius: var(--radius-lg); padding: 1.6rem; box-shadow: var(--shadow); display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 1.5rem; }
+        .report-info h3 { font-size: 1.05rem; font-weight: 600; color: var(--ink); margin-bottom: 0.3rem; }
+        .report-info p { font-size: 0.83rem; color: var(--text-muted); }
+        .report-actions { display: flex; gap: 1rem; flex-wrap: wrap; }
+
+        .csv-btn {
+            padding: 0.7rem 1.4rem;
+            background: var(--field-bg);
+            border: none;
+            border-radius: 1.5rem;
+            font-family: 'Inter', sans-serif;
+            font-size: 0.85rem;
+            font-weight: 600;
+            color: var(--text-secondary);
+            cursor: pointer;
+            transition: all 0.2s ease;
+            white-space: nowrap;
+        }
+
+        .csv-btn:hover { background: var(--ink); color: #fff; }
+
+        @media (max-width: 768px) { .overrides-grid { grid-template-columns: 1fr; } .report-card { flex-direction: column; } }
+
+        .toast { position: fixed; bottom: 2rem; right: 2rem; background: var(--surface); border-radius: 1.5rem; padding: 1rem 1.6rem; color: var(--ink); font-family: 'Inter', sans-serif; font-size: 0.9rem; font-weight: 500; box-shadow: var(--shadow-lift); border-left: 3px solid var(--accent); transform: translateY(120px); opacity: 0; transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1); z-index: 1000; }
+        .toast.show { transform: translateY(0); opacity: 1; }
+        .toast .toast-icon { margin-right: 0.5rem; }
+        .toast.error { border-left-color: var(--danger); }
+
+        @media (max-width: 1200px) { .control-grid { grid-template-columns: 1fr 1fr; } .control-grid .glass-card:last-child { grid-column: span 2; } }
+        @media (max-width: 768px) { body { padding: 1rem; } .navbar { padding: 0.8rem 1.2rem; border-radius: 1.5rem; flex-direction: column; align-items: stretch; gap: 0.8rem; } .navbar-left { justify-content: center; flex-wrap: wrap; } .navbar-right { justify-content: center; } .navbar-title { font-size: 1.1rem; } .control-grid { grid-template-columns: 1fr; } .control-grid .glass-card:last-child { grid-column: span 1; } .reading-value { font-size: 1.7rem; } .glass-card { padding: 1.2rem; } .card-title { font-size: 1rem; } .chart-wrapper { height: 200px; } .toast { bottom: 1rem; right: 1rem; left: 1rem; padding: 0.8rem 1.2rem; font-size: 0.85rem; } }
+        @media (max-width: 480px) { .reading-value { font-size: 1.4rem; } .toggle-switch { width: 46px; height: 26px; } .toggle-switch .toggle-knob { width: 20px; height: 20px; } .toggle-switch.active .toggle-knob { left: 22px; } .apply-btn { font-size: 0.88rem; } }
+
+        /* ── UV LIGHTING & IRRIGATION SCHEDULERS (scheduler.js) ── */
+        [hidden] { display: none !important; }
+        .control-grid > .glass-card { min-width: 0; }
+        .sch-section { background: var(--surface); border-radius: var(--radius-lg); padding: 1.6rem; box-shadow: var(--shadow); margin-bottom: 1.5rem; }
+        .sch-section-head { display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 0.8rem; margin-bottom: 1rem; }
+        .sch-section-title { font-size: 1.15rem; font-weight: 600; color: var(--ink); }
+        .sch-section-sub { display: block; font-family: 'JetBrains Mono', monospace; font-size: 0.68rem; font-weight: 400; color: var(--text-muted); margin-top: 0.2rem; letter-spacing: 0.03em; }
+        .sch-section-right { display: flex; align-items: center; gap: 0.8rem; flex-wrap: wrap; }
+        .sch-updated { font-family: 'JetBrains Mono', monospace; font-size: 0.72rem; color: var(--text-muted); }
+        .sch-grid { display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); gap: 0.9rem; }
+        .sch-card { background: var(--field-bg); border: 2px solid transparent; border-radius: var(--radius-md); padding: 0.9rem; display: flex; flex-direction: column; gap: 0.6rem; min-width: 0; }
+        .sch-card.sch-selected { border-color: var(--accent-soft); }
+        .sch-head { display: flex; justify-content: space-between; align-items: center; gap: 0.5rem; }
+        .sch-unit { font-weight: 600; font-size: 0.9rem; }
+        .sch-badge { font-family: 'JetBrains Mono', monospace; font-size: 0.62rem; text-transform: uppercase; font-weight: 700; padding: 0.22rem 0.6rem; border-radius: 1rem; white-space: nowrap; }
+        .sch-badge.s-running     { background: var(--accent-soft); color: var(--accent-dim); }
+        .sch-badge.s-scheduled   { background: #dbeafe; color: #1d4ed8; }
+        .sch-badge.s-off         { background: var(--field-bg-2); color: var(--text-secondary); border: 1px solid var(--border); }
+        .sch-badge.s-disabled    { background: #e5e5e5; color: #555; }
+        .sch-badge.s-error       { background: var(--danger-soft); color: #b91c1c; }
+        .sch-badge.s-unconfirmed { background: var(--warning-soft); color: #b45309; }
+        .sch-rows { display: grid; gap: 0.35rem; }
+        .sch-row { display: flex; justify-content: space-between; gap: 0.6rem; font-size: 0.78rem; }
+        .sch-k { color: var(--text-muted); }
+        .sch-v { font-family: 'JetBrains Mono', monospace; font-weight: 600; text-align: right; overflow-wrap: anywhere; }
+        .sch-v.v-open { color: var(--accent-dim); }
+        .sch-v.v-closed { color: var(--ink); }
+        .sch-v.v-error { color: #b91c1c; }
+        .sch-v.v-unknown { color: #b45309; }
+        .sch-alert { font-size: 0.72rem; line-height: 1.35; padding: 0.5rem 0.6rem; border-radius: var(--radius-sm); overflow-wrap: anywhere; }
+        .sch-alert.err  { background: var(--danger-soft); color: #b91c1c; }
+        .sch-alert.warn { background: var(--warning-soft); color: #b45309; font-weight: 600; }
+        .sch-alert.note { background: var(--field-bg-2); color: var(--text-secondary); }
+        .sch-raw { font-family: 'JetBrains Mono', monospace; font-size: 0.65rem; color: var(--text-muted); overflow-wrap: anywhere; }
+        .sch-ctl { display: grid; gap: 0.5rem; }
+        .sch-times { display: grid; grid-template-columns: auto 1fr; gap: 0.4rem 0.5rem; align-items: center; }
+        .sch-lbl { font-size: 0.72rem; color: var(--text-muted); }
+        .sch-times input[type="time"] { min-height: 44px; padding: 0 0.6rem; border: 1px solid var(--border); border-radius: var(--radius-sm); background: #fff; font-family: 'JetBrains Mono', monospace; font-size: 0.9rem; width: 100%; }
+        .sch-times .sch-btn { grid-column: 1 / -1; }
+        .sch-btn { min-height: 44px; padding: 0 1rem; background: var(--ink); color: #fff; border: none; border-radius: 2rem; font-family: 'Inter', sans-serif; font-size: 0.82rem; font-weight: 600; cursor: pointer; }
+        .sch-btn:disabled { opacity: 0.45; cursor: not-allowed; }
+        .sch-refresh { background: var(--field-bg); color: var(--text-secondary); min-height: 36px; }
+        .sch-msg { font-size: 0.72rem; line-height: 1.35; overflow-wrap: anywhere; }
+        .sch-msg.ok   { color: var(--accent-dim); font-weight: 600; }
+        .sch-msg.warn { color: #b45309; font-weight: 600; }
+        .sch-msg.err  { color: #b91c1c; font-weight: 600; }
+        .sch-msg.note { color: var(--text-muted); }
+        @media (max-width: 1400px) { .sch-grid { grid-template-columns: repeat(4, minmax(0, 1fr)); } }
+        @media (max-width: 1100px) { .sch-grid { grid-template-columns: repeat(3, minmax(0, 1fr)); } }
+        @media (max-width: 768px)  { .sch-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); } .sch-section { padding: 1.2rem; } }
+        @media (max-width: 480px)  { .sch-grid { grid-template-columns: 1fr; } }
+    </style>
+    <link rel="stylesheet" href="theme.css" />
+</head>
+<body>
+
+    <!-- ── SIDEBAR ── -->
+    <nav class="sidebar" id="sidebar">
+        <div class="sidebar-brand">
+            <div class="logo-mark"><div class="logo-inner"></div></div>
+            <span class="brand-text">ARC·GLASSHOUSE</span>
+        </div>
+        <div class="sidebar-nav">
+            <a href="dashboard.html" class="nav-item"><span class="nav-icon ti ti-layout-dashboard"></span><span class="nav-label">Overview</span></a>
+            <a href="control.html" class="nav-item active"><span class="nav-icon ti ti-adjustments-horizontal"></span><span class="nav-label">Control</span></a>
+            <a href="energy.html" class="nav-item"><span class="nav-icon ti ti-bolt"></span><span class="nav-label">Energy</span></a>
+            <a href="auditlog.html" class="nav-item"><span class="nav-icon ti ti-clipboard-list"></span><span class="nav-label">Audit Log</span></a>
+            <a href="settings.html" class="nav-item"><span class="nav-icon ti ti-settings"></span><span class="nav-label">Settings</span></a>
+        </div>
+    </nav>
+
+    <!-- ── BOTTOM NAV (mobile) ── -->
+    <nav class="bottom-nav" id="bottomNav">
+        <a href="dashboard.html" class="nav-item"><i class="ti ti-layout-dashboard"></i><span>Overview</span></a>
+        <a href="control.html" class="nav-item active"><i class="ti ti-adjustments-horizontal"></i><span>Control</span></a>
+        <a href="energy.html" class="nav-item"><i class="ti ti-bolt"></i><span>Energy</span></a>
+        <a href="auditlog.html" class="nav-item"><i class="ti ti-clipboard-list"></i><span>Audit</span></a>
+        <a href="settings.html" class="nav-item"><i class="ti ti-settings"></i><span>Settings</span></a>
+    </nav>
+
+    <div class="container">
+
+        <nav class="navbar">
+            <div class="navbar-left">
+                <a href="dashboard.html" class="back-btn">← Back</a>
+                <span class="navbar-title">Control · <span id="unitTitle">Greenhouse 1</span></span>
+                <span class="api-status" id="apiStatus">● Mock</span>
+            </div>
+            <div class="navbar-right">
+                <span class="last-updated">Last updated: <strong id="lastUpdated">--:--:--</strong></span>
+            </div>
+        </nav>
+
+        <div class="control-grid">
+
+            <!-- LEFT: Live Readings -->
+            <div class="glass-card">
+                <div class="card-title">Live Readings</div>
+
+                <div class="alert-banner" id="alertBanner">
+                    <span id="alertBannerIcon">⚠️</span>
+                    <span id="alertBannerText"></span>
+                </div>
+
+                <div class="unit-header-info">
+                    <span class="unit-status-badge active" id="unitStatusBadge">Active</span>
+                    <span class="unit-mode-label">Mode: <strong id="unitModeLabel">Heating</strong></span>
+                </div>
+
+                <div class="readings-grid">
+                    <div class="reading-card" id="tempReadingCard">
+                        <span class="reading-value" id="liveTemp">--°C</span>
+                        <span class="reading-label">Temperature</span>
+                        <div id="tempAlertBadge"></div>
+                        <div class="reading-sparkline"><canvas id="sparkTemp"></canvas></div>
+                    </div>
+                    <div class="reading-card" id="humidityReadingCard">
+                        <span class="reading-value" id="liveHumidity">--%</span>
+                        <span class="reading-label">Relative Humidity</span>
+                        <div id="humidityAlertBadge"></div>
+                        <div class="reading-sparkline"><canvas id="sparkHumidity"></canvas></div>
+                    </div>
+                    <div class="reading-card" id="co2ReadingCard">
+                        <span class="reading-value" id="liveCO2">-- ppm</span>
+                        <span class="reading-label">CO₂ Concentration</span>
+                        <div id="co2AlertBadge"></div>
+                        <div class="reading-sparkline"><canvas id="sparkCO2"></canvas></div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- MIDDLE: Setpoints & Controls -->
+            <div class="glass-card">
+                <div class="card-title">Setpoints & Controls</div>
+
+                <div class="control-group">
+                    <div class="toggle-container">
+                        <span class="toggle-label">Unit Enable</span>
+                        <div class="toggle-switch" id="unitEnableToggle" onclick="toggleUnitEnable()">
+                            <div class="toggle-knob"></div>
+                        </div>
+                        <span class="toggle-status off" id="unitEnableStatus">...</span>
+                    </div>
+                </div>
+
+                <div class="control-group">
+                    <div class="control-label">
+                        <span>Temperature Setpoint</span>
+                        <span class="value-display" id="tempSetpointDisplay">22.0°C</span>
+                    </div>
+                    <input type="range" id="tempSetpointSlider" min="10" max="35" step="0.5" value="22" />
+                </div>
+
+                <div class="control-group">
+                    <div class="control-label">
+                        <span>Humidity Setpoint</span>
+                        <span class="value-display" id="humiditySetpointDisplay">60%</span>
+                    </div>
+                    <input type="range" id="humiditySetpointSlider" min="20" max="90" step="1" value="60" />
+                </div>
+
+                <div class="control-group">
+                    <div class="control-label">
+                        <span>CO₂ Setpoint</span>
+                        <span class="value-display" id="co2SetpointDisplay">400 ppm</span>
+                    </div>
+                    <input type="range" id="co2SetpointSlider" min="300" max="1500" step="10" value="400" />
+                </div>
+
+                <button class="apply-btn" id="applySetpoints">Apply Setpoints</button>
+            </div>
+
+            <!-- RIGHT: Demand Controls & Schedules -->
+            <div class="glass-card">
+                <div class="card-title">Demand Controls & Schedules</div>
+
+                <div class="demand-grid">
+                    <div class="demand-item">
+                        <span class="demand-label">Humidity Demand <span style="opacity:.6;font-weight:400;">(read-only — calculated by JACE)</span></span>
+                        <div style="display:flex;align-items:center;gap:0.8rem;">
+                            <div class="toggle-switch" id="humidityDemandToggle" style="cursor:default;opacity:.7;" title="Confirmed on-site 2026-09-28: the JACE rejects writes to this point (HTTP 400) — it is a calculated output, not a settable control."><div class="toggle-knob"></div></div>
+                            <span class="demand-value off" id="humidityDemandStatus">OFF</span>
+                        </div>
+                    </div>
+                    <div class="demand-item">
+                        <span class="demand-label">CO₂ Demand <span style="opacity:.6;font-weight:400;">(read-only — calculated by JACE)</span></span>
+                        <div style="display:flex;align-items:center;gap:0.8rem;">
+                            <div class="toggle-switch" id="co2DemandToggle" style="cursor:default;opacity:.7;" title="Confirmed on-site 2026-09-28: the JACE rejects writes to this point (HTTP 400) — it is a calculated output, not a settable control."><div class="toggle-knob"></div></div>
+                            <span class="demand-value off" id="co2DemandStatus">OFF</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div style="margin:1rem 0;border-top:1px solid var(--border);"></div>
+
+                <div style="display:grid;gap:0.6rem;">
+                    <div class="schedule-item"><span class="schedule-label">FAN_SCH</span><span class="schedule-status active" id="fanSchedule">● Active</span></div>
+                    <div class="schedule-item"><span class="schedule-label">HUMID_Sched</span><span class="schedule-status inactive" id="humidSchedule">○ Inactive</span></div>
+                    <div class="schedule-item"><span class="schedule-label">CO2_Sched</span><span class="schedule-status inactive" id="co2Schedule">○ Inactive</span></div>
+                </div>
+
+                <div style="margin:1rem 0;border-top:1px solid var(--border);"></div>
+
+                <!-- UV LIGHTS -->
+                <div style="font-size:0.72rem;color:var(--text-muted);text-transform:uppercase;letter-spacing:0.06em;margin-bottom:0.6rem;font-weight:600;">💡 UV Lights</div>
+                <div class="demand-grid">
+                    <div class="demand-item">
+                        <span class="demand-label">Light Schedule</span>
+                        <span class="schedule-status inactive" id="light1Schedule">○ Inactive</span>
+                    </div>
+                    <div class="demand-item">
+                        <span class="demand-label">Manual ON/OFF</span>
+                        <div style="display:flex;align-items:center;gap:0.8rem;">
+                            <div class="toggle-switch" id="light1ManualToggle" onclick="toggleLight()">
+                                <div class="toggle-knob"></div>
+                            </div>
+                            <span class="demand-value off" id="light1ManualStatus">OFF</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div style="margin:1rem 0;border-top:1px solid var(--border);"></div>
+
+                <label style="font-size:0.72rem;color:var(--text-muted);text-transform:uppercase;letter-spacing:0.06em;font-weight:600;">Maintenance Notes</label>
+                <textarea class="notes-textarea" id="maintenanceNotes" placeholder="Enter maintenance notes..."></textarea>
+            </div>
+        </div>
+
+        <!-- OVERRIDES PANEL -->
+        <div class="overrides-section">
+            <div style="font-size:1.15rem;font-weight:600;color:var(--ink);margin-bottom:1rem;">
+                System Overrides
+                <span style="font-family:'JetBrains Mono',monospace;font-size:0.7rem;color:var(--text-muted);letter-spacing:0.06em;margin-left:1rem;vertical-align:middle;font-weight:400;">BYPASSES SCHEDULE</span>
+            </div>
+            <div class="overrides-grid">
+
+                <!-- CO2 Override -->
+                <div class="override-item" id="co2OverrideCard">
+                    <div class="override-header">
+                        <span class="override-title">CO₂ Override</span>
+                        <span class="override-status-badge inactive" id="co2OverrideStatusBadge">Inactive</span>
+                    </div>
+                    <div class="override-toggle-row">
+                        <span class="override-toggle-label">Enable CO₂ Override</span>
+                        <div class="toggle-switch" id="co2OverrideToggle" onclick="toggleOverride('co2')">
+                            <div class="toggle-knob"></div>
+                        </div>
+                        <span class="toggle-status off" id="co2OverrideToggleStatus">OFF</span>
+                    </div>
+                    <span class="override-value-big dim" id="co2OverrideValueDisplay">-- ppm</span>
+                    <div class="control-label">
+                        <span>Override Value</span>
+                        <span class="value-display" id="co2OverrideSliderDisplay">800 ppm</span>
+                    </div>
+                    <input type="range" id="co2OverrideSlider" min="300" max="1500" step="10" value="800" />
+                    <button class="apply-btn" id="applyCO2Override" style="font-size:0.85rem;padding:0.7rem;margin-top:0.8rem;" onclick="applyOverride('co2')">Apply CO₂ Override</button>
+                </div>
+
+                <!-- Humidity Override -->
+                <div class="override-item" id="humidOverrideCard">
+                    <div class="override-header">
+                        <span class="override-title">Humidity Override</span>
+                        <span class="override-status-badge inactive" id="humidOverrideStatusBadge">Inactive</span>
+                    </div>
+                    <div class="override-toggle-row">
+                        <span class="override-toggle-label">Enable Humidity Override</span>
+                        <div class="toggle-switch" id="humidOverrideToggle" onclick="toggleOverride('humid')">
+                            <div class="toggle-knob"></div>
+                        </div>
+                        <span class="toggle-status off" id="humidOverrideToggleStatus">OFF</span>
+                    </div>
+                    <span class="override-value-big dim" id="humidOverrideValueDisplay">-- %</span>
+                    <div class="control-label">
+                        <span>Override Value</span>
+                        <span class="value-display" id="humidOverrideSliderDisplay">60 %</span>
+                    </div>
+                    <input type="range" id="humidOverrideSlider" min="20" max="90" step="1" value="60" />
+                    <button class="apply-btn" id="applyHumidOverride" style="font-size:0.85rem;padding:0.7rem;margin-top:0.8rem;" onclick="applyOverride('humid')">Apply Humidity Override</button>
+                </div>
+
+            </div>
+        </div>
+
+        <!-- UV LIGHTING & IRRIGATION (populated by scheduler.js from live JACE reads) -->
+        <div class="sch-section" id="uvSchedulerSection"></div>
+        <div class="sch-section" id="irrigationSchedulerSection"></div>
+
+        <!-- REPORT / CSV DOWNLOAD -->
+        <div class="report-section">
+            <div class="report-card">
+                <div class="report-info">
+                    <h3>📊 Download Report</h3>
+                    <p>Export trend data for <span id="reportUnitLabel">this unit</span> as CSV — includes timestamp, temperature, humidity and CO₂ readings.</p>
+                </div>
+                <div class="report-actions">
+                    <button class="csv-btn" onclick="downloadCSV()">⬇ Download CSV</button>
+                    <button class="csv-btn" onclick="downloadFullCSV()">⬇ All Units CSV</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- CHART -->
+        <div class="chart-section">
+            <div class="card-title" style="margin-bottom:0.8rem;">24-Hour Trend</div>
+            <div class="chart-wrapper"><canvas id="trendChart"></canvas></div>
+        </div>
+    </div>
+
+    <div class="toast" id="toast">
+        <span class="toast-icon">✅</span>
+        <span id="toastMessage">Setpoints applied successfully!</span>
+    </div>
+
+    <script src="api.js"></script>
+    <script src="scheduler.js"></script>
+
+    <script>
+        (function() {
+            'use strict';
+
+            // ── THRESHOLDS ──
+            const THRESHOLDS = {
+                SPACE_TEMP:        { low: 15,  high: 30,   label: 'Temperature',       unit: '°C'  },
+                RELATIVE_HUMIDITY: { low: 40,  high: 80,   label: 'Humidity',          unit: '%'   },
+                CO2:               { low: 350, high: 1200, label: 'CO₂ Concentration', unit: 'ppm' }
+            };
+
+            // ── ALERT HELPERS ──
+            function getAlertLevel(point, value) {
+                const t = THRESHOLDS[point];
+                if (!t || value == null) return 'normal';
+                if (value >= t.high) return 'high';
+                if (value <= t.low)  return 'low';
+                return 'normal';
+            }
+
+            function applyCardAlert(card, badgeEl, level, label) {
+                card.classList.remove('alert-high', 'alert-low');
+                if (level === 'high') {
+                    card.classList.add('alert-high');
+                    badgeEl.innerHTML = `<span class="alert-badge high">🔴 HIGH</span>`;
+                } else if (level === 'low') {
+                    card.classList.add('alert-low');
+                    badgeEl.innerHTML = `<span class="alert-badge low">🟠 LOW</span>`;
+                } else {
+                    badgeEl.innerHTML = '';
+                }
+            }
+
+            // ── STATE ──
+            let selectedUnit = localStorage.getItem('selectedUnit') || 'UNIT1';
+            let unitData = {};
+            let sparkCharts = {};
+            let mainChart = null;
+            let isUpdating = false;
+            let setpointsInitialized = false;
+
+            // ── DOM REFS ──
+            const unitTitle             = document.getElementById('unitTitle');
+            const unitStatusBadge       = document.getElementById('unitStatusBadge');
+            const unitModeLabel         = document.getElementById('unitModeLabel');
+            const liveTemp              = document.getElementById('liveTemp');
+            const liveHumidity          = document.getElementById('liveHumidity');
+            const liveCO2               = document.getElementById('liveCO2');
+            const lastUpdated           = document.getElementById('lastUpdated');
+            const apiStatus             = document.getElementById('apiStatus');
+            const unitEnableToggle      = document.getElementById('unitEnableToggle');
+            const unitEnableStatus      = document.getElementById('unitEnableStatus');
+            const tempSetpointSlider    = document.getElementById('tempSetpointSlider');
+            const tempSetpointDisplay   = document.getElementById('tempSetpointDisplay');
+            const humiditySetpointSlider  = document.getElementById('humiditySetpointSlider');
+            const humiditySetpointDisplay = document.getElementById('humiditySetpointDisplay');
+            const co2SetpointSlider     = document.getElementById('co2SetpointSlider');
+            const co2SetpointDisplay    = document.getElementById('co2SetpointDisplay');
+            const applyBtn              = document.getElementById('applySetpoints');
+            const humidityDemandToggle  = document.getElementById('humidityDemandToggle');
+            const humidityDemandStatus  = document.getElementById('humidityDemandStatus');
+            const co2DemandToggle       = document.getElementById('co2DemandToggle');
+            const co2DemandStatus       = document.getElementById('co2DemandStatus');
+            const fanSchedule           = document.getElementById('fanSchedule');
+            const humidSchedule         = document.getElementById('humidSchedule');
+            const co2Schedule           = document.getElementById('co2Schedule');
+            const maintenanceNotes      = document.getElementById('maintenanceNotes');
+            const toast                 = document.getElementById('toast');
+            const toastMessage          = document.getElementById('toastMessage');
+            const alertBanner           = document.getElementById('alertBanner');
+            const alertBannerIcon       = document.getElementById('alertBannerIcon');
+            const alertBannerText       = document.getElementById('alertBannerText');
+            const tempReadingCard       = document.getElementById('tempReadingCard');
+            const humidityReadingCard   = document.getElementById('humidityReadingCard');
+            const co2ReadingCard        = document.getElementById('co2ReadingCard');
+            const tempAlertBadge        = document.getElementById('tempAlertBadge');
+            const humidityAlertBadge    = document.getElementById('humidityAlertBadge');
+            const co2AlertBadge         = document.getElementById('co2AlertBadge');
+
+            // ── API STATUS ──
+            if (typeof USE_LIVE_API !== 'undefined') {
+                apiStatus.textContent = USE_LIVE_API ? '● Live API' : '● Mock Data';
+                apiStatus.style.color = USE_LIVE_API ? '#16a34a' : '#999999';
+            }
+
+            // ── AUTH ──
+            function checkAuth() {
+                if (localStorage.getItem('arc_auth') !== 'true') {
+                    window.location.href = 'login.html';
+                    return false;
+                }
+                return true;
+            }
+
+            // ── TOAST ──
+            function showToast(message, icon = '✅', isError = false) {
+                toastMessage.textContent = message;
+                toast.querySelector('.toast-icon').textContent = icon;
+                toast.classList.remove('error');
+                if (isError) toast.classList.add('error');
+                toast.classList.add('show');
+                clearTimeout(toast._timeout);
+                toast._timeout = setTimeout(() => toast.classList.remove('show'), 3000);
+            }
+
+            // ── LOAD DATA ──
+            async function loadUnitData() {
+                try {
+                    unitData = await readMultiplePoints(selectedUnit, [
+                        'SPACE_TEMP', 'RELATIVE_HUMIDITY', 'CO2',
+                        'UNIT_STATUS', 'UNIT_MODE', 'UNIT_ENABLE',
+                        'TEMP_SETPOINT', 'HUMIDITY_SETPOINT', 'CO2_SETPOINT',
+                        'HUMIDITY_DEMAND', 'CO2_DEMAND',
+                        'FAN_SCH', 'HUMID_Sched', 'CO2_Sched',
+                        'CO2_MACOST', 'CO2_MACOV', 'HUMID_MAHOST', 'HUMID_MAHOV',
+                        'LIGHT1_sch', 'LIGHT1_Manual'
+                    ]);
+                    return true;
+                } catch (e) {
+                    console.warn('loadUnitData failed:', e);
+                    if (typeof MOCK_DATA !== 'undefined' && MOCK_DATA[selectedUnit]) {
+                        unitData = { ...MOCK_DATA[selectedUnit] };
+                        return true;
+                    }
+                    return false;
+                }
+            }
+
+            // ── UPDATE ALERTS ──
+            function updateAlerts() {
+                const tempLevel   = getAlertLevel('SPACE_TEMP',        unitData.SPACE_TEMP);
+                const humidLevel  = getAlertLevel('RELATIVE_HUMIDITY', unitData.RELATIVE_HUMIDITY);
+                const co2Level    = getAlertLevel('CO2',               unitData.CO2);
+
+                applyCardAlert(tempReadingCard,     tempAlertBadge,     tempLevel,  'Temperature');
+                applyCardAlert(humidityReadingCard, humidityAlertBadge, humidLevel, 'Humidity');
+                applyCardAlert(co2ReadingCard,      co2AlertBadge,      co2Level,   'CO₂');
+
+                const alerts = [];
+                if (tempLevel  === 'high') alerts.push(`🌡️ Temperature too HIGH (>${THRESHOLDS.SPACE_TEMP.high}°C)`);
+                if (tempLevel  === 'low')  alerts.push(`🌡️ Temperature too LOW (<${THRESHOLDS.SPACE_TEMP.low}°C)`);
+                if (humidLevel === 'high') alerts.push(`💧 Humidity too HIGH (>${THRESHOLDS.RELATIVE_HUMIDITY.high}%)`);
+                if (humidLevel === 'low')  alerts.push(`💧 Humidity too LOW (<${THRESHOLDS.RELATIVE_HUMIDITY.low}%)`);
+                if (co2Level   === 'high') alerts.push(`🌿 CO₂ too HIGH (>${THRESHOLDS.CO2.high}ppm)`);
+                if (co2Level   === 'low')  alerts.push(`🌿 CO₂ too LOW (<${THRESHOLDS.CO2.low}ppm)`);
+
+                const hasHigh = tempLevel === 'high' || humidLevel === 'high' || co2Level === 'high';
+
+                if (alerts.length > 0) {
+                    alertBanner.className = `alert-banner show ${hasHigh ? 'danger' : 'warning'}`;
+                    alertBannerIcon.textContent = hasHigh ? '🔴' : '🟠';
+                    alertBannerText.textContent = alerts.join('  |  ');
+                } else {
+                    alertBanner.className = 'alert-banner show success';
+                    alertBannerIcon.textContent = '✅';
+                    alertBannerText.textContent = 'All readings nominal';
+                }
+            }
+
+            // ── LIVE-STATE TRUTHFULNESS ── added 2026-10-01
+            // unitData._live[point] (set by readMultiplePoints in api.js) tells us whether
+            // the LAST read of that point actually came from the JACE or was a silent mock
+            // substitution (read failure / timeout / no slot path). Toggles are commands —
+            // showing a confident ON/OFF built from stale mock data is how we got "toggles
+            // on but units everything is off." Any render function touching a commandable
+            // point checks this first and shows "Unconfirmed" instead of guessing.
+            function isLive(point) {
+                return !unitData._live || unitData._live[point] !== false;
+            }
+            function markLiveness(el, point) {
+                if (el) el.classList.toggle('unconfirmed', !isLive(point));
+            }
+
+            // ── UPDATE UI ──
+            function updateUI() {
+                const unitNumber = selectedUnit.replace('UNIT', '');
+                unitTitle.textContent = `Greenhouse ${unitNumber}`;
+
+                const isActive = unitData.UNIT_STATUS === 'Active';
+                if (isLive('UNIT_STATUS')) {
+                    unitStatusBadge.textContent = unitData.UNIT_STATUS || 'Unknown';
+                    unitStatusBadge.className = `unit-status-badge ${isActive ? 'active' : 'inactive'}`;
+                } else {
+                    unitStatusBadge.textContent = 'Unconfirmed';
+                    unitStatusBadge.className = 'unit-status-badge unconfirmed';
+                }
+                unitModeLabel.textContent = unitData.UNIT_MODE || 'Standby';
+
+                liveTemp.textContent     = unitData.SPACE_TEMP        != null ? `${parseFloat(unitData.SPACE_TEMP).toFixed(1)}°C`        : '--°C';
+                liveHumidity.textContent = unitData.RELATIVE_HUMIDITY != null ? `${parseFloat(unitData.RELATIVE_HUMIDITY).toFixed(1)}%`  : '--%';
+                liveCO2.textContent      = unitData.CO2               != null ? `${Math.round(unitData.CO2)} ppm`                        : '-- ppm';
+
+                markLiveness(unitEnableToggle, 'UNIT_ENABLE');
+                if (!isLive('UNIT_ENABLE')) {
+                    unitEnableStatus.textContent = '?';
+                    unitEnableStatus.className = 'toggle-status unconfirmed';
+                } else if (unitData.UNIT_ENABLE) {
+                    unitEnableToggle.classList.add('active');
+                    unitEnableStatus.textContent = 'ON';
+                    unitEnableStatus.className = 'toggle-status on';
+                } else {
+                    unitEnableToggle.classList.remove('active');
+                    unitEnableStatus.textContent = 'OFF';
+                    unitEnableStatus.className = 'toggle-status off';
+                }
+
+                if (!setpointsInitialized && unitData.TEMP_SETPOINT != null) {
+                    tempSetpointSlider.value            = unitData.TEMP_SETPOINT;
+                    tempSetpointDisplay.textContent     = `${parseFloat(unitData.TEMP_SETPOINT).toFixed(1)}°C`;
+                    humiditySetpointSlider.value        = unitData.HUMIDITY_SETPOINT;
+                    humiditySetpointDisplay.textContent = `${unitData.HUMIDITY_SETPOINT}%`;
+                    co2SetpointSlider.value             = unitData.CO2_SETPOINT;
+                    co2SetpointDisplay.textContent      = `${unitData.CO2_SETPOINT} ppm`;
+                    setpointsInitialized = true;
+                } else if (setpointsInitialized && unitData.TEMP_SETPOINT != null) {
+                    if (document.activeElement !== tempSetpointSlider) {
+                        tempSetpointDisplay.textContent = `${parseFloat(unitData.TEMP_SETPOINT).toFixed(1)}°C`;
+                    }
+                    if (document.activeElement !== humiditySetpointSlider) {
+                        humiditySetpointDisplay.textContent = `${unitData.HUMIDITY_SETPOINT}%`;
+                    }
+                    if (document.activeElement !== co2SetpointSlider) {
+                        co2SetpointDisplay.textContent = `${unitData.CO2_SETPOINT} ppm`;
+                    }
+                }
+
+                updateDemandToggle('humidity', unitData.HUMIDITY_DEMAND || false);
+                updateDemandToggle('co2',      unitData.CO2_DEMAND      || false);
+
+                renderScheduleStatus(fanSchedule,   'FAN_SCH',    unitData.FAN_SCH);
+                renderScheduleStatus(humidSchedule, 'HUMID_Sched', unitData.HUMID_Sched);
+                renderScheduleStatus(co2Schedule,   'CO2_Sched',  unitData.CO2_Sched);
+
+                const light1Sch    = document.getElementById('light1Schedule');
+                const light1Toggle = document.getElementById('light1ManualToggle');
+                const light1Status = document.getElementById('light1ManualStatus');
+
+                renderScheduleStatus(light1Sch, 'LIGHT1_sch', unitData.LIGHT1_sch);
+
+                markLiveness(light1Toggle, 'LIGHT1_Manual');
+                if (!isLive('LIGHT1_Manual')) {
+                    light1Status.textContent = '?'; light1Status.className = 'demand-value unconfirmed';
+                } else if (unitData.LIGHT1_Manual) {
+                    light1Toggle.classList.add('active');
+                    light1Status.textContent = 'ON'; light1Status.className = 'demand-value on';
+                } else {
+                    light1Toggle.classList.remove('active');
+                    light1Status.textContent = 'OFF'; light1Status.className = 'demand-value off';
+                }
+
+                updateOverrideUI();
+
+                maintenanceNotes.value = localStorage.getItem(`arc_notes_${selectedUnit}`) || '';
+
+                lastUpdated.textContent = new Date().toLocaleTimeString('en-ZA', { hour: '2-digit', minute: '2-digit', second: '2-digit', hour12: false });
+
+                updateAlerts();
+            }
+
+            function renderScheduleStatus(el, point, value) {
+                if (!isLive(point)) {
+                    el.textContent = '? Unconfirmed';
+                    el.className = 'schedule-status unconfirmed';
+                } else {
+                    el.textContent = value ? '● Active' : '○ Inactive';
+                    el.className = `schedule-status ${value ? 'active' : 'inactive'}`;
+                }
+            }
+
+            function updateDemandToggle(type, value) {
+                const toggle = type === 'humidity' ? humidityDemandToggle : co2DemandToggle;
+                const status = type === 'humidity' ? humidityDemandStatus : co2DemandStatus;
+                const point  = type === 'humidity' ? 'HUMIDITY_DEMAND' : 'CO2_DEMAND';
+                markLiveness(toggle, point);
+                if (!isLive(point)) {
+                    status.textContent = '?';
+                    status.className = 'demand-value unconfirmed';
+                } else if (value) {
+                    toggle.classList.add('active');
+                    status.textContent = 'ON';
+                    status.className = 'demand-value on';
+                } else {
+                    toggle.classList.remove('active');
+                    status.textContent = 'OFF';
+                    status.className = 'demand-value off';
+                }
+            }
+
+            window.toggleUnitEnable = async function() {
+                const newValue = !unitData.UNIT_ENABLE;
+                unitData.UNIT_ENABLE = newValue;
+                unitData.UNIT_STATUS = newValue ? 'Active' : 'Inactive';
+                const success = await writePoint(selectedUnit, 'UNIT_ENABLE', newValue);
+                if (success) {
+                    updateUI();
+                    // Confirmed on-site 2026-09-29: UNIT_ENABLE write verifies correctly, then
+                    // something on the JACE resets it back to false within a couple minutes
+                    // (same pattern seen on CO2_MACOV). Hold re-asserts it every 5s so the
+                    // unit doesn't silently drop back off — see holdPointValue() in api.js.
+                    if (typeof holdPointValue === 'function') {
+                        if (newValue) holdPointValue(selectedUnit, 'UNIT_ENABLE', true, 5000);
+                        else if (typeof stopHoldingPoint === 'function') stopHoldingPoint(selectedUnit, 'UNIT_ENABLE');
+                    }
+                    showToast(`Unit ${newValue ? 'enabled' : 'disabled'}`, newValue ? '✅' : '⛔');
+                } else {
+                    unitData.UNIT_ENABLE = !newValue;
+                    unitData.UNIT_STATUS = !newValue ? 'Active' : 'Inactive';
+                    updateUI();
+                    showToast('Write failed — check connection', '⚠️', true);
+                }
+            };
+
+            // Confirmed on-site 2026-09-28: HUMIDITY_DEMAND / CO2_DEMAND are calculated
+            // outputs on this JACE, not commandable points. A real write attempt (correct
+            // path, correct value) was rejected with HTTP 400 "Check path is correct" —
+            // Niagara's response for a non-command point — while reads of the same path
+            // succeed normally. So these are now display-only (see updateDemandToggle) and
+            // this handler is intentionally disabled rather than issuing a write we know fails.
+            window.toggleDemand = async function(type) {
+                console.warn(`[ARC] ${type === 'humidity' ? 'HUMIDITY_DEMAND' : 'CO2_DEMAND'} is read-only on this JACE (confirmed HTTP 400 on write). Ignoring toggle.`);
+                showToast(`${type === 'humidity' ? 'Humidity' : 'CO₂'} Demand is calculated by the JACE and can't be set manually`, 'ℹ️');
+            };
+
+            tempSetpointSlider.addEventListener('input', function() {
+                tempSetpointDisplay.textContent = `${parseFloat(this.value).toFixed(1)}°C`;
+            });
+            humiditySetpointSlider.addEventListener('input', function() {
+                humiditySetpointDisplay.textContent = `${parseInt(this.value)}%`;
+            });
+            co2SetpointSlider.addEventListener('input', function() {
+                co2SetpointDisplay.textContent = `${parseInt(this.value)} ppm`;
+            });
+
+            applyBtn.addEventListener('click', async function() {
+                const temp     = parseFloat(tempSetpointSlider.value);
+                const humidity = parseInt(humiditySetpointSlider.value);
+                const co2      = parseInt(co2SetpointSlider.value);
+
+                applyBtn.disabled = true;
+                applyBtn.textContent = '⏳ Applying...';
+
+                try {
+                    const results = await writeMultiplePoints(selectedUnit, {
+                        TEMP_SETPOINT:     temp,
+                        HUMIDITY_SETPOINT: humidity,
+                        CO2_SETPOINT:      co2
+                    });
+
+                    if (Object.values(results).every(v => v === true)) {
+                        unitData.TEMP_SETPOINT     = temp;
+                        unitData.HUMIDITY_SETPOINT = humidity;
+                        unitData.CO2_SETPOINT      = co2;
+
+                        tempSetpointSlider.value            = temp;
+                        tempSetpointDisplay.textContent     = `${temp.toFixed(1)}°C`;
+                        humiditySetpointSlider.value        = humidity;
+                        humiditySetpointDisplay.textContent = `${humidity}%`;
+                        co2SetpointSlider.value             = co2;
+                        co2SetpointDisplay.textContent      = `${co2} ppm`;
+
+                        showToast('Setpoints applied!', '✅');
+                    } else {
+                        const failed = Object.entries(results).filter(([,v]) => !v).map(([k]) => k);
+                        showToast(`Write failed for: ${failed.join(', ')}`, '⚠️', true);
+                    }
+                } catch (e) {
+                    showToast('Error applying setpoints', '⚠️', true);
+                } finally {
+                    applyBtn.disabled = false;
+                    applyBtn.textContent = 'Apply Setpoints';
+                }
+            });
+
+            maintenanceNotes.addEventListener('change', function() {
+                localStorage.setItem(`arc_notes_${selectedUnit}`, this.value);
+            });
+
+            // ── SPARKLINES ──
+            function initSparklines() {
+                const cfg = (color) => ({
+                    type: 'line',
+                    data: { labels: Array(10).fill(''), datasets: [{ data: Array(10).fill(0), borderColor: color, borderWidth: 2, fill: false, tension: 0.3, pointRadius: 0 }] },
+                    options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false } }, scales: { x: { display: false }, y: { display: false } }, animation: { duration: 0 } }
+                });
+                sparkCharts.temp     = new Chart(document.getElementById('sparkTemp'),     cfg('#22c55e'));
+                sparkCharts.humidity = new Chart(document.getElementById('sparkHumidity'), cfg('#16a34a'));
+                sparkCharts.co2      = new Chart(document.getElementById('sparkCO2'),      cfg('#4ade80'));
+            }
+
+            function updateSparklines() {
+                const push = (chart, val) => { const d = chart.data.datasets[0].data; d.push(val || 0); if (d.length > 10) d.shift(); chart.update('none'); };
+                push(sparkCharts.temp,     unitData.SPACE_TEMP);
+                push(sparkCharts.humidity, unitData.RELATIVE_HUMIDITY);
+                push(sparkCharts.co2,      unitData.CO2);
+            }
+
+            // ── MAIN CHART ──
+            function initMainChart() {
+                mainChart = new Chart(document.getElementById('trendChart').getContext('2d'), {
+                    type: 'line',
+                    data: {
+                        labels: Array(20).fill(''),
+                        datasets: [
+                            { label: 'Temperature (°C)', data: Array(20).fill(0), borderColor: '#22c55e', backgroundColor: 'rgba(34,197,94,0.06)',  borderWidth: 2, fill: true, tension: 0.3, pointRadius: 2, pointBackgroundColor: '#22c55e' },
+                            { label: 'Humidity (%)',     data: Array(20).fill(0), borderColor: '#16a34a', backgroundColor: 'rgba(22,163,74,0.06)',   borderWidth: 2, fill: true, tension: 0.3, pointRadius: 2, pointBackgroundColor: '#16a34a' },
+                            { label: 'CO₂ (ppm)',        data: Array(20).fill(0), borderColor: '#0ea5e9', backgroundColor: 'rgba(14,165,233,0.06)', borderWidth: 2, fill: true, tension: 0.3, pointRadius: 2, pointBackgroundColor: '#0ea5e9', yAxisID: 'y1' }
+                        ]
+                    },
+                    options: {
+                        responsive: true, maintainAspectRatio: false,
+                        interaction: { mode: 'index', intersect: false },
+                        plugins: { legend: { labels: { color: '#9aa7c7', font: { family: 'Inter', size: 11 } } } },
+                        scales: {
+                            x:  { grid: { color: 'rgba(154,167,199,0.08)' }, ticks: { color: '#9aa7c7', maxTicksLimit: 10 } },
+                            y:  { grid: { color: 'rgba(154,167,199,0.08)' }, ticks: { color: '#9aa7c7' }, min: 0, max: 100 },
+                            y1: { position: 'right', grid: { display: false }, ticks: { color: '#9aa7c7' }, min: 300, max: 1500 }
+                        }
+                    }
+                });
+            }
+
+            function updateMainChart() {
+                const t = new Date().toLocaleTimeString('en-ZA', { hour: '2-digit', minute: '2-digit', hour12: false });
+                const push = (arr, val) => { arr.push(val || 0); if (arr.length > 20) arr.shift(); };
+                push(mainChart.data.datasets[0].data, unitData.SPACE_TEMP);
+                push(mainChart.data.datasets[1].data, unitData.RELATIVE_HUMIDITY);
+                push(mainChart.data.datasets[2].data, unitData.CO2);
+                push(mainChart.data.labels, t);
+                mainChart.update('none');
+            }
+
+            // ── REFRESH ──
+            async function refreshData() {
+                if (isUpdating) return;
+
+                if (typeof window.isWriteSettling === 'function' && window.isWriteSettling()) {
+                    console.log('[ARC] Suppressing refresh — write settling');
+                    return;
+                }
+
+                isUpdating = true;
+                try {
+                    if (await loadUnitData()) {
+                        updateUI();
+                        updateSparklines();
+                        updateMainChart();
+                    }
+                } catch (e) {
+                    console.error('Refresh error:', e);
+                } finally {
+                    isUpdating = false;
+                }
+            }
+
+            // ── INIT ──
+            async function init() {
+                if (!checkAuth()) return;
+
+                unitEnableToggle.style.opacity = '0.4';
+                unitEnableToggle.style.pointerEvents = 'none';
+                unitEnableStatus.textContent = '...';
+
+                applyBtn.disabled = true;
+                applyBtn.textContent = '⏳ Loading...';
+                initSparklines();
+                initMainChart();
+                await refreshData();
+
+                unitEnableToggle.style.opacity = '';
+                unitEnableToggle.style.pointerEvents = '';
+
+                applyBtn.disabled = false;
+                applyBtn.textContent = 'Apply Setpoints';
+                setInterval(refreshData, 5000);
+                console.log(`📊 Control panel ready — ${selectedUnit}`);
+            }
+
+            window.toggleLight = async function() {
+                const toggle  = document.getElementById('light1ManualToggle');
+                const status  = document.getElementById('light1ManualStatus');
+                const isOn    = toggle.classList.contains('active');
+                const newVal  = !isOn;
+
+                const success = await writePoint(selectedUnit, 'LIGHT1_Manual', newVal);
+                if (!success) { showToast('Light control failed', '⚠️', true); return; }
+
+                if (newVal) {
+                    toggle.classList.add('active');
+                    status.textContent = 'ON'; status.className = 'demand-value on';
+                    showToast('UV Light turned ON', '💡');
+                } else {
+                    toggle.classList.remove('active');
+                    status.textContent = 'OFF'; status.className = 'demand-value off';
+                    showToast('UV Light turned OFF', '🌑');
+                }
+
+                unitData.LIGHT1_Manual = newVal;
+            };
+
+            document.getElementById('co2OverrideSlider').addEventListener('input', function() {
+                document.getElementById('co2OverrideSliderDisplay').textContent = `${parseInt(this.value)} ppm`;
+            });
+            document.getElementById('humidOverrideSlider').addEventListener('input', function() {
+                document.getElementById('humidOverrideSliderDisplay').textContent = `${parseInt(this.value)} %`;
+            });
+
+            window.toggleOverride = async function(type) {
+                const isco2   = type === 'co2';
+                const toggle  = document.getElementById(isco2 ? 'co2OverrideToggle'       : 'humidOverrideToggle');
+                const status  = document.getElementById(isco2 ? 'co2OverrideToggleStatus' : 'humidOverrideToggleStatus');
+                const badge   = document.getElementById(isco2 ? 'co2OverrideStatusBadge'  : 'humidOverrideStatusBadge');
+                const card    = document.getElementById(isco2 ? 'co2OverrideCard'         : 'humidOverrideCard');
+                const display = document.getElementById(isco2 ? 'co2OverrideValueDisplay' : 'humidOverrideValueDisplay');
+
+                const isActive = toggle.classList.contains('active');
+                const newVal   = !isActive;
+
+                // ── CO2: Aina's confirmed boolean manual sequence (api.js setCo2Manual) ──
+                //   ENABLE : CO2_Sched=false -> CO2_MACOST=true -> CO2_MACOV=true
+                //   DISABLE: CO2_MACOV=false -> CO2_MACOST=false -> CO2_Sched=true
+                // Each step is written AND read back in api.js. The UI only goes Active
+                // after res.ok; on failure the previous state is kept and an error shown.
+                if (isco2) {
+                    if (typeof setCo2Manual !== 'function') {
+                        showToast('CO₂ control unavailable (setCo2Manual missing)', '⚠️', true);
+                        return;
+                    }
+                    // Stop any CO2_MACOST hold from a prior enable BEFORE attempting to disable.
+                    // Confirmed on-site 2026-10-01: "read-back CONFLICT at CO2_MACOST — JACE
+                    // reports true, expected false" right after flipping off. Cause: the hold
+                    // loop below (started at ENABLE, re-asserting CO2_MACOST=true every 5s) was
+                    // only being stopped AFTER setCo2Manual finished, so while the DISABLE
+                    // sequence was mid-flight the hold could still fire and re-write true right
+                    // behind our own disable write, making our own read-back conflict with
+                    // ourselves. Stopping it first removes that race entirely.
+                    if (!newVal && typeof stopHoldingPoint === 'function') {
+                        stopHoldingPoint(selectedUnit, 'CO2_MACOST');
+                        stopHoldingPoint(selectedUnit, 'CO2_MACOV');
+                    }
+                    toggle.style.pointerEvents = 'none';
+                    const res = await setCo2Manual(selectedUnit, newVal);
+
+                    if (!res.ok) {
+                        toggle.style.pointerEvents = '';
+                        const where = res.failedAt ? ` (${res.failedAt})` : '';
+                        showToast(`CO₂ ${newVal ? 'enable' : 'disable'} failed${where} — UI unchanged`, '⚠️', true);
+                        return;
+                    }
+
+                    // Reflect the writes we actually made into local state. CO2_Sched is no
+                    // longer written here (2026-10-01 — see setCo2Manual comment: forcing it
+                    // failed even at the highest BACnet priority, it's likely a real Schedule
+                    // component's output, not a plain point), so its row is left to the next
+                    // poll's real read rather than assumed here.
+                    unitData.CO2_MACOST = newVal;
+                    unitData.CO2_MACOV  = newVal;
+                    co2Schedule.textContent = unitData.CO2_Sched ? '● Active' : '○ Inactive';
+                    co2Schedule.className   = `schedule-status ${unitData.CO2_Sched ? 'active' : 'inactive'}`;
+
+                    // Hold only CO2_MACOST while enabled. The disable-side stop now happens
+                    // BEFORE setCo2Manual runs (above), so there's nothing left to stop here.
+                    if (newVal && typeof holdPointValue === 'function') {
+                        holdPointValue(selectedUnit, 'CO2_MACOST', true, 5000);
+                    }
+
+                    if (newVal) {
+                        toggle.classList.add('active');
+                        status.textContent = 'ON'; status.className = 'toggle-status on';
+                        badge.textContent = 'Active'; badge.className = 'override-status-badge active';
+                        card.classList.add('active-override');
+                        display.classList.remove('dim');
+                        display.textContent = 'MANUAL';
+                        showToast(res.verified
+                            ? 'CO₂ manual engaged (Manual Select ON, Override ON — confirmed). Valve only responds while the real Schedule is naturally OFF.'
+                            : 'CO₂ manual engaged (writes sent; read-back unconfirmed)', '🟠');
+                    } else {
+                        toggle.classList.remove('active');
+                        status.textContent = 'OFF'; status.className = 'toggle-status off';
+                        badge.textContent = 'Inactive'; badge.className = 'override-status-badge inactive';
+                        card.classList.remove('active-override');
+                        display.classList.add('dim');
+                        display.textContent = 'AUTO';
+                        showToast(res.verified
+                            ? 'CO₂ returned to AUTO (Manual Select OFF, Override OFF — confirmed)'
+                            : 'CO₂ returned to AUTO (writes sent; read-back unconfirmed)', '✅');
+                    }
+                    toggle.style.pointerEvents = '';
+                    return;
+                }
+
+                // ── HUMIDITY: unchanged original single-write behaviour ──
+                const point = 'HUMID_MAHOST';
+                const success = await writePoint(selectedUnit, point, newVal);
+                if (!success) { showToast('Override toggle failed', '⚠️', true); return; }
+
+                if (typeof holdPointValue === 'function') {
+                    if (newVal) {
+                        holdPointValue(selectedUnit, point, true, 5000);
+                    } else if (typeof stopHoldingPoint === 'function') {
+                        stopHoldingPoint(selectedUnit, point);
+                        stopHoldingPoint(selectedUnit, 'HUMID_MAHOV');
+                    }
+                }
+
+                if (newVal) {
+                    toggle.classList.add('active');
+                    status.textContent = 'ON'; status.className = 'toggle-status on';
+                    badge.textContent = 'Active'; badge.className = 'override-status-badge active';
+                    card.classList.add('active-override');
+                    display.classList.remove('dim');
+                    showToast('Humidity override enabled', '🟠');
+                } else {
+                    toggle.classList.remove('active');
+                    status.textContent = 'OFF'; status.className = 'toggle-status off';
+                    badge.textContent = 'Inactive'; badge.className = 'override-status-badge inactive';
+                    card.classList.remove('active-override');
+                    display.classList.add('dim');
+                    display.textContent = '-- %';
+                    showToast('Humidity override disabled', '✅');
+                }
+            };
+
+            window.applyOverride = async function(type) {
+                const isco2   = type === 'co2';
+
+                // ── CO2 override is now BOOLEAN (Aina 2026-10-01): CO2_MACOV is a boolean
+                // enable, not a ppm value. The CO₂ "Override Value" slider therefore no longer
+                // maps to any writable point. Enabling/disabling CO₂ manual is done entirely by
+                // the CO₂ Override toggle (toggleOverride -> setCo2Manual). This button is kept
+                // in place (UI unchanged) but no longer writes a numeric value.
+                if (isco2) {
+                    showToast('CO₂ override is a boolean enable — use the CO₂ Override toggle. The ppm slider no longer maps to a JACE point (CO2_MACOV is boolean).', 'ℹ️');
+                    return;
+                }
+
+                const toggle  = document.getElementById('humidOverrideToggle');
+                const display = document.getElementById('humidOverrideValueDisplay');
+                const slider  = document.getElementById('humidOverrideSlider');
+                const point   = 'HUMID_MAHOV';
+                const btn     = document.getElementById('applyHumidOverride');
+
+                if (!toggle.classList.contains('active')) {
+                    showToast('Enable Humidity override first', '⚠️', true);
+                    return;
+                }
+
+                const val = parseInt(slider.value);
+                btn.disabled = true; btn.textContent = '⏳ Applying...';
+
+                const success = await writePoint(selectedUnit, point, val);
+                btn.disabled = false; btn.textContent = 'Apply Humidity Override';
+
+                if (success) {
+                    display.textContent = `${val} %`;
+                    display.classList.remove('dim');
+                    if (typeof holdPointValue === 'function') holdPointValue(selectedUnit, point, val, 5000);
+                    showToast(`Override value set to ${val}%`, '✅');
+                } else {
+                    showToast('Failed to write override value', '⚠️', true);
+                }
+            };
+
+            function updateOverrideUI() {
+                const co2Active   = unitData.CO2_MACOST   || false;
+                const humidActive = unitData.HUMID_MAHOST || false;
+                const co2Live     = isLive('CO2_MACOST');
+                const humidLive   = isLive('HUMID_MAHOST');
+
+                const co2Toggle   = document.getElementById('co2OverrideToggle');
+                const humidToggle = document.getElementById('humidOverrideToggle');
+
+                co2Toggle.classList.toggle('unconfirmed', !co2Live);
+                document.getElementById('co2OverrideCard').classList.toggle('unconfirmed', !co2Live);
+
+                if (!co2Live) {
+                    // Last read of CO2_MACOST failed — don't render a confident ON/OFF off
+                    // stale/mock data. Shows whatever the toggle was last confirmed at, dimmed,
+                    // with an explicit "Unconfirmed" badge, until the next successful poll.
+                    document.getElementById('co2OverrideToggleStatus').textContent = '?';
+                    document.getElementById('co2OverrideToggleStatus').className = 'toggle-status unconfirmed';
+                    document.getElementById('co2OverrideStatusBadge').textContent = 'Unconfirmed';
+                    document.getElementById('co2OverrideStatusBadge').className = 'override-status-badge unconfirmed';
+                    document.getElementById('co2OverrideValueDisplay').textContent = '?';
+                    document.getElementById('co2OverrideValueDisplay').classList.add('dim');
+                } else if (co2Active) {
+                    co2Toggle.classList.add('active');
+                    document.getElementById('co2OverrideToggleStatus').textContent = 'ON';
+                    document.getElementById('co2OverrideToggleStatus').className = 'toggle-status on';
+                    document.getElementById('co2OverrideStatusBadge').textContent = 'Active';
+                    document.getElementById('co2OverrideStatusBadge').className = 'override-status-badge active';
+                    document.getElementById('co2OverrideCard').classList.add('active-override');
+                    // CO2_MACOV is boolean now — show MANUAL rather than a ppm value.
+                    document.getElementById('co2OverrideValueDisplay').textContent = 'MANUAL';
+                    document.getElementById('co2OverrideValueDisplay').classList.remove('dim');
+                } else {
+                    co2Toggle.classList.remove('active');
+                    document.getElementById('co2OverrideToggleStatus').textContent = 'OFF';
+                    document.getElementById('co2OverrideToggleStatus').className = 'toggle-status off';
+                    document.getElementById('co2OverrideStatusBadge').textContent = 'Inactive';
+                    document.getElementById('co2OverrideStatusBadge').className = 'override-status-badge inactive';
+                    document.getElementById('co2OverrideCard').classList.remove('active-override');
+                    document.getElementById('co2OverrideValueDisplay').textContent = 'AUTO';
+                    document.getElementById('co2OverrideValueDisplay').classList.add('dim');
+                }
+
+                humidToggle.classList.toggle('unconfirmed', !humidLive);
+                document.getElementById('humidOverrideCard').classList.toggle('unconfirmed', !humidLive);
+
+                if (!humidLive) {
+                    document.getElementById('humidOverrideToggleStatus').textContent = '?';
+                    document.getElementById('humidOverrideToggleStatus').className = 'toggle-status unconfirmed';
+                    document.getElementById('humidOverrideStatusBadge').textContent = 'Unconfirmed';
+                    document.getElementById('humidOverrideStatusBadge').className = 'override-status-badge unconfirmed';
+                } else if (humidActive) {
+                    humidToggle.classList.add('active');
+                    document.getElementById('humidOverrideToggleStatus').textContent = 'ON';
+                    document.getElementById('humidOverrideToggleStatus').className = 'toggle-status on';
+                    document.getElementById('humidOverrideStatusBadge').textContent = 'Active';
+                    document.getElementById('humidOverrideStatusBadge').className = 'override-status-badge active';
+                    document.getElementById('humidOverrideCard').classList.add('active-override');
+                    if (unitData.HUMID_MAHOV != null) {
+                        document.getElementById('humidOverrideValueDisplay').textContent = `${unitData.HUMID_MAHOV} %`;
+                        document.getElementById('humidOverrideValueDisplay').classList.remove('dim');
+                    }
+                } else {
+                    humidToggle.classList.remove('active');
+                    document.getElementById('humidOverrideToggleStatus').textContent = 'OFF';
+                    document.getElementById('humidOverrideToggleStatus').className = 'toggle-status off';
+                    document.getElementById('humidOverrideStatusBadge').textContent = 'Inactive';
+                    document.getElementById('humidOverrideStatusBadge').className = 'override-status-badge inactive';
+                    document.getElementById('humidOverrideCard').classList.remove('active-override');
+                }
+            }
+
+            // ── CSV DOWNLOAD ──
+            window.downloadCSV = function() {
+                const unitNum = selectedUnit.replace('UNIT', '');
+                const labels  = mainChart.data.labels;
+                const temps   = mainChart.data.datasets[0].data;
+                const humids  = mainChart.data.datasets[1].data;
+                const co2s    = mainChart.data.datasets[2].data;
+
+                let csv = `ARC Glasshouse System — Greenhouse ${unitNum} Report\n`;
+                csv += `Generated: ${new Date().toLocaleString('en-ZA')}\n\n`;
+                csv += `Timestamp,Temperature (°C),Humidity (%),CO2 (ppm)\n`;
+
+                for (let i = 0; i < labels.length; i++) {
+                    if (labels[i]) {
+                        csv += `${labels[i]},${temps[i]?.toFixed(1) || ''},${humids[i]?.toFixed(1) || ''},${co2s[i] || ''}\n`;
+                    }
+                }
+
+                triggerDownload(csv, `ARC_GH${unitNum}_Report_${formatDate()}.csv`);
+                showToast('Report downloaded!', '📊');
+            };
+
+            window.downloadFullCSV = function() {
+                const units = ['UNIT1','UNIT2','UNIT3','UNIT4','UNIT5','UNIT6','UNIT7','UNIT8','UNIT9','UNIT10'];
+                let csv = `ARC Glasshouse System — All Units Snapshot\n`;
+                csv += `Generated: ${new Date().toLocaleString('en-ZA')}\n\n`;
+                csv += `Unit,Status,Mode,Temperature (°C),Humidity (%),CO2 (ppm),Temp Setpoint,Humidity Setpoint,CO2 Setpoint\n`;
+
+                units.forEach((unit, i) => {
+                    const d = (typeof MOCK_DATA !== 'undefined' && MOCK_DATA[unit]) ? MOCK_DATA[unit] : {};
+                    csv += `Greenhouse ${i+1},${d.UNIT_STATUS||''},${d.UNIT_MODE||''},${d.SPACE_TEMP?.toFixed(1)||''},${d.RELATIVE_HUMIDITY||''},${d.CO2||''},${d.TEMP_SETPOINT||''},${d.HUMIDITY_SETPOINT||''},${d.CO2_SETPOINT||''}\n`;
+                });
+
+                triggerDownload(csv, `ARC_AllUnits_${formatDate()}.csv`);
+                showToast('All units report downloaded!', '📊');
+            };
+
+            function triggerDownload(content, filename) {
+                const blob = new Blob([content], { type: 'text/csv;charset=utf-8;' });
+                const url  = URL.createObjectURL(blob);
+                const a    = document.createElement('a');
+                a.href = url; a.download = filename; a.click();
+                URL.revokeObjectURL(url);
+            }
+
+            function formatDate() {
+                const d = new Date();
+                return `${d.getFullYear()}${String(d.getMonth()+1).padStart(2,'0')}${String(d.getDate()).padStart(2,'0')}`;
+            }
+
+            init();
+            window.refreshData = refreshData;
+
+        })();
+    </script>
+
+</body>
+</html>

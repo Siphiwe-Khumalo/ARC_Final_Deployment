@@ -1,0 +1,776 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.5, user-scalable=yes" />
+    <title>ARC-GLASS · Login</title>
+
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,400;14..32,500;14..32,600;14..32,700&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet" />
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@latest/tabler-icons.min.css" />
+
+    <style>
+        *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+        :root {
+            --bg: #f0f0f0;
+            --surface: #ffffff;
+            --field-bg: #f8f8f8;
+            --border: rgba(0,0,0,0.06);
+            --accent: #22c55e;
+            --accent-soft: #bbf7d0;
+            --accent-dim: #16a34a;
+            --ink: #1a1a1a;
+            --text-secondary: #666666;
+            --text-muted: #999999;
+            --warning: #f59e0b;
+            --danger: #ef4444;
+            --shadow: 0 2px 12px rgba(0,0,0,0.05);
+            --shadow-lift: 0 4px 24px rgba(0,0,0,0.08);
+            --radius: 16px;
+        }
+
+        html, body { height: 100%; font-family: 'Inter', sans-serif; background: var(--bg); color: var(--ink); }
+
+        body {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            min-height: 100vh;
+            padding: 20px;
+            transition: background 0.3s ease;
+        }
+
+        ::-webkit-scrollbar { width: 4px; height: 4px; }
+        ::-webkit-scrollbar-track { background: var(--bg); }
+        ::-webkit-scrollbar-thumb { background: var(--accent); border-radius: 4px; }
+
+        /* ── LOGIN CARD ── */
+        .login-container {
+            width: 100%;
+            max-width: 420px;
+            background: var(--surface);
+            border-radius: var(--radius);
+            padding: 32px 30px 26px;
+            box-shadow: var(--shadow-lift);
+            position: relative;
+            transition: background 0.3s ease, box-shadow 0.3s ease;
+        }
+
+        /* ── TOP BAR ── */
+        .login-top { display: flex; justify-content: space-between; align-items: center; margin-bottom: 24px; }
+
+        .status-indicator {
+            display: flex; align-items: center; gap: 7px;
+            font-size: 11px; font-weight: 500;
+            color: var(--text-muted);
+            font-family: 'JetBrains Mono', monospace;
+        }
+        .status-indicator .dot {
+            width: 7px; height: 7px; border-radius: 50%;
+            background: var(--accent);
+            animation: pulse-dot 2s infinite;
+        }
+        @keyframes pulse-dot { 0%,100% { opacity:1; transform:scale(1);} 50% { opacity:.4; transform:scale(.8);} }
+
+        .theme-toggle {
+            background: var(--field-bg);
+            border: 1px solid var(--border);
+            border-radius: 20px;
+            padding: 6px 12px;
+            color: var(--text-secondary);
+            font-size: 12px; font-weight: 500;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            font-family: 'Inter', sans-serif;
+            display: flex; align-items: center; gap: 5px;
+        }
+        .theme-toggle:hover { border-color: var(--accent); color: var(--accent-dim); }
+
+        /* ── LOGO ── */
+        .login-logo { text-align: center; margin-bottom: 26px; }
+        .login-logo .logo-mark {
+            width: 40px; height: 40px;
+            margin: 0 auto 10px;
+            background: var(--ink);
+            border-radius: 11px;
+            position: relative;
+        }
+        .login-logo .logo-mark::before, .login-logo .logo-mark::after, .login-logo .logo-mark .logo-inner {
+            content: ''; position: absolute; width: 14px; height: 14px;
+            background: var(--accent); border-radius: 50%;
+        }
+        .login-logo .logo-mark::before { top: 4px; left: 50%; transform: translateX(-50%); }
+        .login-logo .logo-mark::after { bottom: 4px; left: 6px; }
+        .login-logo .logo-mark .logo-inner { bottom: 4px; right: 6px; }
+
+        .logo-text { font-size: 22px; font-weight: 700; letter-spacing: 0.5px; color: var(--ink); }
+        .logo-text span { color: var(--accent-dim); }
+        .logo-sub {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 10px; color: var(--text-muted);
+            letter-spacing: 0.08em; text-transform: uppercase;
+            margin-top: 4px;
+        }
+
+        /* ── TABS ── */
+        .login-tabs {
+            display: flex;
+            background: var(--field-bg);
+            border-radius: 24px;
+            padding: 4px;
+            margin-bottom: 22px;
+        }
+        .tab-btn {
+            flex: 1; padding: 9px 12px; border: none; background: transparent;
+            color: var(--text-secondary);
+            font-family: 'Inter', sans-serif; font-size: 13px; font-weight: 500;
+            cursor: pointer; border-radius: 20px; transition: all 0.2s ease;
+        }
+        .tab-btn.active { background: var(--ink); color: var(--surface); box-shadow: var(--shadow); }
+        .tab-btn:hover:not(.active) { color: var(--ink); }
+
+        /* ── FORM ── */
+        .form-section { display: none; animation: fadeIn 0.3s ease; }
+        .form-section.active { display: block; }
+        @keyframes fadeIn { from { opacity:0; transform: translateY(8px);} to { opacity:1; transform: translateY(0);} }
+
+        .form-group { margin-bottom: 14px; }
+        .form-label {
+            display: block; font-size: 11px; font-weight: 500; color: var(--text-muted);
+            text-transform: uppercase; letter-spacing: 0.06em; margin-bottom: 5px;
+        }
+        .form-label .required { color: var(--danger); margin-left: 2px; }
+
+        .form-input {
+            width: 100%; padding: 11px 14px;
+            background: var(--field-bg);
+            border: 1px solid var(--border);
+            border-radius: 10px;
+            color: var(--ink);
+            font-family: 'Inter', sans-serif; font-size: 14px;
+            transition: all 0.2s ease; outline: none;
+        }
+        .form-input::placeholder { color: var(--text-muted); opacity: 0.6; }
+        .form-input:focus { border-color: var(--accent); box-shadow: 0 0 0 3px rgba(34,197,94,0.08); }
+        .form-input.error { border-color: var(--danger); }
+
+        .password-wrapper { position: relative; }
+        .password-wrapper .form-input { padding-right: 44px; }
+        .password-toggle {
+            position: absolute; right: 10px; top: 50%; transform: translateY(-50%);
+            background: none; border: none; color: var(--text-muted);
+            font-size: 16px; cursor: pointer; padding: 4px; opacity: 0.6;
+            transition: opacity 0.2s ease;
+        }
+        .password-toggle:hover { opacity: 1; }
+
+        /* ── OPTIONS ── */
+        .form-options {
+            display: flex; justify-content: space-between; align-items: center;
+            margin: 2px 0 18px; flex-wrap: wrap; gap: 8px;
+        }
+        .remember-me { display: flex; align-items: center; gap: 6px; font-size: 12px; color: var(--text-secondary); cursor: pointer; }
+        .remember-me input[type="checkbox"] { width: 14px; height: 14px; accent-color: var(--accent); cursor: pointer; }
+        .forgot-link {
+            font-size: 12px; color: var(--text-secondary); cursor: pointer;
+            transition: color 0.2s ease; background: none; border: none; font-family: 'Inter', sans-serif;
+        }
+        .forgot-link:hover { color: var(--accent-dim); }
+
+        /* ── MESSAGES ── */
+        .message { padding: 10px 14px; border-radius: 10px; font-size: 13px; margin-bottom: 14px; display: none; }
+        .message.show { display: block; }
+        .message.error { background: rgba(239,68,68,0.08); color: #b91c1c; }
+        .message.success { background: var(--accent-soft); color: var(--accent-dim); }
+        .message.info { background: var(--field-bg); color: var(--text-secondary); }
+
+        /* ── SUBMIT BUTTON ── */
+        .submit-btn {
+            width: 100%; padding: 12px 0;
+            background: var(--ink);
+            border: none; border-radius: 10px;
+            color: var(--surface);
+            font-family: 'Inter', sans-serif; font-size: 14px; font-weight: 600;
+            cursor: pointer; transition: all 0.2s ease;
+        }
+        .submit-btn:hover { opacity: 0.88; }
+        .submit-btn:disabled { opacity: 0.45; cursor: not-allowed; }
+
+        .submit-btn.secondary { background: var(--field-bg); border: 1px solid var(--border); color: var(--text-secondary); }
+        .submit-btn.secondary:hover { border-color: var(--accent); color: var(--accent-dim); opacity: 1; }
+
+        /* ── BACK LINK ── */
+        .back-link {
+            display: inline-flex; align-items: center; gap: 4px;
+            font-size: 12px; color: var(--text-muted); cursor: pointer;
+            transition: color 0.2s ease; background: none; border: none;
+            font-family: 'Inter', sans-serif; margin-top: 12px;
+        }
+        .back-link:hover { color: var(--accent-dim); }
+
+        /* ── FOOTER ── */
+        .login-footer {
+            text-align: center; margin-top: 22px; padding-top: 16px;
+            border-top: 1px solid var(--border);
+            font-family: 'JetBrains Mono', monospace; font-size: 10px;
+            color: var(--text-muted); letter-spacing: 0.04em; opacity: 0.7;
+        }
+
+        /* ── TOKEN DISPLAY ── */
+        .token-display {
+            background: var(--field-bg);
+            border-radius: 12px;
+            padding: 12px 16px; text-align: center; margin: 12px 0;
+            font-family: 'JetBrains Mono', monospace; font-size: 13px; color: var(--text-muted);
+        }
+        .token-display .token-value {
+            font-size: 20px; font-weight: 700; color: var(--accent-dim);
+            letter-spacing: 0.1em; display: block; margin-top: 4px;
+        }
+        .token-display .token-label { font-size: 10px; text-transform: uppercase; letter-spacing: 0.06em; opacity: 0.7; }
+
+        /* ── TOAST ── */
+        .toast-container { position: fixed; top: 16px; right: 16px; z-index: 999; display: flex; flex-direction: column; gap: 8px; }
+        .toast {
+            background: var(--surface);
+            border-radius: 12px; padding: 14px 18px;
+            color: var(--ink); font-size: 13px; box-shadow: var(--shadow-lift);
+            min-width: 260px; border-left: 3px solid var(--accent);
+            animation: slideIn 0.3s ease;
+        }
+        .toast.error { border-left-color: var(--danger); }
+        .toast.warning { border-left-color: var(--warning); }
+        @keyframes slideIn { from { transform: translateX(100%); opacity:0;} to { transform: translateX(0); opacity:1;} }
+
+        .theme-transitioning * { transition: all 0.5s cubic-bezier(0.4,0,0.2,1) !important; }
+
+        /* ── RESPONSIVE ── */
+        @media (max-width: 480px) {
+            .login-container { padding: 24px 20px 20px; border-radius: 18px; }
+            .logo-text { font-size: 19px; }
+            .status-indicator { font-size: 9px; }
+            .form-input { font-size: 13px; padding: 10px 12px; }
+            .tab-btn { font-size: 12px; padding: 8px 10px; }
+            .submit-btn { font-size: 13px; padding: 11px 0; }
+            .form-options { flex-direction: column; align-items: flex-start; gap: 6px; }
+        }
+
+        @media (max-width: 360px) {
+            .login-container { padding: 18px 14px 16px; }
+            .logo-text { font-size: 17px; }
+            .tab-btn { font-size: 11px; padding: 7px 8px; }
+        }
+    </style>
+    <link rel="stylesheet" href="theme.css" />
+</head>
+<body>
+
+    <div class="login-container">
+
+        <div class="login-top">
+            <span class="status-indicator"><span class="dot"></span>System Online</span>
+        </div>
+
+        <div class="login-logo">
+            <div class="logo-mark"><div class="logo-inner"></div></div>
+            <div class="logo-text">ARC·<span>GLASSHOUSE</span></div>
+            <div class="logo-sub">Agricultural Research Council · SCADA</div>
+        </div>
+
+        <div class="login-tabs">
+            <button class="tab-btn active" data-tab="signin">Sign In</button>
+            <button class="tab-btn" data-tab="signup">Sign Up</button>
+        </div>
+
+        <!-- ── SIGN IN FORM ── -->
+        <div class="form-section active" id="signinForm">
+            <div class="form-group">
+                <label class="form-label" for="loginUsername">Username <span class="required">*</span></label>
+                <input type="text" id="loginUsername" class="form-input" placeholder="Enter your username" autocomplete="username" />
+            </div>
+            <div class="form-group">
+                <label class="form-label" for="loginPassword">Password <span class="required">*</span></label>
+                <div class="password-wrapper">
+                    <input type="password" id="loginPassword" class="form-input" placeholder="Enter your password" autocomplete="current-password" />
+                    <button type="button" class="password-toggle" onclick="togglePassword('loginPassword', this)" aria-label="Toggle password visibility">👁</button>
+                </div>
+            </div>
+
+            <div class="form-options">
+                <label class="remember-me">
+                    <input type="checkbox" id="rememberMe" />
+                    <span>Remember me</span>
+                </label>
+                <button class="forgot-link" id="forgotPasswordLink">Forgot password?</button>
+            </div>
+
+            <div id="loginMessage" class="message"></div>
+            <button type="button" class="submit-btn" id="loginBtn">Sign In</button>
+        </div>
+
+        <!-- ── SIGN UP FORM ── -->
+        <div class="form-section" id="signupForm">
+            <div class="form-group">
+                <label class="form-label" for="signupUsername">Username <span class="required">*</span></label>
+                <input type="text" id="signupUsername" class="form-input" placeholder="Choose a username" autocomplete="off" />
+            </div>
+            <div class="form-group">
+                <label class="form-label" for="signupEmail">Email Address <span class="required">*</span></label>
+                <input type="email" id="signupEmail" class="form-input" placeholder="Enter your email" autocomplete="email" />
+            </div>
+            <div class="form-group">
+                <label class="form-label" for="signupPassword">Password <span class="required">*</span></label>
+                <div class="password-wrapper">
+                    <input type="password" id="signupPassword" class="form-input" placeholder="Min 6 characters" autocomplete="new-password" />
+                    <button type="button" class="password-toggle" onclick="togglePassword('signupPassword', this)" aria-label="Toggle password visibility">👁</button>
+                </div>
+            </div>
+            <div class="form-group">
+                <label class="form-label" for="signupConfirm">Confirm Password <span class="required">*</span></label>
+                <div class="password-wrapper">
+                    <input type="password" id="signupConfirm" class="form-input" placeholder="Confirm your password" autocomplete="new-password" />
+                    <button type="button" class="password-toggle" onclick="togglePassword('signupConfirm', this)" aria-label="Toggle password visibility">👁</button>
+                </div>
+            </div>
+
+            <div id="signupMessage" class="message"></div>
+            <button type="button" class="submit-btn" id="signupBtn">Create Account</button>
+        </div>
+
+        <!-- ── FORGOT PASSWORD FORM ── -->
+        <div class="form-section" id="forgotForm">
+            <div style="display:flex;align-items:center;gap:8px;margin-bottom:16px;">
+                <span class="ti ti-lock" style="font-size:20px;color:var(--accent-dim);"></span>
+                <span style="font-size:16px;font-weight:600;color:var(--ink);">Reset Password</span>
+            </div>
+
+            <div style="font-size:13px;color:var(--text-muted);margin-bottom:16px;">
+                Enter your registered email address to receive a security token.
+            </div>
+
+            <div class="form-group">
+                <label class="form-label" for="resetEmail">Email Address <span class="required">*</span></label>
+                <input type="email" id="resetEmail" class="form-input" placeholder="Enter your registered email" autocomplete="email" />
+            </div>
+
+            <div id="resetMessage" class="message"></div>
+            <button type="button" class="submit-btn" id="requestResetBtn">Request Reset Token</button>
+
+            <div id="overrideSection" style="display:none;margin-top:16px;padding-top:16px;border-top:1px solid var(--border);">
+                <div class="token-display">
+                    <span class="token-label">Security Token</span>
+                    <span class="token-value" id="securityToken">------</span>
+                </div>
+
+                <div style="font-size:12px;color:var(--text-muted);margin-bottom:12px;">
+                    Enter your new password below to complete the reset.
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label" for="newPasswordReset">New Password <span class="required">*</span></label>
+                    <div class="password-wrapper">
+                        <input type="password" id="newPasswordReset" class="form-input" placeholder="Min 6 characters" />
+                        <button type="button" class="password-toggle" onclick="togglePassword('newPasswordReset', this)" aria-label="Toggle password visibility">👁</button>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label class="form-label" for="confirmPasswordReset">Confirm Password <span class="required">*</span></label>
+                    <div class="password-wrapper">
+                        <input type="password" id="confirmPasswordReset" class="form-input" placeholder="Confirm your new password" />
+                        <button type="button" class="password-toggle" onclick="togglePassword('confirmPasswordReset', this)" aria-label="Toggle password visibility">👁</button>
+                    </div>
+                </div>
+
+                <div id="overrideMessage" class="message"></div>
+                <button type="button" class="submit-btn" id="savePasswordBtn">Update Password</button>
+            </div>
+
+            <button class="back-link" id="backToLogin">
+                <span class="ti ti-arrow-left"></span> Back to Sign In
+            </button>
+        </div>
+
+        <div class="login-footer">Secure · BACnet/IP · v2.0</div>
+    </div>
+
+    <div class="toast-container" id="toastContainer"></div>
+
+    <script>
+    (function() {
+        'use strict';
+
+        console.log('🔐 ARC-GLASS Login System loaded');
+
+        // ── TOAST SYSTEM ──
+        function showToast(message, type = 'info') {
+            const container = document.getElementById('toastContainer');
+            const toast = document.createElement('div');
+            toast.className = `toast ${type}`;
+            const icon = type === 'error' ? '❌' : type === 'warning' ? '⚠️' : '✅';
+            toast.textContent = `${icon} ${message}`;
+            container.appendChild(toast);
+
+            setTimeout(() => {
+                toast.style.opacity = '0';
+                toast.style.transform = 'translateX(100%)';
+                toast.style.transition = 'all 0.3s ease';
+                setTimeout(() => toast.remove(), 300);
+            }, 3000);
+        }
+
+        // ── PASSWORD TOGGLE ──
+        window.togglePassword = function(id, btn) {
+            const input = document.getElementById(id);
+            if (!input) return;
+            const isPassword = input.type === 'password';
+            input.type = isPassword ? 'text' : 'password';
+            btn.textContent = isPassword ? '🙈' : '👁';
+        };
+
+        // ── USER MANAGEMENT ──
+        const Users = {
+            get() {
+                try {
+                    const data = localStorage.getItem('arc_users');
+                    return data ? JSON.parse(data) : {};
+                } catch { return {}; }
+            },
+            save(users) { localStorage.setItem('arc_users', JSON.stringify(users)); },
+            exists(username) { return !!this.get()[username]; },
+            add(username, password, email) {
+                const users = this.get();
+                if (users[username]) return false;
+                users[username] = { password, email, created: new Date().toISOString() };
+                this.save(users);
+                return true;
+            },
+            validate(username, password) {
+                const users = this.get();
+                if (!users[username]) return { ok: false, msg: 'User not found.' };
+                if (users[username].password !== password) return { ok: false, msg: 'Incorrect password.' };
+                return { ok: true };
+            },
+            updateLogin(username) {
+                const users = this.get();
+                if (users[username]) {
+                    users[username].lastLogin = new Date().toISOString();
+                    this.save(users);
+                }
+            },
+            findUserByEmail(email) {
+                const users = this.get();
+                for (const [username, data] of Object.entries(users)) {
+                    if (data.email && data.email.toLowerCase() === email.toLowerCase()) {
+                        return { username, data };
+                    }
+                }
+                return null;
+            },
+            updatePassword(username, newPassword) {
+                const users = this.get();
+                if (users[username]) {
+                    users[username].password = newPassword;
+                    this.save(users);
+                    return true;
+                }
+                return false;
+            }
+        };
+
+        if (!Users.exists('admin')) {
+            Users.add('admin', 'admin123', 'admin@arc-lnr.org');
+        }
+
+        // ── DOM REFS ──
+        const tabBtns = document.querySelectorAll('.tab-btn');
+        const signinForm = document.getElementById('signinForm');
+        const signupForm = document.getElementById('signupForm');
+        const forgotForm = document.getElementById('forgotForm');
+        const loginBtn = document.getElementById('loginBtn');
+        const signupBtn = document.getElementById('signupBtn');
+        const requestResetBtn = document.getElementById('requestResetBtn');
+        const savePasswordBtn = document.getElementById('savePasswordBtn');
+        const forgotPasswordLink = document.getElementById('forgotPasswordLink');
+        const backToLogin = document.getElementById('backToLogin');
+        const loginMessage = document.getElementById('loginMessage');
+        const signupMessage = document.getElementById('signupMessage');
+        const resetMessage = document.getElementById('resetMessage');
+        const overrideMessage = document.getElementById('overrideMessage');
+        const overrideSection = document.getElementById('overrideSection');
+        const securityToken = document.getElementById('securityToken');
+        const resetEmail = document.getElementById('resetEmail');
+        const newPasswordReset = document.getElementById('newPasswordReset');
+        const confirmPasswordReset = document.getElementById('confirmPasswordReset');
+
+        let pendingResetUser = null;
+        let generatedToken = null;
+
+        function showMsg(el, msg, type) { el.textContent = msg; el.className = `message ${type} show`; }
+        function hideMsg(el) { el.className = 'message'; el.textContent = ''; }
+
+        // ── TAB SWITCHING ──
+        tabBtns.forEach(btn => {
+            btn.addEventListener('click', function() {
+                tabBtns.forEach(b => b.classList.remove('active'));
+                this.classList.add('active');
+
+                const isSignin = this.dataset.tab === 'signin';
+                const isSignup = this.dataset.tab === 'signup';
+
+                signinForm.classList.toggle('active', isSignin);
+                signupForm.classList.toggle('active', isSignup);
+                forgotForm.classList.remove('active');
+
+                hideMsg(loginMessage); hideMsg(signupMessage); hideMsg(resetMessage); hideMsg(overrideMessage);
+                overrideSection.style.display = 'none';
+                pendingResetUser = null;
+                generatedToken = null;
+            });
+        });
+
+        // ── FORGOT PASSWORD LINK ──
+        forgotPasswordLink.addEventListener('click', function(e) {
+            e.preventDefault();
+            signinForm.classList.remove('active');
+            signupForm.classList.remove('active');
+            forgotForm.classList.add('active');
+
+            hideMsg(loginMessage); hideMsg(signupMessage); hideMsg(resetMessage); hideMsg(overrideMessage);
+            overrideSection.style.display = 'none';
+            resetEmail.value = '';
+            pendingResetUser = null;
+            generatedToken = null;
+
+            tabBtns.forEach(b => b.classList.remove('active'));
+            document.querySelector('.tab-btn[data-tab="signin"]').classList.add('active');
+        });
+
+        // ── BACK TO LOGIN ──
+        backToLogin.addEventListener('click', function(e) {
+            e.preventDefault();
+            forgotForm.classList.remove('active');
+            signinForm.classList.add('active');
+            signupForm.classList.remove('active');
+
+            hideMsg(resetMessage); hideMsg(overrideMessage);
+            overrideSection.style.display = 'none';
+            resetEmail.value = '';
+            pendingResetUser = null;
+            generatedToken = null;
+
+            tabBtns.forEach(b => b.classList.remove('active'));
+            document.querySelector('.tab-btn[data-tab="signin"]').classList.add('active');
+        });
+
+        // ── REQUEST RESET TOKEN ──
+        requestResetBtn.addEventListener('click', function() {
+            const email = resetEmail.value.trim();
+            hideMsg(resetMessage); hideMsg(overrideMessage);
+            overrideSection.style.display = 'none';
+
+            if (!email || !email.includes('@') || !email.includes('.')) {
+                showMsg(resetMessage, 'Please enter a valid email address.', 'error');
+                return;
+            }
+
+            const user = Users.findUserByEmail(email);
+            if (!user) {
+                showMsg(resetMessage, 'Account email not found in the system.', 'error');
+                return;
+            }
+
+            pendingResetUser = user;
+            generatedToken = Math.floor(100000 + Math.random() * 900000).toString();
+
+            showMsg(resetMessage, '✅ Security token generated! Enter your new password below.', 'success');
+
+            securityToken.textContent = generatedToken;
+            overrideSection.style.display = 'block';
+            newPasswordReset.value = '';
+            confirmPasswordReset.value = '';
+            hideMsg(overrideMessage);
+
+            if (typeof window.addAuditEntry === 'function') {
+                window.addAuditEntry({
+                    unit: 'System', action: 'Password Reset Requested', actionType: 'setpoint',
+                    details: `Password reset requested for ${user.username}`, status: 'warning'
+                });
+            }
+        });
+
+        // ── SAVE PASSWORD ──
+        savePasswordBtn.addEventListener('click', function() {
+            const newPass = newPasswordReset.value.trim();
+            const confirmPass = confirmPasswordReset.value.trim();
+            hideMsg(overrideMessage);
+
+            if (!pendingResetUser) {
+                showMsg(overrideMessage, 'Session expired. Please request a new reset token.', 'error');
+                return;
+            }
+            if (newPass.length < 6) {
+                showMsg(overrideMessage, 'Password must be at least 6 characters.', 'error');
+                return;
+            }
+            if (newPass !== confirmPass) {
+                showMsg(overrideMessage, 'Passwords do not match.', 'error');
+                return;
+            }
+
+            const success = Users.updatePassword(pendingResetUser.username, newPass);
+
+            if (success) {
+                showMsg(overrideMessage, 'Password updated successfully! Redirecting to sign in...', 'success');
+
+                if (typeof window.addAuditEntry === 'function') {
+                    window.addAuditEntry({
+                        unit: 'System', action: 'Password Updated', actionType: 'setpoint',
+                        details: `Password updated for ${pendingResetUser.username}`, status: 'success'
+                    });
+                }
+
+                setTimeout(() => {
+                    forgotForm.classList.remove('active');
+                    signinForm.classList.add('active');
+                    signupForm.classList.remove('active');
+                    overrideSection.style.display = 'none';
+                    hideMsg(resetMessage); hideMsg(overrideMessage);
+                    pendingResetUser = null;
+                    generatedToken = null;
+                    resetEmail.value = '';
+
+                    tabBtns.forEach(b => b.classList.remove('active'));
+                    document.querySelector('.tab-btn[data-tab="signin"]').classList.add('active');
+
+                    showToast('Password updated. Please sign in.', 'success');
+                    showMsg(loginMessage, 'Password updated. Please sign in.', 'success');
+                }, 2000);
+            } else {
+                showMsg(overrideMessage, 'Failed to update password. Please try again.', 'error');
+            }
+        });
+
+        // ── SIGN IN ──
+        loginBtn.addEventListener('click', function() {
+            const username = document.getElementById('loginUsername').value.trim();
+            const password = document.getElementById('loginPassword').value.trim();
+            hideMsg(loginMessage);
+
+            if (!username || !password) {
+                showMsg(loginMessage, 'Please enter both username and password.', 'error');
+                return;
+            }
+
+            const result = Users.validate(username, password);
+            if (!result.ok) {
+                showMsg(loginMessage, result.msg, 'error');
+                return;
+            }
+
+            showMsg(loginMessage, 'Welcome back! Redirecting...', 'success');
+            Users.updateLogin(username);
+
+            if (document.getElementById('rememberMe').checked) {
+                localStorage.setItem('arc_remember', username);
+            } else {
+                localStorage.removeItem('arc_remember');
+            }
+
+            localStorage.setItem('arc_auth', 'true');
+            localStorage.setItem('arc_user', username);
+
+            if (typeof window.addAuditEntry === 'function') {
+                window.addAuditEntry({
+                    unit: 'System', action: 'User Login', actionType: 'login',
+                    details: `User ${username} logged in`, status: 'success'
+                });
+            }
+
+            showToast(`Welcome back, ${username}!`, 'success');
+            setTimeout(() => { window.location.href = 'dashboard.html'; }, 1500);
+        });
+
+        // ── SIGN UP ──
+        signupBtn.addEventListener('click', function() {
+            const username = document.getElementById('signupUsername').value.trim();
+            const email = document.getElementById('signupEmail').value.trim();
+            const password = document.getElementById('signupPassword').value.trim();
+            const confirm = document.getElementById('signupConfirm').value.trim();
+            hideMsg(signupMessage);
+
+            if (!username || !email || !password || !confirm) {
+                showMsg(signupMessage, 'Please fill in all fields.', 'error');
+                return;
+            }
+            if (username.length < 3) {
+                showMsg(signupMessage, 'Username must be at least 3 characters.', 'error');
+                return;
+            }
+            if (password.length < 6) {
+                showMsg(signupMessage, 'Password must be at least 6 characters.', 'error');
+                return;
+            }
+            if (password !== confirm) {
+                showMsg(signupMessage, 'Passwords do not match.', 'error');
+                return;
+            }
+            if (!email.includes('@') || !email.includes('.')) {
+                showMsg(signupMessage, 'Invalid email address.', 'error');
+                return;
+            }
+            if (Users.exists(username)) {
+                showMsg(signupMessage, 'Username already taken.', 'error');
+                return;
+            }
+
+            Users.add(username, password, email);
+            showMsg(signupMessage, 'Account created! You can now sign in.', 'success');
+
+            if (typeof window.addAuditEntry === 'function') {
+                window.addAuditEntry({
+                    unit: 'System', action: 'User Signup', actionType: 'login',
+                    details: `New user ${username} signed up`, status: 'success'
+                });
+            }
+
+            setTimeout(() => {
+                signupForm.classList.remove('active');
+                signinForm.classList.add('active');
+                tabBtns.forEach(b => b.classList.remove('active'));
+                document.querySelector('.tab-btn[data-tab="signin"]').classList.add('active');
+                document.getElementById('loginUsername').value = username;
+                showToast('Account created! Please sign in.', 'success');
+            }, 1500);
+        });
+
+        // ── ENTER KEY SUPPORT ──
+        document.addEventListener('keydown', function(e) {
+            if (e.key !== 'Enter') return;
+            if (signinForm.classList.contains('active')) {
+                loginBtn.click();
+            } else if (signupForm.classList.contains('active')) {
+                signupBtn.click();
+            } else if (forgotForm.classList.contains('active')) {
+                if (overrideSection.style.display === 'block') {
+                    savePasswordBtn.click();
+                } else {
+                    requestResetBtn.click();
+                }
+            }
+        });
+
+        // ── REMEMBER ME ──
+        const remembered = localStorage.getItem('arc_remember');
+        if (remembered) {
+            document.getElementById('loginUsername').value = remembered;
+            document.getElementById('rememberMe').checked = true;
+        }
+
+        console.log('🔐 ARC-GLASS Login ready');
+    })();
+    </script>
+
+</body>
+</html>

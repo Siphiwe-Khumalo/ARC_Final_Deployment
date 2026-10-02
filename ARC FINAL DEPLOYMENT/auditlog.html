@@ -1,0 +1,1463 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.5, user-scalable=yes" />
+    <title>ARC-GLASS · Audit Log</title>
+    
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,400;14..32,500;14..32,600;14..32,700&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet" />
+    
+    <!-- Tabler Icons -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@latest/tabler-icons.min.css" />
+    
+    <style>
+        /* ── RESET & BASE ── */
+        *, *::before, *::after {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        :root {
+            --bg: #0a0f0a;
+            --surface: #111811;
+            --border: rgba(34, 197, 94, 0.15);
+            --accent: #22c55e;
+            --accent-dim: #16a34a;
+            --text-primary: #f0fdf4;
+            --text-secondary: #86efac;
+            --text-muted: #4ade80;
+            --warning: #f59e0b;
+            --danger: #ef4444;
+            --data-color: #4ade80;
+            --shadow: 0 0 0 1px rgba(34,197,94,0.05), 0 4px 24px rgba(0,0,0,0.4);
+            --radius: 12px;
+            --nav-width: 72px;
+            --nav-width-expanded: 220px;
+        }
+
+        html, body {
+            height: 100%;
+            font-family: 'Inter', sans-serif;
+            background: var(--bg);
+            color: var(--text-primary);
+        }
+
+        body {
+            display: flex;
+            min-height: 100vh;
+            padding-left: var(--nav-width);
+            transition: padding-left 0.3s ease;
+            overflow-x: hidden;
+        }
+
+        /* ── SCROLLBAR ── */
+        ::-webkit-scrollbar {
+            width: 4px;
+            height: 4px;
+        }
+        ::-webkit-scrollbar-track {
+            background: var(--bg);
+        }
+        ::-webkit-scrollbar-thumb {
+            background: var(--accent);
+            border-radius: 4px;
+        }
+
+        /* ── SIDEBAR NAVIGATION ── */
+        .sidebar {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: var(--nav-width);
+            height: 100vh;
+            background: var(--surface);
+            border-right: 1px solid var(--border);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 20px 0;
+            z-index: 100;
+            transition: width 0.3s ease, transform 0.3s ease;
+            overflow: hidden;
+        }
+
+        .sidebar-brand {
+            font-family: 'Inter', sans-serif;
+            font-weight: 700;
+            font-size: 14px;
+            letter-spacing: 1px;
+            color: var(--accent);
+            text-transform: uppercase;
+            margin-bottom: 30px;
+            white-space: nowrap;
+            padding: 0 12px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .sidebar-brand .brand-icon {
+            font-size: 24px;
+        }
+
+        .sidebar-brand .brand-text {
+            opacity: 0;
+            transition: opacity 0.3s ease;
+            font-size: 13px;
+        }
+
+        .sidebar:hover .brand-text {
+            opacity: 1;
+        }
+
+        .sidebar:hover {
+            width: var(--nav-width-expanded);
+        }
+
+        .sidebar:hover ~ .main-content {
+            padding-left: calc(var(--nav-width-expanded) - var(--nav-width));
+        }
+
+        .sidebar-nav {
+            display: flex;
+            flex-direction: column;
+            gap: 4px;
+            width: 100%;
+            flex: 1;
+            padding: 0 10px;
+        }
+
+        .sidebar-nav .nav-item {
+            display: flex;
+            align-items: center;
+            gap: 14px;
+            padding: 12px 14px;
+            border-radius: var(--radius);
+            color: var(--text-muted);
+            text-decoration: none;
+            font-size: 13px;
+            font-weight: 500;
+            transition: all 0.2s ease;
+            white-space: nowrap;
+            cursor: pointer;
+            border: none;
+            background: transparent;
+            width: 100%;
+            font-family: 'Inter', sans-serif;
+        }
+
+        .sidebar-nav .nav-item .nav-icon {
+            font-size: 20px;
+            min-width: 24px;
+            text-align: center;
+            color: var(--text-muted);
+            transition: color 0.2s ease;
+        }
+
+        .sidebar-nav .nav-item .nav-label {
+            opacity: 0;
+            transition: opacity 0.3s ease;
+            font-size: 13px;
+            font-weight: 500;
+        }
+
+        .sidebar:hover .nav-item .nav-label {
+            opacity: 1;
+        }
+
+        .sidebar-nav .nav-item:hover {
+            background: rgba(34, 197, 94, 0.08);
+            color: var(--text-primary);
+        }
+
+        .sidebar-nav .nav-item:hover .nav-icon {
+            color: var(--accent);
+        }
+
+        .sidebar-nav .nav-item.active {
+            background: rgba(34, 197, 94, 0.12);
+            color: var(--accent);
+        }
+
+        .sidebar-nav .nav-item.active .nav-icon {
+            color: var(--accent);
+        }
+
+        /* ── BOTTOM NAV (mobile) ── */
+        .bottom-nav {
+            display: none;
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            background: var(--surface);
+            border-top: 1px solid var(--border);
+            padding: 8px 0 env(safe-area-inset-bottom);
+            z-index: 99;
+            justify-content: space-around;
+            align-items: center;
+        }
+
+        .bottom-nav .nav-item {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 2px;
+            padding: 6px 12px;
+            color: var(--text-muted);
+            text-decoration: none;
+            font-size: 10px;
+            font-weight: 500;
+            transition: color 0.2s ease;
+            border: none;
+            background: transparent;
+            cursor: pointer;
+            font-family: 'Inter', sans-serif;
+        }
+
+        .bottom-nav .nav-item .nav-icon {
+            font-size: 22px;
+        }
+
+        .bottom-nav .nav-item.active {
+            color: var(--accent);
+        }
+
+        .bottom-nav .nav-item:hover {
+            color: var(--text-primary);
+        }
+
+        /* ── MAIN CONTENT ── */
+        .main-content {
+            flex: 1;
+            padding: 20px 28px 100px 28px;
+            transition: padding-left 0.3s ease;
+            max-width: 1440px;
+            margin: 0 auto;
+            width: 100%;
+        }
+
+        /* ── HEADER ── */
+        .page-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 24px;
+            flex-wrap: wrap;
+            gap: 12px;
+        }
+
+        .page-header .header-left {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .page-header .back-btn {
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: var(--radius);
+            padding: 8px 16px;
+            color: var(--text-secondary);
+            text-decoration: none;
+            font-size: 13px;
+            font-weight: 500;
+            transition: all 0.2s ease;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            font-family: 'Inter', sans-serif;
+        }
+
+        .page-header .back-btn:hover {
+            border-color: var(--accent);
+            color: var(--accent);
+        }
+
+        .page-header h1 {
+            font-size: 22px;
+            font-weight: 700;
+            letter-spacing: -0.3px;
+            color: var(--text-primary);
+        }
+
+        .page-header h1 span {
+            color: var(--accent);
+        }
+
+        .page-header .header-right {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .page-header .header-time {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 13px;
+            color: var(--text-muted);
+            background: var(--surface);
+            padding: 6px 14px;
+            border-radius: var(--radius);
+            border: 1px solid var(--border);
+        }
+
+        /* ── CARD ── */
+        .card {
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: var(--radius);
+            padding: 22px 24px;
+            box-shadow: var(--shadow);
+            transition: border-color 0.2s ease;
+        }
+
+        .card:hover {
+            border-color: rgba(34, 197, 94, 0.25);
+        }
+
+        .card .card-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 18px;
+            flex-wrap: wrap;
+            gap: 12px;
+        }
+
+        .card .card-title {
+            font-size: 14px;
+            font-weight: 600;
+            color: var(--text-secondary);
+            text-transform: uppercase;
+            letter-spacing: 0.06em;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .card .card-title .title-icon {
+            color: var(--accent);
+            font-size: 18px;
+        }
+
+        .card .card-actions {
+            display: flex;
+            gap: 8px;
+            flex-wrap: wrap;
+        }
+
+        .action-btn {
+            background: var(--bg);
+            border: 1px solid var(--border);
+            border-radius: var(--radius);
+            padding: 6px 14px;
+            color: var(--text-secondary);
+            font-size: 12px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            font-family: 'Inter', sans-serif;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .action-btn:hover {
+            border-color: var(--accent);
+            color: var(--accent);
+            background: rgba(34, 197, 94, 0.05);
+        }
+
+        .action-btn.danger:hover {
+            border-color: var(--danger);
+            color: var(--danger);
+            background: rgba(239, 68, 68, 0.05);
+        }
+
+        /* ── FILTERS ── */
+        .filters {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+            margin-bottom: 18px;
+            align-items: center;
+        }
+
+        .filters select,
+        .filters input {
+            background: var(--bg);
+            border: 1px solid var(--border);
+            border-radius: var(--radius);
+            padding: 8px 14px;
+            color: var(--text-primary);
+            font-family: 'Inter', sans-serif;
+            font-size: 12px;
+            outline: none;
+            transition: all 0.2s ease;
+            min-width: 140px;
+        }
+
+        .filters select option {
+            background: var(--surface);
+            color: var(--text-primary);
+        }
+
+        .filters select:focus,
+        .filters input:focus {
+            border-color: var(--accent);
+            box-shadow: 0 0 0 2px rgba(34, 197, 94, 0.1);
+        }
+
+        .filters input::placeholder {
+            color: var(--text-muted);
+            opacity: 0.4;
+        }
+
+        .filters .filter-search {
+            flex: 1;
+            min-width: 180px;
+        }
+
+        .filters .clear-btn {
+            background: var(--bg);
+            border: 1px solid var(--border);
+            border-radius: var(--radius);
+            padding: 8px 16px;
+            color: var(--text-muted);
+            font-size: 12px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            font-family: 'Inter', sans-serif;
+        }
+
+        .filters .clear-btn:hover {
+            border-color: var(--text-muted);
+            color: var(--text-primary);
+        }
+
+        /* ── TABLE ── */
+        .table-wrapper {
+            overflow-x: auto;
+            margin-bottom: 16px;
+        }
+
+        .audit-table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 13px;
+        }
+
+        .audit-table thead th {
+            text-align: left;
+            padding: 10px 14px;
+            color: var(--text-muted);
+            font-weight: 500;
+            font-size: 11px;
+            text-transform: uppercase;
+            letter-spacing: 0.06em;
+            border-bottom: 1px solid var(--border);
+            position: sticky;
+            top: 0;
+            background: var(--surface);
+            z-index: 2;
+        }
+
+        .audit-table tbody td {
+            padding: 10px 14px;
+            color: var(--text-primary);
+            border-bottom: 1px solid rgba(34, 197, 94, 0.05);
+            font-size: 12px;
+            vertical-align: middle;
+        }
+
+        .audit-table tbody tr:hover td {
+            background: rgba(34, 197, 94, 0.02);
+        }
+
+        .audit-table .timestamp {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 11px;
+            color: var(--text-muted);
+            white-space: nowrap;
+        }
+
+        .audit-table .user-cell {
+            font-weight: 500;
+            color: var(--text-secondary);
+        }
+
+        .audit-table .unit-cell {
+            color: var(--text-muted);
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 11px;
+        }
+
+        .audit-table .status-badge {
+            display: inline-block;
+            padding: 2px 12px;
+            border-radius: 20px;
+            font-size: 10px;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.04em;
+            font-family: 'Inter', sans-serif;
+        }
+
+        .audit-table .status-badge.success {
+            background: rgba(34, 197, 94, 0.12);
+            color: var(--accent);
+        }
+
+        .audit-table .status-badge.warning {
+            background: rgba(245, 158, 11, 0.12);
+            color: var(--warning);
+        }
+
+        .audit-table .status-badge.danger {
+            background: rgba(239, 68, 68, 0.12);
+            color: var(--danger);
+        }
+
+        .audit-table .status-badge.info {
+            background: rgba(74, 222, 128, 0.08);
+            color: var(--text-muted);
+        }
+
+        .audit-table .details-cell {
+            font-size: 12px;
+            max-width: 300px;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+        }
+
+        .audit-table .details-cell .old-val {
+            color: var(--danger);
+            text-decoration: line-through;
+            opacity: 0.6;
+        }
+
+        .audit-table .details-cell .new-val {
+            color: var(--accent);
+            font-weight: 600;
+        }
+
+        .audit-table .details-cell .arrow {
+            color: var(--text-muted);
+            margin: 0 4px;
+            opacity: 0.3;
+        }
+
+        .audit-table .device-cell {
+            font-size: 10px;
+            color: var(--text-muted);
+            opacity: 0.5;
+            font-family: 'JetBrains Mono', monospace;
+        }
+
+        /* ── PAGINATION ── */
+        .pagination {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 12px;
+            padding-top: 14px;
+            border-top: 1px solid var(--border);
+        }
+
+        .pagination .info {
+            font-size: 12px;
+            color: var(--text-muted);
+        }
+
+        .pagination .pages {
+            display: flex;
+            gap: 4px;
+            align-items: center;
+        }
+
+        .pagination .page-btn {
+            background: var(--bg);
+            border: 1px solid var(--border);
+            border-radius: var(--radius);
+            padding: 6px 12px;
+            color: var(--text-secondary);
+            font-size: 12px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            font-family: 'Inter', sans-serif;
+            min-width: 32px;
+            text-align: center;
+        }
+
+        .pagination .page-btn:hover:not(:disabled) {
+            border-color: var(--accent);
+            color: var(--accent);
+        }
+
+        .pagination .page-btn:disabled {
+            opacity: 0.3;
+            cursor: not-allowed;
+        }
+
+        .pagination .page-btn.active {
+            background: var(--accent);
+            border-color: var(--accent);
+            color: var(--bg);
+        }
+
+        .pagination .page-btn.active:hover {
+            background: var(--accent-dim);
+            border-color: var(--accent-dim);
+        }
+
+        /* ── TOAST ── */
+        .toast-container {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            z-index: 999;
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+
+        .toast {
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: var(--radius);
+            padding: 14px 20px;
+            color: var(--text-primary);
+            font-size: 13px;
+            box-shadow: var(--shadow);
+            min-width: 260px;
+            animation: slideIn 0.3s ease;
+            border-left: 3px solid var(--accent);
+        }
+
+        .toast.error {
+            border-left-color: var(--danger);
+        }
+
+        .toast.warning {
+            border-left-color: var(--warning);
+        }
+
+        @keyframes slideIn {
+            from {
+                transform: translateX(100%);
+                opacity: 0;
+            }
+            to {
+                transform: translateX(0);
+                opacity: 1;
+            }
+        }
+
+        /* ── EMPTY STATE ── */
+        .empty-state {
+            text-align: center;
+            padding: 40px 20px;
+            color: var(--text-muted);
+        }
+
+        .empty-state .empty-icon {
+            font-size: 48px;
+            color: var(--text-muted);
+            opacity: 0.3;
+            margin-bottom: 12px;
+            display: block;
+        }
+
+        .empty-state .empty-title {
+            font-size: 16px;
+            font-weight: 600;
+            color: var(--text-secondary);
+            margin-bottom: 4px;
+        }
+
+        .empty-state .empty-sub {
+            font-size: 13px;
+            opacity: 0.5;
+        }
+
+        /* ── RESPONSIVE ── */
+        @media (max-width: 992px) {
+            .filters {
+                flex-direction: column;
+                align-items: stretch;
+            }
+            .filters select,
+            .filters input {
+                min-width: unset;
+                width: 100%;
+            }
+            .filters .filter-search {
+                min-width: unset;
+            }
+            .filters .clear-btn {
+                width: 100%;
+                justify-content: center;
+            }
+        }
+
+        @media (max-width: 768px) {
+            body {
+                padding-left: 0;
+                padding-bottom: 72px;
+            }
+
+            .sidebar {
+                transform: translateX(-100%);
+                width: var(--nav-width-expanded);
+            }
+
+            .sidebar.open {
+                transform: translateX(0);
+            }
+
+            .sidebar .brand-text {
+                opacity: 1;
+            }
+
+            .sidebar .nav-item .nav-label {
+                opacity: 1;
+            }
+
+            .bottom-nav {
+                display: flex;
+            }
+
+            .main-content {
+                padding: 16px 16px 80px 16px;
+            }
+
+            .card {
+                padding: 16px;
+            }
+
+            .card .card-header {
+                flex-direction: column;
+                align-items: stretch;
+            }
+
+            .card .card-actions {
+                justify-content: stretch;
+            }
+
+            .card .card-actions .action-btn {
+                flex: 1;
+                justify-content: center;
+            }
+
+            .page-header {
+                flex-direction: column;
+                align-items: stretch;
+                gap: 10px;
+            }
+
+            .page-header .header-left {
+                flex-wrap: wrap;
+            }
+
+            .page-header .header-right {
+                flex-wrap: wrap;
+            }
+
+            .audit-table {
+                font-size: 11px;
+            }
+
+            .audit-table thead th,
+            .audit-table tbody td {
+                padding: 6px 10px;
+            }
+
+            .audit-table .details-cell {
+                max-width: 120px;
+            }
+
+            .pagination {
+                flex-direction: column;
+                align-items: center;
+            }
+
+            .pagination .pages {
+                flex-wrap: wrap;
+                justify-content: center;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .page-header h1 {
+                font-size: 18px;
+            }
+
+            .audit-table thead th,
+            .audit-table tbody td {
+                padding: 4px 6px;
+                font-size: 10px;
+            }
+
+            .audit-table .timestamp {
+                font-size: 9px;
+            }
+
+            .audit-table .details-cell {
+                max-width: 80px;
+            }
+
+            .pagination .page-btn {
+                padding: 4px 8px;
+                font-size: 10px;
+                min-width: 28px;
+            }
+        }
+
+        /* ── MENU TOGGLE (mobile) ── */
+        .menu-toggle {
+            display: none;
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: var(--radius);
+            color: var(--text-primary);
+            padding: 8px 12px;
+            font-size: 20px;
+            cursor: pointer;
+            font-family: 'Inter', sans-serif;
+        }
+
+        @media (max-width: 768px) {
+            .menu-toggle {
+                display: flex;
+                align-items: center;
+                gap: 8px;
+            }
+            .menu-toggle span {
+                font-size: 12px;
+                font-weight: 500;
+            }
+        }
+    </style>
+    <link rel="stylesheet" href="theme.css" />
+</head>
+<body>
+
+    <!-- ── SIDEBAR ── -->
+    <nav class="sidebar" id="sidebar">
+        <div class="sidebar-brand">
+            <span class="brand-text">ARC·GLASSHOUSE</span>
+        </div>
+
+        <div class="sidebar-nav">
+            <a href="dashboard.html" class="nav-item">
+                <span class="nav-icon ti ti-layout-dashboard"></span>
+                <span class="nav-label">Overview</span>
+            </a>
+            <a href="control.html" class="nav-item">
+                <span class="nav-icon ti ti-adjustments-horizontal"></span>
+                <span class="nav-label">Control</span>
+            </a>
+            <a href="energy.html" class="nav-item">
+                <span class="nav-icon ti ti-bolt"></span>
+                <span class="nav-label">Energy</span>
+            </a>
+            <a href="auditlog.html" class="nav-item active">
+                <span class="nav-icon ti ti-clipboard-list"></span>
+                <span class="nav-label">Audit Log</span>
+            </a>
+            <a href="settings.html" class="nav-item">
+                <span class="nav-icon ti ti-settings"></span>
+                <span class="nav-label">Settings</span>
+            </a>
+        </div>
+
+        <div class="sidebar-footer">
+            <button class="nav-item" onclick="showToast('System online', 'info')">
+                <span class="nav-icon ti ti-circle-check"></span>
+                <span class="nav-label">Online</span>
+            </button>
+        </div>
+    </nav>
+
+    <!-- ── BOTTOM NAV (mobile) ── -->
+    <nav class="bottom-nav" id="bottomNav">
+        <a href="dashboard.html" class="nav-item">
+            <span class="nav-icon ti ti-layout-dashboard"></span>
+            <span>Overview</span>
+        </a>
+        <a href="control.html" class="nav-item">
+            <span class="nav-icon ti ti-adjustments-horizontal"></span>
+            <span>Control</span>
+        </a>
+        <a href="energy.html" class="nav-item">
+            <span class="nav-icon ti ti-bolt"></span>
+            <span>Energy</span>
+        </a>
+        <a href="auditlog.html" class="nav-item active">
+            <span class="nav-icon ti ti-clipboard-list"></span>
+            <span>Audit</span>
+        </a>
+        <a href="settings.html" class="nav-item">
+            <span class="nav-icon ti ti-settings"></span>
+            <span>Settings</span>
+        </a>
+    </nav>
+
+    <!-- ── MAIN CONTENT ── -->
+    <main class="main-content">
+
+        <!-- ── PAGE HEADER ── -->
+        <div class="page-header">
+            <div class="header-left">
+                <button class="menu-toggle" id="menuToggle" aria-label="Toggle menu">
+                    <span class="ti ti-menu-2"></span>
+                    <span>Menu</span>
+                </button>
+                <a href="dashboard.html" class="back-btn">
+                    <span class="ti ti-arrow-left"></span> Back
+                </a>
+                <h1>Audit <span>Log</span></h1>
+            </div>
+            <div class="header-right">
+                <span class="header-time" id="headerTime">--:--:--</span>
+            </div>
+        </div>
+
+        <!-- ── AUDIT CARD ── -->
+        <div class="card">
+            <div class="card-header">
+                <div class="card-title">
+                    <span class="title-icon ti ti-clipboard-list"></span>
+                    Activity History
+                </div>
+                <div class="card-actions">
+                    <button class="action-btn" id="exportBtn">
+                        <span class="ti ti-download"></span> Export CSV
+                    </button>
+                    <button class="action-btn danger" id="clearBtn">
+                        <span class="ti ti-trash"></span> Clear All
+                    </button>
+                </div>
+            </div>
+
+            <!-- ── FILTERS ── -->
+            <div class="filters">
+                <select id="filterAction">
+                    <option value="all">All Actions</option>
+                    <option value="login">Login</option>
+                    <option value="logout">Logout</option>
+                    <option value="setpoint">Setpoint Change</option>
+                    <option value="toggle">Toggle</option>
+                    <option value="enable">Enable/Disable</option>
+                    <option value="override">Override</option>
+                    <option value="uv">UV Control</option>
+                    <option value="error">Error</option>
+                    <option value="other">Other</option>
+                </select>
+
+                <select id="filterUnit">
+                    <option value="all">All Units</option>
+                    <option value="Greenhouse 1">Greenhouse 1</option>
+                    <option value="Greenhouse 2">Greenhouse 2</option>
+                    <option value="Greenhouse 3">Greenhouse 3</option>
+                    <option value="Greenhouse 4">Greenhouse 4</option>
+                    <option value="Greenhouse 5">Greenhouse 5</option>
+                    <option value="Greenhouse 6">Greenhouse 6</option>
+                    <option value="Greenhouse 7">Greenhouse 7</option>
+                    <option value="Greenhouse 8">Greenhouse 8</option>
+                    <option value="Greenhouse 9">Greenhouse 9</option>
+                    <option value="Greenhouse 10">Greenhouse 10</option>
+                </select>
+
+                <select id="filterUser">
+                    <option value="all">All Users</option>
+                </select>
+
+                <input type="text" id="filterSearch" class="filter-search" placeholder="Search..." />
+
+                <button class="clear-btn" id="clearFilters">Clear Filters</button>
+            </div>
+
+            <!-- ── TABLE ── -->
+            <div class="table-wrapper">
+                <table class="audit-table">
+                    <thead>
+                        <tr>
+                            <th>Timestamp</th>
+                            <th>User</th>
+                            <th>Unit</th>
+                            <th>Action</th>
+                            <th>Details</th>
+                            <th>Status</th>
+                            <th>Device</th>
+                        </tr>
+                    </thead>
+                    <tbody id="tableBody">
+                        <!-- Rows rendered by JavaScript -->
+                    </tbody>
+                </table>
+            </div>
+
+            <!-- ── PAGINATION ── -->
+            <div class="pagination">
+                <span class="info" id="paginationInfo">Showing 0 of 0 entries</span>
+                <div class="pages" id="pageButtons">
+                    <button class="page-btn" id="prevPage" disabled>←</button>
+                    <span id="pageNumbers"></span>
+                    <button class="page-btn" id="nextPage" disabled>→</button>
+                </div>
+            </div>
+        </div>
+
+    </main>
+
+    <!-- ── TOAST CONTAINER ── -->
+    <div class="toast-container" id="toastContainer"></div>
+
+    <script src="api.js"></script>
+    <script>
+    (function() {
+        'use strict';
+
+        // ── AUTH CHECK ──
+        if (localStorage.getItem('arc_auth') !== 'true') {
+            // window.location.href = 'login.html';
+            setTimeout(() => showToast('Please log in to access the system', 'warning'), 500);
+        }
+
+        // ── STATE ──
+        let currentPage = 1;
+        const PAGE_SIZE = 20;
+        let filteredLog = [];
+
+        // ── DOM REFS ──
+        const $ = id => document.getElementById(id);
+        const tableBody = $('tableBody');
+        const paginationInfo = $('paginationInfo');
+        const pageNumbers = $('pageNumbers');
+        const prevPage = $('prevPage');
+        const nextPage = $('nextPage');
+        const filterAction = $('filterAction');
+        const filterUnit = $('filterUnit');
+        const filterUser = $('filterUser');
+        const filterSearch = $('filterSearch');
+        const clearFilters = $('clearFilters');
+        const exportBtn = $('exportBtn');
+        const clearBtn = $('clearBtn');
+        const headerTime = $('headerTime');
+
+        // ── TOAST ──
+        function showToast(message, type = 'info') {
+            const container = document.getElementById('toastContainer');
+            const toast = document.createElement('div');
+            toast.className = `toast ${type}`;
+            const icon = type === 'error' ? '❌' : type === 'warning' ? '⚠️' : '✅';
+            toast.textContent = `${icon} ${message}`;
+            container.appendChild(toast);
+
+            setTimeout(() => {
+                toast.style.opacity = '0';
+                toast.style.transform = 'translateX(100%)';
+                toast.style.transition = 'all 0.3s ease';
+                setTimeout(() => toast.remove(), 300);
+            }, 3000);
+        }
+        window.showToast = showToast;
+
+        // ── GET AUDIT LOG ──
+        function getAuditLog() {
+            try {
+                const data = localStorage.getItem('arc_audit_log');
+                return data ? JSON.parse(data) : [];
+            } catch {
+                return [];
+            }
+        }
+
+        function saveAuditLog(log) {
+            localStorage.setItem('arc_audit_log', JSON.stringify(log));
+        }
+
+        // ── GENERATE MOCK DATA ──
+        function generateMockLog() {
+            const users = ['admin@arc.com', 'operator1', 'operator2', 'manager', 'tech@arc.com'];
+            const units = ['Greenhouse 1', 'Greenhouse 2', 'Greenhouse 3', 'Greenhouse 4', 'Greenhouse 5', 
+                          'Greenhouse 6', 'Greenhouse 7', 'Greenhouse 8', 'Greenhouse 9', 'Greenhouse 10'];
+            const actions = [
+                { type: 'login', label: 'Login', status: 'success' },
+                { type: 'logout', label: 'Logout', status: 'info' },
+                { type: 'setpoint', label: 'Setpoint Change', status: 'success' },
+                { type: 'toggle', label: 'Toggle', status: 'warning' },
+                { type: 'enable', label: 'Enable', status: 'success' },
+                { type: 'disable', label: 'Disable', status: 'danger' },
+                { type: 'override', label: 'Override', status: 'warning' },
+                { type: 'uv', label: 'UV Control', status: 'info' },
+                { type: 'error', label: 'Error', status: 'danger' },
+                { type: 'other', label: 'Other', status: 'info' }
+            ];
+            const details = [
+                'Temperature setpoint changed from 22.0°C to 23.5°C',
+                'Humidity setpoint changed from 60% to 55%',
+                'CO₂ setpoint changed from 400 ppm to 450 ppm',
+                'Unit enabled',
+                'Unit disabled',
+                'CO₂ Demand toggled ON',
+                'Humidity Demand toggled OFF',
+                'CO₂ Override activated',
+                'Humidity Override deactivated',
+                'UV Lights turned ON',
+                'UV Lights turned OFF',
+                'Fan schedule activated',
+                'CO₂ solenoid toggled',
+                'Ventilation toggled ON',
+                'Irrigation toggled OFF'
+            ];
+
+            const log = [];
+            const now = new Date();
+            
+            for (let i = 0; i < 150; i++) {
+                const date = new Date(now.getTime() - i * 60000 * (5 + Math.random() * 30));
+                const action = actions[Math.floor(Math.random() * actions.length)];
+                const unit = Math.random() > 0.2 ? units[Math.floor(Math.random() * units.length)] : 'System';
+                
+                log.push({
+                    id: Date.now() + '_' + i,
+                    timestamp: date.toISOString(),
+                    user: users[Math.floor(Math.random() * users.length)],
+                    unit: unit,
+                    action: action.label,
+                    actionType: action.type,
+                    status: action.status,
+                    details: details[Math.floor(Math.random() * details.length)],
+                    device: ['Chrome', 'Firefox', 'Safari', 'Edge', 'Mobile'][Math.floor(Math.random() * 5)],
+                    ip: 'Local'
+                });
+            }
+
+            return log.sort((a, b) => new Date(b.timestamp) - new Date(a.timestamp));
+        }
+
+        // ── INITIALIZE LOG ──
+        function initAuditLog() {
+            const existing = getAuditLog();
+            if (existing.length === 0) {
+                const mock = generateMockLog();
+                saveAuditLog(mock);
+                return mock;
+            }
+            return existing;
+        }
+
+        // ── GET FILTERED LOG ──
+        function getFilteredLog() {
+            const log = getAuditLog();
+            const actionFilter = filterAction.value;
+            const unitFilter = filterUnit.value;
+            const userFilter = filterUser.value;
+            const search = filterSearch.value.toLowerCase();
+
+            return log.filter(entry => {
+                if (actionFilter !== 'all' && entry.actionType !== actionFilter) return false;
+                if (unitFilter !== 'all' && entry.unit !== unitFilter) return false;
+                if (userFilter !== 'all' && entry.user !== userFilter) return false;
+                if (search) {
+                    const searchable = `${entry.user} ${entry.unit} ${entry.action} ${entry.details}`.toLowerCase();
+                    if (!searchable.includes(search)) return false;
+                }
+                return true;
+            });
+        }
+
+        // ── POPULATE USER FILTER ──
+        function populateUsers() {
+            const log = getAuditLog();
+            const users = new Set();
+            log.forEach(entry => {
+                if (entry.user) users.add(entry.user);
+            });
+            const select = filterUser;
+            while (select.options.length > 1) {
+                select.remove(1);
+            }
+            Array.from(users).sort().forEach(user => {
+                const opt = document.createElement('option');
+                opt.value = user;
+                opt.textContent = user;
+                select.appendChild(opt);
+            });
+        }
+
+        // ── RENDER TABLE ──
+        function renderTable() {
+            filteredLog = getFilteredLog();
+            const total = filteredLog.length;
+            const totalPages = Math.ceil(total / PAGE_SIZE) || 1;
+
+            if (currentPage > totalPages) currentPage = totalPages;
+            if (currentPage < 1) currentPage = 1;
+
+            const start = (currentPage - 1) * PAGE_SIZE;
+            const end = Math.min(start + PAGE_SIZE, total);
+            const pageEntries = filteredLog.slice(start, end);
+
+            // ── TABLE ROWS ──
+            if (pageEntries.length === 0) {
+                tableBody.innerHTML = `
+                    <tr>
+                        <td colspan="7">
+                            <div class="empty-state">
+                                <span class="empty-icon">📭</span>
+                                <div class="empty-title">No audit entries found</div>
+                                <div class="empty-sub">Activity will appear here as users interact with the system.</div>
+                            </div>
+                        </td>
+                    </tr>
+                `;
+            } else {
+                let html = '';
+                pageEntries.forEach(entry => {
+                    const date = new Date(entry.timestamp);
+                    const timeStr = date.toLocaleString('en-ZA', {
+                        year: 'numeric',
+                        month: 'short',
+                        day: 'numeric',
+                        hour: '2-digit',
+                        minute: '2-digit',
+                        second: '2-digit',
+                        hour12: false
+                    });
+
+                    const statusMap = {
+                        'success': 'success',
+                        'warning': 'warning',
+                        'danger': 'danger',
+                        'info': 'info'
+                    };
+                    const statusClass = statusMap[entry.status] || 'info';
+
+                    // Parse details for old/new values
+                    let detailsHtml = entry.details || '—';
+                    if (entry.oldValue && entry.newValue) {
+                        detailsHtml = `<span class="old-val">${entry.oldValue}</span><span class="arrow">→</span><span class="new-val">${entry.newValue}</span>`;
+                    }
+
+                    html += `
+                        <tr>
+                            <td class="timestamp">${timeStr}</td>
+                            <td class="user-cell">${entry.user || 'Unknown'}</td>
+                            <td class="unit-cell">${entry.unit || '—'}</td>
+                            <td>${entry.action || 'Unknown'}</td>
+                            <td class="details-cell">${detailsHtml}</td>
+                            <td><span class="status-badge ${statusClass}">${entry.status || 'info'}</span></td>
+                            <td class="device-cell">${entry.device || '—'}</td>
+                        </tr>
+                    `;
+                });
+                tableBody.innerHTML = html;
+            }
+
+            // ── PAGINATION ──
+            paginationInfo.textContent = `Showing ${total > 0 ? start + 1 : 0}–${end} of ${total} entries`;
+
+            prevPage.disabled = currentPage <= 1;
+            nextPage.disabled = currentPage >= totalPages;
+
+            // Page numbers
+            let pagesHtml = '';
+            const maxVisible = 5;
+            let startPage = Math.max(1, currentPage - Math.floor(maxVisible / 2));
+            let endPage = Math.min(totalPages, startPage + maxVisible - 1);
+
+            if (endPage - startPage < maxVisible - 1) {
+                startPage = Math.max(1, endPage - maxVisible + 1);
+            }
+
+            if (totalPages > 1) {
+                for (let i = startPage; i <= endPage; i++) {
+                    pagesHtml += `<button class="page-btn ${i === currentPage ? 'active' : ''}" data-page="${i}">${i}</button>`;
+                }
+            }
+            pageNumbers.innerHTML = pagesHtml;
+
+            // Page number click handlers
+            document.querySelectorAll('#pageNumbers .page-btn').forEach(btn => {
+                btn.addEventListener('click', function() {
+                    currentPage = parseInt(this.dataset.page);
+                    renderTable();
+                });
+            });
+        }
+
+        // ── PAGINATION CONTROLS ──
+        prevPage.addEventListener('click', function() {
+            if (currentPage > 1) { currentPage--; renderTable(); }
+        });
+
+        nextPage.addEventListener('click', function() {
+            const totalPages = Math.ceil(getFilteredLog().length / PAGE_SIZE) || 1;
+            if (currentPage < totalPages) { currentPage++; renderTable(); }
+        });
+
+        // ── FILTER EVENTS ──
+        [filterAction, filterUnit, filterUser, filterSearch].forEach(el => {
+            el.addEventListener('change', function() { currentPage = 1; renderTable(); });
+        });
+        filterSearch.addEventListener('input', function() { currentPage = 1; renderTable(); });
+
+        clearFilters.addEventListener('click', function() {
+            filterAction.value = 'all';
+            filterUnit.value = 'all';
+            filterUser.value = 'all';
+            filterSearch.value = '';
+            currentPage = 1;
+            renderTable();
+        });
+
+        // ── EXPORT CSV ──
+        exportBtn.addEventListener('click', function() {
+            const data = filteredLog.length > 0 ? filteredLog : getAuditLog();
+            if (data.length === 0) {
+                showToast('No audit data to export', 'warning');
+                return;
+            }
+
+            let csv = 'Timestamp,User,Unit,Action,Details,Status,Device\n';
+            data.forEach(entry => {
+                const date = new Date(entry.timestamp);
+                const timeStr = date.toLocaleString('en-ZA', {
+                    year: 'numeric',
+                    month: 'short',
+                    day: 'numeric',
+                    hour: '2-digit',
+                    minute: '2-digit',
+                    second: '2-digit',
+                    hour12: false
+                });
+                const row = [
+                    timeStr,
+                    entry.user || 'Unknown',
+                    entry.unit || 'System',
+                    entry.action || 'Unknown',
+                    `"${(entry.details || '').replace(/"/g, '""')}"`,
+                    entry.status || 'info',
+                    entry.device || 'Unknown'
+                ];
+                csv += row.join(',') + '\n';
+            });
+
+            const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+            const link = document.createElement('a');
+            const url = URL.createObjectURL(blob);
+            link.href = url;
+            link.download = `ARC_AuditLog_${new Date().toISOString().slice(0,10)}.csv`;
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+            URL.revokeObjectURL(url);
+
+            showToast('Audit log exported successfully!', 'success');
+        });
+
+        // ── CLEAR ALL ──
+        clearBtn.addEventListener('click', function() {
+            if (confirm('⚠️ Are you sure you want to clear ALL audit log entries? This cannot be undone.')) {
+                saveAuditLog([]);
+                populateUsers();
+                currentPage = 1;
+                renderTable();
+                showToast('Audit log cleared', 'warning');
+            }
+        });
+
+        // ── UPDATE CLOCK ──
+        function updateClock() {
+            const now = new Date();
+            headerTime.textContent = now.toLocaleTimeString('en-ZA', {
+                hour: '2-digit',
+                minute: '2-digit',
+                second: '2-digit',
+                hour12: false
+            });
+        }
+
+        // ── SIDEBAR TOGGLE ──
+        document.getElementById('menuToggle').addEventListener('click', function() {
+            document.getElementById('sidebar').classList.toggle('open');
+        });
+
+        document.addEventListener('click', function(e) {
+            const sidebar = document.getElementById('sidebar');
+            const toggle = document.getElementById('menuToggle');
+            if (window.innerWidth <= 768) {
+                if (!sidebar.contains(e.target) && !toggle.contains(e.target)) {
+                    sidebar.classList.remove('open');
+                }
+            }
+        });
+
+        // ── STORAGE SYNC ──
+        window.addEventListener('storage', function(e) {
+            if (e.key === 'arc_audit_log') {
+                populateUsers();
+                renderTable();
+            }
+        });
+
+        // ── INIT ──
+        function init() {
+            // Initialize with mock data if empty
+            const existing = getAuditLog();
+            if (existing.length === 0) {
+                const mock = generateMockLog();
+                saveAuditLog(mock);
+            }
+
+            populateUsers();
+            renderTable();
+            updateClock();
+            setInterval(updateClock, 1000);
+
+            console.log(`📋 Audit log loaded - ${getAuditLog().length} entries`);
+        }
+
+        init();
+
+        // ── EXPOSE FOR API INTEGRATION ──
+        window.addAuditEntry = function(entry) {
+            const log = getAuditLog();
+            const newEntry = {
+                id: Date.now() + '_' + Math.random().toString(36).substr(2, 6),
+                timestamp: new Date().toISOString(),
+                user: entry.user || localStorage.getItem('arc_user') || 'System',
+                unit: entry.unit || 'System',
+                action: entry.action || 'Unknown',
+                actionType: entry.actionType || 'other',
+                status: entry.status || 'info',
+                details: entry.details || '',
+                oldValue: entry.oldValue || null,
+                newValue: entry.newValue || null,
+                device: entry.device || navigator.userAgent || 'Unknown',
+                ip: entry.ip || 'Local'
+            };
+            log.unshift(newEntry);
+            if (log.length > 2000) log.length = 2000;
+            saveAuditLog(log);
+            populateUsers();
+            renderTable();
+            return newEntry;
+        };
+
+    })();
+    </script>
+
+</body>
+</html>

@@ -1,0 +1,1909 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.5, user-scalable=yes" />
+    <title>ARC-GLASS · Settings</title>
+    
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,400;14..32,500;14..32,600;14..32,700&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet" />
+    
+    <!-- Tabler Icons -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@latest/tabler-icons.min.css" />
+    
+    <style>
+        /* ── RESET & BASE ── */
+        *, *::before, *::after {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        :root {
+            --bg: #0a0f0a;
+            --surface: #111811;
+            --border: rgba(34, 197, 94, 0.15);
+            --accent: #22c55e;
+            --accent-dim: #16a34a;
+            --text-primary: #f0fdf4;
+            --text-secondary: #86efac;
+            --text-muted: #4ade80;
+            --warning: #f59e0b;
+            --danger: #ef4444;
+            --data-color: #4ade80;
+            --shadow: 0 0 0 1px rgba(34,197,94,0.05), 0 4px 24px rgba(0,0,0,0.4);
+            --radius: 12px;
+            --nav-width: 72px;
+            --nav-width-expanded: 220px;
+        }
+
+        html, body {
+            height: 100%;
+            font-family: 'Inter', sans-serif;
+            background: var(--bg);
+            color: var(--text-primary);
+        }
+
+        body {
+            display: flex;
+            min-height: 100vh;
+            padding-left: var(--nav-width);
+            transition: padding-left 0.3s ease;
+            overflow-x: hidden;
+        }
+
+        /* ── SCROLLBAR ── */
+        ::-webkit-scrollbar {
+            width: 4px;
+            height: 4px;
+        }
+        ::-webkit-scrollbar-track {
+            background: var(--bg);
+        }
+        ::-webkit-scrollbar-thumb {
+            background: var(--accent);
+            border-radius: 4px;
+        }
+
+        /* ── SIDEBAR NAVIGATION ── */
+        .sidebar {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: var(--nav-width);
+            height: 100vh;
+            background: var(--surface);
+            border-right: 1px solid var(--border);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 20px 0;
+            z-index: 100;
+            transition: width 0.3s ease, transform 0.3s ease;
+            overflow: hidden;
+        }
+
+        .sidebar-brand {
+            font-family: 'Inter', sans-serif;
+            font-weight: 700;
+            font-size: 14px;
+            letter-spacing: 1px;
+            color: var(--accent);
+            text-transform: uppercase;
+            margin-bottom: 30px;
+            white-space: nowrap;
+            padding: 0 12px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .sidebar-brand .brand-icon {
+            font-size: 24px;
+        }
+
+        .sidebar-brand .brand-text {
+            opacity: 0;
+            transition: opacity 0.3s ease;
+            font-size: 13px;
+        }
+
+        .sidebar:hover .brand-text {
+            opacity: 1;
+        }
+
+        .sidebar:hover {
+            width: var(--nav-width-expanded);
+        }
+
+        .sidebar:hover ~ .main-content {
+            padding-left: calc(var(--nav-width-expanded) - var(--nav-width));
+        }
+
+        .sidebar-nav {
+            display: flex;
+            flex-direction: column;
+            gap: 4px;
+            width: 100%;
+            flex: 1;
+            padding: 0 10px;
+        }
+
+        .sidebar-nav .nav-item {
+            display: flex;
+            align-items: center;
+            gap: 14px;
+            padding: 12px 14px;
+            border-radius: var(--radius);
+            color: var(--text-muted);
+            text-decoration: none;
+            font-size: 13px;
+            font-weight: 500;
+            transition: all 0.2s ease;
+            white-space: nowrap;
+            cursor: pointer;
+            border: none;
+            background: transparent;
+            width: 100%;
+            font-family: 'Inter', sans-serif;
+        }
+
+        .sidebar-nav .nav-item .nav-icon {
+            font-size: 20px;
+            min-width: 24px;
+            text-align: center;
+            color: var(--text-muted);
+            transition: color 0.2s ease;
+        }
+
+        .sidebar-nav .nav-item .nav-label {
+            opacity: 0;
+            transition: opacity 0.3s ease;
+            font-size: 13px;
+            font-weight: 500;
+        }
+
+        .sidebar:hover .nav-item .nav-label {
+            opacity: 1;
+        }
+
+        .sidebar-nav .nav-item:hover {
+            background: rgba(34, 197, 94, 0.08);
+            color: var(--text-primary);
+        }
+
+        .sidebar-nav .nav-item:hover .nav-icon {
+            color: var(--accent);
+        }
+
+        .sidebar-nav .nav-item.active {
+            background: rgba(34, 197, 94, 0.12);
+            color: var(--accent);
+        }
+
+        .sidebar-nav .nav-item.active .nav-icon {
+            color: var(--accent);
+        }
+
+        /* ── BOTTOM NAV (mobile) ── */
+        .bottom-nav {
+            display: none;
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            background: var(--surface);
+            border-top: 1px solid var(--border);
+            padding: 8px 0 env(safe-area-inset-bottom);
+            z-index: 99;
+            justify-content: space-around;
+            align-items: center;
+        }
+
+        .bottom-nav .nav-item {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 2px;
+            padding: 6px 12px;
+            color: var(--text-muted);
+            text-decoration: none;
+            font-size: 10px;
+            font-weight: 500;
+            transition: color 0.2s ease;
+            border: none;
+            background: transparent;
+            cursor: pointer;
+            font-family: 'Inter', sans-serif;
+        }
+
+        .bottom-nav .nav-item .nav-icon {
+            font-size: 22px;
+        }
+
+        .bottom-nav .nav-item.active {
+            color: var(--accent);
+        }
+
+        .bottom-nav .nav-item:hover {
+            color: var(--text-primary);
+        }
+
+        /* ── MAIN CONTENT ── */
+        .main-content {
+            flex: 1;
+            padding: 20px 28px 100px 28px;
+            transition: padding-left 0.3s ease;
+            max-width: 1440px;
+            margin: 0 auto;
+            width: 100%;
+        }
+
+        /* ── HEADER ── */
+        .page-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 24px;
+            flex-wrap: wrap;
+            gap: 12px;
+        }
+
+        .page-header .header-left {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .page-header .back-btn {
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: var(--radius);
+            padding: 8px 16px;
+            color: var(--text-secondary);
+            text-decoration: none;
+            font-size: 13px;
+            font-weight: 500;
+            transition: all 0.2s ease;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            font-family: 'Inter', sans-serif;
+        }
+
+        .page-header .back-btn:hover {
+            border-color: var(--accent);
+            color: var(--accent);
+        }
+
+        .page-header h1 {
+            font-size: 22px;
+            font-weight: 700;
+            letter-spacing: -0.3px;
+            color: var(--text-primary);
+        }
+
+        .page-header h1 span {
+            color: var(--accent);
+        }
+
+        .page-header .header-right {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .page-header .header-time {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 13px;
+            color: var(--text-muted);
+            background: var(--surface);
+            padding: 6px 14px;
+            border-radius: var(--radius);
+            border: 1px solid var(--border);
+        }
+
+        /* ── SETTINGS LAYOUT ── */
+        .settings-layout {
+            display: grid;
+            grid-template-columns: 220px 1fr;
+            gap: 20px;
+            min-height: 500px;
+        }
+
+        /* ── SETTINGS MENU ── */
+        .settings-menu {
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: var(--radius);
+            padding: 8px;
+            box-shadow: var(--shadow);
+            height: fit-content;
+            position: sticky;
+            top: 20px;
+        }
+
+        .settings-menu .menu-item {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 10px 14px;
+            border-radius: var(--radius);
+            color: var(--text-muted);
+            font-size: 13px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            border: none;
+            background: transparent;
+            width: 100%;
+            font-family: 'Inter', sans-serif;
+        }
+
+        .settings-menu .menu-item .menu-icon {
+            font-size: 18px;
+            color: var(--text-muted);
+            transition: color 0.2s ease;
+        }
+
+        .settings-menu .menu-item:hover {
+            background: rgba(34, 197, 94, 0.06);
+            color: var(--text-primary);
+        }
+
+        .settings-menu .menu-item:hover .menu-icon {
+            color: var(--accent);
+        }
+
+        .settings-menu .menu-item.active {
+            background: rgba(34, 197, 94, 0.1);
+            color: var(--accent);
+        }
+
+        .settings-menu .menu-item.active .menu-icon {
+            color: var(--accent);
+        }
+
+        /* ── SETTINGS PANEL ── */
+        .settings-panel {
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: var(--radius);
+            padding: 24px 28px;
+            box-shadow: var(--shadow);
+            min-height: 400px;
+        }
+
+        .settings-panel .panel-title {
+            font-size: 18px;
+            font-weight: 600;
+            color: var(--text-primary);
+            margin-bottom: 6px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .settings-panel .panel-title .title-icon {
+            color: var(--accent);
+            font-size: 22px;
+        }
+
+        .settings-panel .panel-subtitle {
+            font-size: 13px;
+            color: var(--text-muted);
+            opacity: 0.5;
+            margin-bottom: 20px;
+        }
+
+        .settings-panel .panel-section {
+            display: none;
+            animation: fadeIn 0.3s ease;
+        }
+
+        .settings-panel .panel-section.active {
+            display: block;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(8px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        /* ── FORM ELEMENTS ── */
+        .form-group {
+            margin-bottom: 16px;
+        }
+
+        .form-group .form-label {
+            display: block;
+            font-size: 12px;
+            font-weight: 500;
+            color: var(--text-muted);
+            text-transform: uppercase;
+            letter-spacing: 0.06em;
+            margin-bottom: 4px;
+        }
+
+        .form-group .form-input {
+            width: 100%;
+            padding: 10px 14px;
+            background: var(--bg);
+            border: 1px solid var(--border);
+            border-radius: var(--radius);
+            color: var(--text-primary);
+            font-family: 'Inter', sans-serif;
+            font-size: 14px;
+            transition: all 0.2s ease;
+            outline: none;
+        }
+
+        .form-group .form-input:focus {
+            border-color: var(--accent);
+            box-shadow: 0 0 0 3px rgba(34, 197, 94, 0.05);
+        }
+
+        .form-group .form-input::placeholder {
+            color: var(--text-muted);
+            opacity: 0.3;
+        }
+
+        .form-group .form-input:disabled {
+            opacity: 0.4;
+            cursor: not-allowed;
+        }
+
+        .form-row {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 16px;
+        }
+
+        .submit-btn {
+            padding: 10px 24px;
+            background: var(--accent);
+            border: none;
+            border-radius: var(--radius);
+            color: var(--bg);
+            font-family: 'Inter', sans-serif;
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        .submit-btn:hover {
+            background: var(--accent-dim);
+            box-shadow: 0 4px 20px rgba(34, 197, 94, 0.15);
+        }
+
+        .submit-btn.secondary {
+            background: var(--bg);
+            border: 1px solid var(--border);
+            color: var(--text-secondary);
+        }
+
+        .submit-btn.secondary:hover {
+            border-color: var(--accent);
+            color: var(--accent);
+            box-shadow: none;
+        }
+
+        .submit-btn.danger {
+            background: var(--danger);
+            color: white;
+        }
+
+        .submit-btn.danger:hover {
+            background: #dc2626;
+        }
+
+        /* ── AVATAR ── */
+        .avatar-wrapper {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+            margin-top: 4px;
+        }
+
+        .avatar-preview {
+            width: 72px;
+            height: 72px;
+            border-radius: 50%;
+            background: rgba(34, 197, 94, 0.08);
+            border: 2px solid var(--border);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            overflow: hidden;
+            flex-shrink: 0;
+            font-size: 28px;
+            color: var(--accent);
+            position: relative;
+            transition: border-color 0.2s ease;
+        }
+
+        .avatar-preview:hover {
+            border-color: var(--accent);
+        }
+
+        .avatar-preview img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            border-radius: 50%;
+        }
+
+        .avatar-preview .avatar-initial {
+            font-size: 28px;
+            font-weight: 600;
+            color: var(--accent);
+            text-transform: uppercase;
+        }
+
+        .avatar-actions .upload-label {
+            display: inline-block;
+            padding: 8px 16px;
+            background: var(--bg);
+            border: 1px solid var(--border);
+            border-radius: var(--radius);
+            color: var(--text-secondary);
+            font-size: 13px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            font-family: 'Inter', sans-serif;
+        }
+
+        .avatar-actions .upload-label:hover {
+            border-color: var(--accent);
+            color: var(--accent);
+        }
+
+        .avatar-actions .upload-label .ti {
+            margin-right: 6px;
+        }
+
+        .avatar-actions .avatar-hint {
+            font-size: 11px;
+            color: var(--text-muted);
+            opacity: 0.4;
+            margin-top: 4px;
+        }
+
+        .avatar-actions .remove-avatar {
+            display: none;
+            background: none;
+            border: none;
+            color: var(--danger);
+            font-size: 12px;
+            cursor: pointer;
+            font-family: 'Inter', sans-serif;
+            padding: 4px 0;
+            margin-top: 4px;
+            transition: opacity 0.2s ease;
+        }
+
+        .avatar-actions .remove-avatar:hover {
+            opacity: 0.7;
+        }
+
+        .avatar-actions .remove-avatar .ti {
+            margin-right: 4px;
+        }
+
+        /* ── THRESHOLD INPUTS ── */
+        .threshold-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr 1fr;
+            gap: 12px;
+            margin-top: 8px;
+        }
+
+        .threshold-item {
+            background: var(--bg);
+            border: 1px solid var(--border);
+            border-radius: var(--radius);
+            padding: 12px 14px;
+            text-align: center;
+        }
+
+        .threshold-item .threshold-label {
+            font-size: 11px;
+            color: var(--text-muted);
+            text-transform: uppercase;
+            letter-spacing: 0.04em;
+        }
+
+        .threshold-item .threshold-value {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 18px;
+            font-weight: 500;
+            color: var(--data-color);
+            margin: 4px 0;
+        }
+
+        .threshold-item .threshold-input {
+            width: 80px;
+            padding: 4px 8px;
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: var(--radius);
+            color: var(--text-primary);
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 14px;
+            text-align: center;
+            outline: none;
+            transition: border-color 0.2s ease;
+        }
+
+        .threshold-item .threshold-input:focus {
+            border-color: var(--accent);
+        }
+
+        /* ── TOGGLE SWITCH ── */
+        .toggle-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 10px 0;
+            border-bottom: 1px solid rgba(34, 197, 94, 0.06);
+        }
+
+        .toggle-row:last-child {
+            border-bottom: none;
+        }
+
+        .toggle-row .toggle-label {
+            font-size: 14px;
+            color: var(--text-primary);
+        }
+
+        .toggle-row .toggle-label .toggle-desc {
+            font-size: 11px;
+            color: var(--text-muted);
+            opacity: 0.5;
+            display: block;
+            font-weight: 400;
+        }
+
+        .toggle-switch {
+            position: relative;
+            width: 44px;
+            height: 24px;
+            background: rgba(74, 85, 104, 0.3);
+            border-radius: 12px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            flex-shrink: 0;
+            border: 2px solid rgba(34, 197, 94, 0.1);
+        }
+
+        .toggle-switch.active {
+            background: var(--accent);
+            border-color: var(--accent);
+        }
+
+        .toggle-switch .toggle-knob {
+            position: absolute;
+            top: 2px;
+            left: 2px;
+            width: 16px;
+            height: 16px;
+            background: white;
+            border-radius: 50%;
+            transition: all 0.3s ease;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+        }
+
+        .toggle-switch.active .toggle-knob {
+            left: 22px;
+        }
+
+        /* ── USERS TABLE ── */
+        .users-table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 13px;
+        }
+
+        .users-table thead th {
+            text-align: left;
+            padding: 10px 14px;
+            color: var(--text-muted);
+            font-weight: 500;
+            font-size: 11px;
+            text-transform: uppercase;
+            letter-spacing: 0.06em;
+            border-bottom: 1px solid var(--border);
+        }
+
+        .users-table tbody td {
+            padding: 10px 14px;
+            color: var(--text-primary);
+            border-bottom: 1px solid rgba(34, 197, 94, 0.05);
+            font-size: 13px;
+        }
+
+        .users-table .role-badge {
+            display: inline-block;
+            padding: 2px 12px;
+            border-radius: 20px;
+            font-size: 10px;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.04em;
+            font-family: 'Inter', sans-serif;
+        }
+
+        .users-table .role-badge.admin {
+            background: rgba(34, 197, 94, 0.12);
+            color: var(--accent);
+        }
+
+        .users-table .role-badge.operator {
+            background: rgba(74, 222, 128, 0.08);
+            color: var(--text-muted);
+        }
+
+        .users-table .role-badge.manager {
+            background: rgba(245, 158, 11, 0.12);
+            color: var(--warning);
+        }
+
+        .users-table .role-badge.viewer {
+            background: rgba(74, 85, 104, 0.12);
+            color: var(--text-muted);
+        }
+
+        .users-table .status-dot {
+            display: inline-block;
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            margin-right: 6px;
+        }
+
+        .users-table .status-dot.online {
+            background: var(--accent);
+            box-shadow: 0 0 8px rgba(34, 197, 94, 0.3);
+        }
+
+        .users-table .status-dot.offline {
+            background: #4a5568;
+        }
+
+        /* ── TOAST ── */
+        .toast-container {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            z-index: 999;
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+
+        .toast {
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: var(--radius);
+            padding: 14px 20px;
+            color: var(--text-primary);
+            font-size: 13px;
+            box-shadow: var(--shadow);
+            min-width: 260px;
+            animation: slideIn 0.3s ease;
+            border-left: 3px solid var(--accent);
+        }
+
+        .toast.error {
+            border-left-color: var(--danger);
+        }
+
+        .toast.warning {
+            border-left-color: var(--warning);
+        }
+
+        @keyframes slideIn {
+            from {
+                transform: translateX(100%);
+                opacity: 0;
+            }
+            to {
+                transform: translateX(0);
+                opacity: 1;
+            }
+        }
+
+        /* ── RESPONSIVE ── */
+        @media (max-width: 992px) {
+            .settings-layout {
+                grid-template-columns: 1fr;
+            }
+
+            .settings-menu {
+                display: grid;
+                grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+                gap: 4px;
+                position: static;
+                padding: 6px;
+            }
+
+            .settings-menu .menu-item {
+                justify-content: center;
+                padding: 8px 12px;
+                font-size: 12px;
+            }
+
+            .settings-menu .menu-item .menu-icon {
+                font-size: 16px;
+            }
+
+            .settings-panel {
+                padding: 18px 20px;
+            }
+        }
+
+        @media (max-width: 768px) {
+            body {
+                padding-left: 0;
+                padding-bottom: 72px;
+            }
+
+            .sidebar {
+                transform: translateX(-100%);
+                width: var(--nav-width-expanded);
+            }
+
+            .sidebar.open {
+                transform: translateX(0);
+            }
+
+            .sidebar .brand-text {
+                opacity: 1;
+            }
+
+            .sidebar .nav-item .nav-label {
+                opacity: 1;
+            }
+
+            .bottom-nav {
+                display: flex;
+            }
+
+            .main-content {
+                padding: 16px 16px 80px 16px;
+            }
+
+            .settings-panel {
+                padding: 14px 16px;
+            }
+
+            .form-row {
+                grid-template-columns: 1fr;
+            }
+
+            .threshold-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .page-header {
+                flex-direction: column;
+                align-items: stretch;
+                gap: 10px;
+            }
+
+            .page-header .header-left {
+                flex-wrap: wrap;
+            }
+
+            .page-header .header-right {
+                flex-wrap: wrap;
+            }
+
+            .settings-menu {
+                grid-template-columns: 1fr 1fr;
+            }
+
+            .avatar-wrapper {
+                flex-direction: column;
+                align-items: center;
+                text-align: center;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .settings-menu {
+                grid-template-columns: 1fr 1fr;
+            }
+
+            .settings-menu .menu-item {
+                font-size: 11px;
+                padding: 6px 8px;
+            }
+
+            .settings-menu .menu-item .menu-icon {
+                font-size: 14px;
+            }
+
+            .settings-panel .panel-title {
+                font-size: 16px;
+            }
+
+            .page-header h1 {
+                font-size: 18px;
+            }
+
+            .users-table {
+                font-size: 11px;
+            }
+
+            .users-table thead th,
+            .users-table tbody td {
+                padding: 4px 8px;
+            }
+        }
+
+        /* ── MENU TOGGLE (mobile) ── */
+        .menu-toggle {
+            display: none;
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: var(--radius);
+            color: var(--text-primary);
+            padding: 8px 12px;
+            font-size: 20px;
+            cursor: pointer;
+            font-family: 'Inter', sans-serif;
+        }
+
+        @media (max-width: 768px) {
+            .menu-toggle {
+                display: flex;
+                align-items: center;
+                gap: 8px;
+            }
+            .menu-toggle span {
+                font-size: 12px;
+                font-weight: 500;
+            }
+        }
+    </style>
+    <link rel="stylesheet" href="theme.css" />
+</head>
+<body>
+
+    <!-- ── SIDEBAR ── -->
+    <nav class="sidebar" id="sidebar">
+        <div class="sidebar-brand">
+         
+            <span class="brand-text">ARC·GLASSHOUSE</span>
+        </div>
+
+        <div class="sidebar-nav">
+            <a href="dashboard.html" class="nav-item">
+                <span class="nav-icon ti ti-layout-dashboard"></span>
+                <span class="nav-label">Overview</span>
+            </a>
+            <a href="control.html" class="nav-item">
+                <span class="nav-icon ti ti-adjustments-horizontal"></span>
+                <span class="nav-label">Control</span>
+            </a>
+            <a href="energy.html" class="nav-item">
+                <span class="nav-icon ti ti-bolt"></span>
+                <span class="nav-label">Energy</span>
+            </a>
+            <a href="auditlog.html" class="nav-item">
+                <span class="nav-icon ti ti-clipboard-list"></span>
+                <span class="nav-label">Audit Log</span>
+            </a>
+            <a href="settings.html" class="nav-item active">
+                <span class="nav-icon ti ti-settings"></span>
+                <span class="nav-label">Settings</span>
+            </a>
+        </div>
+
+        <div class="sidebar-footer">
+            <button class="nav-item" onclick="showToast('System ready', 'info')">
+                <span class="nav-icon ti ti-circle-check"></span>
+                <span class="nav-label">Online</span>
+            </button>
+        </div>
+    </nav>
+
+    <!-- ── BOTTOM NAV (mobile) ── -->
+    <nav class="bottom-nav" id="bottomNav">
+        <a href="dashboard.html" class="nav-item">
+            <span class="nav-icon ti ti-layout-dashboard"></span>
+            <span>Overview</span>
+        </a>
+        <a href="control.html" class="nav-item">
+            <span class="nav-icon ti ti-adjustments-horizontal"></span>
+            <span>Control</span>
+        </a>
+        <a href="energy.html" class="nav-item">
+            <span class="nav-icon ti ti-bolt"></span>
+            <span>Energy</span>
+        </a>
+        <a href="auditlog.html" class="nav-item">
+            <span class="nav-icon ti ti-clipboard-list"></span>
+            <span>Audit</span>
+        </a>
+        <a href="settings.html" class="nav-item active">
+            <span class="nav-icon ti ti-settings"></span>
+            <span>Settings</span>
+        </a>
+    </nav>
+
+    <!-- ── MAIN CONTENT ── -->
+    <main class="main-content">
+
+        <!-- ── PAGE HEADER ── -->
+        <div class="page-header">
+            <div class="header-left">
+                <button class="menu-toggle" id="menuToggle" aria-label="Toggle menu">
+                    <span class="ti ti-menu-2"></span>
+                    <span>Menu</span>
+                </button>
+                <a href="dashboard.html" class="back-btn">
+                    <span class="ti ti-arrow-left"></span> Back
+                </a>
+                <h1>System <span>Settings</span></h1>
+            </div>
+            <div class="header-right">
+                <span class="header-time" id="headerTime">--:--:--</span>
+            </div>
+        </div>
+
+        <!-- ── SETTINGS LAYOUT ── -->
+        <div class="settings-layout">
+
+            <!-- ── SETTINGS MENU ── -->
+            <nav class="settings-menu" id="settingsMenu">
+                <button class="menu-item active" data-section="profile">
+                    <span class="menu-icon ti ti-user"></span>
+                    Profile
+                </button>
+                <button class="menu-item" data-section="roles">
+                    <span class="menu-icon ti ti-users"></span>
+                    Meer Rolle
+                </button>
+                <button class="menu-item" data-section="notifications">
+                    <span class="menu-icon ti ti-bell"></span>
+                    Notifications
+                </button>
+                <button class="menu-item" data-section="thresholds">
+                    <span class="menu-icon ti ti-sliders"></span>
+                    Thresholds
+                </button>
+                <button class="menu-item" data-section="irrigation">
+                    <span class="menu-icon ti ti-ripple"></span>
+                    Irrigation Schedule
+                </button>
+                <button class="menu-item" data-section="devices">
+                    <span class="menu-icon ti ti-devices"></span>
+                    Device Configuration
+                </button>
+                <button class="menu-item" data-section="preferences">
+                    <span class="menu-icon ti ti-adjustments"></span>
+                    System Preferences
+                </button>
+                <button class="menu-item" data-section="users">
+                    <span class="menu-icon ti ti-user-circle"></span>
+                    Users &amp; Roles
+                </button>
+            </nav>
+
+            <!-- ── SETTINGS PANEL ── -->
+            <div class="settings-panel">
+
+                <!-- ── PROFILE ── -->
+                <div class="panel-section active" id="section-profile">
+                    <div class="panel-title">
+                        <span class="title-icon ti ti-user"></span>
+                        Profile
+                    </div>
+                    <div class="panel-subtitle">Manage your personal account details</div>
+
+                    <div class="form-group">
+                        <label class="form-label">Username</label>
+                        <input type="text" class="form-input" id="profileUsername" disabled />
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Email Address</label>
+                        <input type="email" class="form-input" id="profileEmail" placeholder="Enter your email" />
+                    </div>
+                    
+                    <!-- ── PROFILE PICTURE (FIXED) ── -->
+                    <div class="form-group">
+                        <label class="form-label">Profile Picture</label>
+                        <div class="avatar-wrapper">
+                            <div class="avatar-preview" id="avatarPreview">
+                                <span class="avatar-initial" id="avatarInitial">?</span>
+                                <img id="avatarImg" src="" alt="Profile picture" style="display:none;" />
+                            </div>
+                            <div class="avatar-actions">
+                                <label for="profileAvatar" class="upload-label">
+                                    <span class="ti ti-upload"></span>Choose Photo
+                                </label>
+                                <input type="file" id="profileAvatar" accept="image/*" style="display:none;" />
+                                <div class="avatar-hint">JPG, PNG or GIF · Max 2MB</div>
+                                <button type="button" class="remove-avatar" id="removeAvatarBtn">
+                                    <span class="ti ti-trash"></span>Remove photo
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div style="margin-top:12px;">
+                        <button class="submit-btn" id="saveProfileBtn">Save Profile</button>
+                    </div>
+
+                    <div style="margin-top:24px;padding-top:16px;border-top:1px solid var(--border);">
+                        <div class="panel-title" style="font-size:14px;margin-bottom:4px;">
+                            <span class="title-icon ti ti-lock" style="font-size:16px;"></span>
+                            Change Password
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">Current Password</label>
+                            <input type="password" class="form-input" id="currentPassword" placeholder="Enter current password" />
+                        </div>
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label class="form-label">New Password</label>
+                                <input type="password" class="form-input" id="newPassword" placeholder="Min 6 characters" />
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label">Confirm Password</label>
+                                <input type="password" class="form-input" id="confirmPassword" placeholder="Confirm new password" />
+                            </div>
+                        </div>
+                        <button class="submit-btn secondary" id="changePasswordBtn">Update Password</button>
+                    </div>
+                </div>
+
+                <!-- ── MEER ROLLE ── -->
+                <div class="panel-section" id="section-roles">
+                    <div class="panel-title">
+                        <span class="title-icon ti ti-users"></span>
+                        Meer Rolle
+                    </div>
+                    <div class="panel-subtitle">Role-based access control for the system</div>
+
+                    <div style="display:grid;gap:12px;">
+                        <div class="toggle-row">
+                            <div>
+                                <span class="toggle-label">Administrator</span>
+                                <span class="toggle-label toggle-desc">Full system access, user management, settings</span>
+                            </div>
+                            <div class="toggle-switch active" onclick="toggleRole(this)">
+                                <div class="toggle-knob"></div>
+                            </div>
+                        </div>
+                        <div class="toggle-row">
+                            <div>
+                                <span class="toggle-label">Operator</span>
+                                <span class="toggle-label toggle-desc">Control panels, setpoints, device management</span>
+                            </div>
+                            <div class="toggle-switch active" onclick="toggleRole(this)">
+                                <div class="toggle-knob"></div>
+                            </div>
+                        </div>
+                        <div class="toggle-row">
+                            <div>
+                                <span class="toggle-label">Manager</span>
+                                <span class="toggle-label toggle-desc">Reports, analytics, energy monitoring</span>
+                            </div>
+                            <div class="toggle-switch" onclick="toggleRole(this)">
+                                <div class="toggle-knob"></div>
+                            </div>
+                        </div>
+                        <div class="toggle-row">
+                            <div>
+                                <span class="toggle-label">Viewer</span>
+                                <span class="toggle-label toggle-desc">Read-only access to dashboards and charts</span>
+                            </div>
+                            <div class="toggle-switch" onclick="toggleRole(this)">
+                                <div class="toggle-knob"></div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div style="margin-top:16px;">
+                        <button class="submit-btn secondary" id="saveRolesBtn">Save Role Assignments</button>
+                    </div>
+                </div>
+
+                <!-- ── NOTIFICATIONS ── -->
+                <div class="panel-section" id="section-notifications">
+                    <div class="panel-title">
+                        <span class="title-icon ti ti-bell"></span>
+                        Notifications
+                    </div>
+                    <div class="panel-subtitle">Configure alert and notification preferences</div>
+
+                    <div class="toggle-row">
+                        <div>
+                            <span class="toggle-label">Email Alerts</span>
+                            <span class="toggle-label toggle-desc">Receive critical alerts via email</span>
+                        </div>
+                        <div class="toggle-switch active" onclick="toggleSwitch(this)">
+                            <div class="toggle-knob"></div>
+                        </div>
+                    </div>
+                    <div class="toggle-row">
+                        <div>
+                            <span class="toggle-label">Push Notifications</span>
+                            <span class="toggle-label toggle-desc">Browser push notifications for real-time alerts</span>
+                        </div>
+                        <div class="toggle-switch" onclick="toggleSwitch(this)">
+                            <div class="toggle-knob"></div>
+                        </div>
+                    </div>
+                    <div class="toggle-row">
+                        <div>
+                            <span class="toggle-label">SMS Alerts</span>
+                            <span class="toggle-label toggle-desc">Critical system alerts via SMS</span>
+                        </div>
+                        <div class="toggle-switch" onclick="toggleSwitch(this)">
+                            <div class="toggle-knob"></div>
+                        </div>
+                    </div>
+                    <div class="toggle-row">
+                        <div>
+                            <span class="toggle-label">Audit Log Notifications</span>
+                            <span class="toggle-label toggle-desc">Notify on suspicious login activity</span>
+                        </div>
+                        <div class="toggle-switch active" onclick="toggleSwitch(this)">
+                            <div class="toggle-knob"></div>
+                        </div>
+                    </div>
+
+                    <div style="margin-top:16px;">
+                        <button class="submit-btn" id="saveNotificationsBtn">Save Notification Settings</button>
+                    </div>
+                </div>
+
+                <!-- ── THRESHOLDS ── -->
+                <div class="panel-section" id="section-thresholds">
+                    <div class="panel-title">
+                        <span class="title-icon ti ti-sliders"></span>
+                        Thresholds
+                    </div>
+                    <div class="panel-subtitle">Configure alert thresholds for environmental sensors</div>
+
+                    <div class="threshold-grid">
+                        <div class="threshold-item">
+                            <div class="threshold-label">Temperature</div>
+                            <div class="threshold-value">°C</div>
+                            <div style="display:flex;gap:8px;justify-content:center;">
+                                <input type="number" class="threshold-input" id="tempLow" value="15" step="0.5" />
+                                <span style="color:var(--text-muted);font-size:11px;">to</span>
+                                <input type="number" class="threshold-input" id="tempHigh" value="30" step="0.5" />
+                            </div>
+                        </div>
+                        <div class="threshold-item">
+                            <div class="threshold-label">Humidity</div>
+                            <div class="threshold-value">%</div>
+                            <div style="display:flex;gap:8px;justify-content:center;">
+                                <input type="number" class="threshold-input" id="humidityLow" value="40" step="1" />
+                                <span style="color:var(--text-muted);font-size:11px;">to</span>
+                                <input type="number" class="threshold-input" id="humidityHigh" value="80" step="1" />
+                            </div>
+                        </div>
+                        <div class="threshold-item">
+                            <div class="threshold-label">CO₂</div>
+                            <div class="threshold-value">ppm</div>
+                            <div style="display:flex;gap:8px;justify-content:center;">
+                                <input type="number" class="threshold-input" id="co2Low" value="350" step="10" />
+                                <span style="color:var(--text-muted);font-size:11px;">to</span>
+                                <input type="number" class="threshold-input" id="co2High" value="1200" step="10" />
+                            </div>
+                        </div>
+                    </div>
+
+                    <div style="margin-top:16px;">
+                        <button class="submit-btn" id="saveThresholdsBtn">Save Thresholds</button>
+                    </div>
+                </div>
+
+                <!-- ── IRRIGATION SCHEDULE ── -->
+                <div class="panel-section" id="section-irrigation">
+                    <div class="panel-title">
+                        <span class="title-icon ti ti-ripple"></span>
+                        Irrigation Schedule
+                    </div>
+                    <div class="panel-subtitle">Configure automated irrigation schedules per zone</div>
+
+                    <div style="display:grid;gap:12px;">
+                        <div class="toggle-row">
+                            <div>
+                                <span class="toggle-label">Zone 1 - Main Greenhouse</span>
+                                <span class="toggle-label toggle-desc">6:00 AM, 12:00 PM, 6:00 PM · 15 min each</span>
+                            </div>
+                            <div class="toggle-switch active" onclick="toggleSchedule(this)">
+                                <div class="toggle-knob"></div>
+                            </div>
+                        </div>
+                        <div class="toggle-row">
+                            <div>
+                                <span class="toggle-label">Zone 2 - Seedling Area</span>
+                                <span class="toggle-label toggle-desc">8:00 AM, 4:00 PM · 10 min each</span>
+                            </div>
+                            <div class="toggle-switch active" onclick="toggleSchedule(this)">
+                                <div class="toggle-knob"></div>
+                            </div>
+                        </div>
+                        <div class="toggle-row">
+                            <div>
+                                <span class="toggle-label">Zone 3 - Maturation Area</span>
+                                <span class="toggle-label toggle-desc">7:00 AM, 1:00 PM, 7:00 PM · 20 min each</span>
+                            </div>
+                            <div class="toggle-switch" onclick="toggleSchedule(this)">
+                                <div class="toggle-knob"></div>
+                            </div>
+                        </div>
+                        <div class="toggle-row">
+                            <div>
+                                <span class="toggle-label">Zone 4 - Propagation</span>
+                                <span class="toggle-label toggle-desc">9:00 AM, 3:00 PM · 8 min each</span>
+                            </div>
+                            <div class="toggle-switch" onclick="toggleSchedule(this)">
+                                <div class="toggle-knob"></div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div style="margin-top:16px;">
+                        <button class="submit-btn" id="saveIrrigationBtn">Save Schedule</button>
+                    </div>
+                </div>
+
+                <!-- ── DEVICE CONFIGURATION ── -->
+                <div class="panel-section" id="section-devices">
+                    <div class="panel-title">
+                        <span class="title-icon ti ti-devices"></span>
+                        Device Configuration
+                    </div>
+                    <div class="panel-subtitle">Configure BACnet devices and communication settings</div>
+
+                    <div class="form-group">
+                        <label class="form-label">BACnet Device Name</label>
+                        <input type="text" class="form-input" id="deviceName" value="ARC-GLASS-01" />
+                    </div>
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label class="form-label">Device ID</label>
+                            <input type="text" class="form-input" id="deviceId" value="1001" disabled />
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">IP Address</label>
+                            <input type="text" class="form-input" id="deviceIp" value="192.168.1.100" />
+                        </div>
+                    </div>
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label class="form-label">Port</label>
+                            <input type="number" class="form-input" id="devicePort" value="47808" />
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">BACnet Instance</label>
+                            <input type="number" class="form-input" id="deviceInstance" value="101" />
+                        </div>
+                    </div>
+
+                    <div style="margin-top:12px;">
+                        <button class="submit-btn" id="saveDeviceConfigBtn">Save Device Configuration</button>
+                    </div>
+                </div>
+
+                <!-- ── SYSTEM PREFERENCES ── -->
+                <div class="panel-section" id="section-preferences">
+                    <div class="panel-title">
+                        <span class="title-icon ti ti-adjustments"></span>
+                        System Preferences
+                    </div>
+                    <div class="panel-subtitle">Configure system-wide preferences and defaults</div>
+
+                    <div class="form-group">
+                        <label class="form-label">Language</label>
+                        <select class="form-input" id="prefLanguage">
+                            <option value="en">English</option>
+                            <option value="zu">isiZulu</option>
+                            <option value="af">Afrikaans</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Theme</label>
+                        <select class="form-input" id="prefTheme">
+                            <option value="dark">Dark</option>
+                            <option value="light">Light</option>
+                            <option value="system">System Default</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Session Timeout (minutes)</label>
+                        <input type="number" class="form-input" id="prefTimeout" value="30" min="5" max="120" />
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Default Unit View</label>
+                        <select class="form-input" id="prefUnit">
+                            <option value="Greenhouse 1">Greenhouse 1</option>
+                            <option value="Greenhouse 2">Greenhouse 2</option>
+                            <option value="Greenhouse 3">Greenhouse 3</option>
+                            <option value="Greenhouse 4">Greenhouse 4</option>
+                            <option value="Greenhouse 5">Greenhouse 5</option>
+                        </select>
+                    </div>
+
+                    <div style="margin-top:12px;">
+                        <button class="submit-btn" id="savePreferencesBtn">Save Preferences</button>
+                    </div>
+                </div>
+
+                <!-- ── USERS & ROLES ── -->
+                <div class="panel-section" id="section-users">
+                    <div class="panel-title">
+                        <span class="title-icon ti ti-user-circle"></span>
+                        Users &amp; Roles
+                    </div>
+                    <div class="panel-subtitle">Manage system users and their role assignments</div>
+
+                    <div style="overflow-x:auto;">
+                        <table class="users-table" id="usersTable">
+                            <thead>
+                                <tr>
+                                    <th>User</th>
+                                    <th>Email</th>
+                                    <th>Role</th>
+                                    <th>Status</th>
+                                    <th>Last Login</th>
+                                </tr>
+                            </thead>
+                            <tbody id="usersTableBody">
+                                <!-- Rows rendered by JavaScript -->
+                            </tbody>
+                        </table>
+                    </div>
+
+                    <div style="margin-top:16px;display:flex;gap:10px;flex-wrap:wrap;">
+                        <button class="submit-btn" id="addUserBtn">
+                            <span class="ti ti-plus"></span> Add User
+                        </button>
+                        <button class="submit-btn secondary" id="refreshUsersBtn">
+                            <span class="ti ti-refresh"></span> Refresh
+                        </button>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+
+    </main>
+
+    <!-- ── TOAST CONTAINER ── -->
+    <div class="toast-container" id="toastContainer"></div>
+
+    <script src="api.js"></script>
+    <script>
+    (function() {
+        'use strict';
+
+        // ── AUTH CHECK ──
+        if (localStorage.getItem('arc_auth') !== 'true') {
+            // window.location.href = 'login.html';
+            setTimeout(() => showToast('Please log in to access the system', 'warning'), 500);
+        }
+
+        // ── DOM REFS ──
+        const $ = id => document.getElementById(id);
+        const menuItems = document.querySelectorAll('.settings-menu .menu-item');
+        const sections = document.querySelectorAll('.panel-section');
+
+        // ── TOAST SYSTEM ──
+        function showToast(message, type = 'info') {
+            const container = document.getElementById('toastContainer');
+            const toast = document.createElement('div');
+            toast.className = `toast ${type}`;
+            const icon = type === 'error' ? '❌' : type === 'warning' ? '⚠️' : '✅';
+            toast.textContent = `${icon} ${message}`;
+            container.appendChild(toast);
+
+            setTimeout(() => {
+                toast.style.opacity = '0';
+                toast.style.transform = 'translateX(100%)';
+                toast.style.transition = 'all 0.3s ease';
+                setTimeout(() => toast.remove(), 300);
+            }, 3000);
+        }
+        window.showToast = showToast;
+
+        // ── MENU NAVIGATION ──
+        menuItems.forEach(item => {
+            item.addEventListener('click', function() {
+                menuItems.forEach(i => i.classList.remove('active'));
+                this.classList.add('active');
+
+                const sectionId = this.dataset.section;
+                sections.forEach(s => s.classList.remove('active'));
+                const target = document.getElementById(`section-${sectionId}`);
+                if (target) target.classList.add('active');
+
+                // Close sidebar on mobile
+                if (window.innerWidth <= 768) {
+                    document.getElementById('sidebar').classList.remove('open');
+                }
+            });
+        });
+
+        // ── SIDEBAR TOGGLE ──
+        document.getElementById('menuToggle').addEventListener('click', function() {
+            document.getElementById('sidebar').classList.toggle('open');
+        });
+
+        document.addEventListener('click', function(e) {
+            const sidebar = document.getElementById('sidebar');
+            const toggle = document.getElementById('menuToggle');
+            if (window.innerWidth <= 768) {
+                if (!sidebar.contains(e.target) && !toggle.contains(e.target)) {
+                    sidebar.classList.remove('open');
+                }
+            }
+        });
+
+        // ── UPDATE CLOCK ──
+        function updateClock() {
+            const now = new Date();
+            document.getElementById('headerTime').textContent = now.toLocaleTimeString('en-ZA', {
+                hour: '2-digit',
+                minute: '2-digit',
+                second: '2-digit',
+                hour12: false
+            });
+        }
+        setInterval(updateClock, 1000);
+        updateClock();
+
+        // ── TOGGLE FUNCTIONS ──
+        window.toggleSwitch = function(el) {
+            el.classList.toggle('active');
+            const label = el.closest('.toggle-row').querySelector('.toggle-label');
+            const status = el.classList.contains('active') ? 'enabled' : 'disabled';
+            showToast(`${label.textContent} ${status}`, 'info');
+        };
+
+        window.toggleRole = function(el) {
+            el.classList.toggle('active');
+            const label = el.closest('.toggle-row').querySelector('.toggle-label');
+            const status = el.classList.contains('active') ? 'enabled' : 'disabled';
+            showToast(`Role "${label.textContent}" ${status}`, 'info');
+        };
+
+        window.toggleSchedule = function(el) {
+            el.classList.toggle('active');
+            const label = el.closest('.toggle-row').querySelector('.toggle-label');
+            const status = el.classList.contains('active') ? 'active' : 'paused';
+            showToast(`Schedule "${label.textContent}" ${status}`, 'info');
+        };
+
+        // ── AVATAR FUNCTIONS ──
+        function loadAvatar() {
+            const username = localStorage.getItem('arc_user') || 'admin';
+            const saved = localStorage.getItem('arc_avatar_' + username);
+            const initial = document.getElementById('avatarInitial');
+            const img = document.getElementById('avatarImg');
+            const removeBtn = document.getElementById('removeAvatarBtn');
+            
+            initial.textContent = username.charAt(0).toUpperCase();
+            
+            if (saved && saved.startsWith('data:image')) {
+                img.src = saved;
+                img.style.display = 'block';
+                initial.style.display = 'none';
+                removeBtn.style.display = 'inline-block';
+            } else {
+                img.style.display = 'none';
+                initial.style.display = 'block';
+                removeBtn.style.display = 'none';
+            }
+        }
+
+        document.getElementById('profileAvatar').addEventListener('change', function() {
+            const file = this.files[0];
+            if (!file) return;
+            
+            if (file.size > 2 * 1024 * 1024) {
+                showToast('Image must be under 2MB', 'error');
+                return;
+            }
+            
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                const username = localStorage.getItem('arc_user') || 'admin';
+                localStorage.setItem('arc_avatar_' + username, e.target.result);
+                loadAvatar();
+                showToast('Profile picture updated!', 'success');
+            };
+            reader.onerror = function() {
+                showToast('Failed to read image file', 'error');
+            };
+            reader.readAsDataURL(file);
+        });
+
+        document.getElementById('removeAvatarBtn').addEventListener('click', function() {
+            const username = localStorage.getItem('arc_user') || 'admin';
+            localStorage.removeItem('arc_avatar_' + username);
+            loadAvatar();
+            showToast('Profile picture removed', 'info');
+        });
+
+        // ── LOAD PROFILE ──
+        function loadProfile() {
+            const username = localStorage.getItem('arc_user') || 'admin';
+            const users = JSON.parse(localStorage.getItem('arc_users') || '{}');
+            const userData = users[username] || { email: `${username}@arc-lnr.org` };
+
+            document.getElementById('profileUsername').value = username;
+            document.getElementById('profileEmail').value = userData.email || '';
+            loadAvatar();
+        }
+        loadProfile();
+
+        // ── SAVE PROFILE ──
+        document.getElementById('saveProfileBtn').addEventListener('click', function() {
+            const username = localStorage.getItem('arc_user') || 'admin';
+            const email = document.getElementById('profileEmail').value.trim();
+            const users = JSON.parse(localStorage.getItem('arc_users') || '{}');
+
+            if (!users[username]) {
+                users[username] = { email: email, password: 'admin123' };
+            } else {
+                users[username].email = email;
+            }
+            localStorage.setItem('arc_users', JSON.stringify(users));
+            showToast('Profile updated successfully!', 'success');
+        });
+
+        // ── CHANGE PASSWORD ──
+        document.getElementById('changePasswordBtn').addEventListener('click', function() {
+            const username = localStorage.getItem('arc_user') || 'admin';
+            const current = document.getElementById('currentPassword').value;
+            const newPass = document.getElementById('newPassword').value;
+            const confirm = document.getElementById('confirmPassword').value;
+            const users = JSON.parse(localStorage.getItem('arc_users') || '{}');
+
+            if (!users[username]) {
+                showToast('User not found', 'error');
+                return;
+            }
+
+            if (users[username].password !== current) {
+                showToast('Current password is incorrect', 'error');
+                return;
+            }
+
+            if (newPass.length < 6) {
+                showToast('New password must be at least 6 characters', 'error');
+                return;
+            }
+
+            if (newPass !== confirm) {
+                showToast('Passwords do not match', 'error');
+                return;
+            }
+
+            users[username].password = newPass;
+            localStorage.setItem('arc_users', JSON.stringify(users));
+
+            document.getElementById('currentPassword').value = '';
+            document.getElementById('newPassword').value = '';
+            document.getElementById('confirmPassword').value = '';
+
+            showToast('Password updated successfully!', 'success');
+        });
+
+        // ── SAVE THRESHOLDS ──
+        document.getElementById('saveThresholdsBtn').addEventListener('click', function() {
+            const thresholds = {
+                temp: { low: parseFloat($('tempLow').value), high: parseFloat($('tempHigh').value) },
+                humidity: { low: parseFloat($('humidityLow').value), high: parseFloat($('humidityHigh').value) },
+                co2: { low: parseFloat($('co2Low').value), high: parseFloat($('co2High').value) }
+            };
+            localStorage.setItem('arc_thresholds', JSON.stringify(thresholds));
+            showToast('Thresholds saved successfully!', 'success');
+        });
+
+        // ── LOAD THRESHOLDS ──
+        function loadThresholds() {
+            try {
+                const data = JSON.parse(localStorage.getItem('arc_thresholds'));
+                if (data) {
+                    $('tempLow').value = data.temp.low;
+                    $('tempHigh').value = data.temp.high;
+                    $('humidityLow').value = data.humidity.low;
+                    $('humidityHigh').value = data.humidity.high;
+                    $('co2Low').value = data.co2.low;
+                    $('co2High').value = data.co2.high;
+                }
+            } catch {}
+        }
+        loadThresholds();
+
+        // ── USERS TABLE ──
+        function renderUsers() {
+            const users = JSON.parse(localStorage.getItem('arc_users') || '{}');
+            const tbody = document.getElementById('usersTableBody');
+            let html = '';
+
+            const roleMap = {
+                'admin': { label: 'Administrator', class: 'admin' },
+                'operator': { label: 'Operator', class: 'operator' },
+                'manager': { label: 'Manager', class: 'manager' },
+                'viewer': { label: 'Viewer', class: 'viewer' }
+            };
+
+            Object.entries(users).forEach(([username, data]) => {
+                const role = data.role || 'operator';
+                const roleInfo = roleMap[role] || roleMap.operator;
+                const status = data.lastLogin ? 'online' : 'offline';
+                const lastLogin = data.lastLogin ? new Date(data.lastLogin).toLocaleString() : 'Never';
+                const email = data.email || '—';
+
+                html += `
+                    <tr>
+                        <td><strong>${username}</strong></td>
+                        <td>${email}</td>
+                        <td><span class="role-badge ${roleInfo.class}">${roleInfo.label}</span></td>
+                        <td><span class="status-dot ${status}"></span>${status.charAt(0).toUpperCase() + status.slice(1)}</td>
+                        <td>${lastLogin}</td>
+                    </tr>
+                `;
+            });
+
+            tbody.innerHTML = html || `<tr><td colspan="5" style="text-align:center;padding:24px;color:var(--text-muted);opacity:0.5;">No users found</td></tr>`;
+        }
+        renderUsers();
+
+        // ── ADD USER ──
+        document.getElementById('addUserBtn').addEventListener('click', function() {
+            const username = prompt('Enter new username:');
+            if (!username) return;
+
+            const users = JSON.parse(localStorage.getItem('arc_users') || '{}');
+            if (users[username]) {
+                showToast('Username already exists', 'error');
+                return;
+            }
+
+            const password = prompt('Enter password (min 6 characters):');
+            if (!password || password.length < 6) {
+                showToast('Password must be at least 6 characters', 'error');
+                return;
+            }
+
+            const email = prompt('Enter email address:') || `${username}@arc-lnr.org`;
+            const role = prompt('Enter role (admin/operator/manager/viewer):') || 'operator';
+
+            users[username] = {
+                password: password,
+                email: email,
+                role: role,
+                created: new Date().toISOString()
+            };
+            localStorage.setItem('arc_users', JSON.stringify(users));
+            renderUsers();
+            showToast(`User "${username}" added successfully!`, 'success');
+        });
+
+        // ── REFRESH USERS ──
+        document.getElementById('refreshUsersBtn').addEventListener('click', function() {
+            renderUsers();
+            showToast('Users list refreshed', 'info');
+        });
+
+        // ── SAVE PREFERENCES ──
+        document.getElementById('savePreferencesBtn').addEventListener('click', function() {
+            const prefs = {
+                language: $('prefLanguage').value,
+                theme: $('prefTheme').value,
+                timeout: parseInt($('prefTimeout').value),
+                defaultUnit: $('prefUnit').value
+            };
+            localStorage.setItem('arc_preferences', JSON.stringify(prefs));
+
+            // Apply theme if changed
+            if (prefs.theme !== 'system') {
+                document.documentElement.setAttribute('data-theme', prefs.theme);
+                localStorage.setItem('arc_theme', prefs.theme);
+            }
+
+            showToast('Preferences saved successfully!', 'success');
+        });
+
+        // ── LOAD PREFERENCES ──
+        function loadPreferences() {
+            try {
+                const prefs = JSON.parse(localStorage.getItem('arc_preferences'));
+                if (prefs) {
+                    $('prefLanguage').value = prefs.language || 'en';
+                    $('prefTheme').value = prefs.theme || 'dark';
+                    $('prefTimeout').value = prefs.timeout || 30;
+                    $('prefUnit').value = prefs.defaultUnit || 'Greenhouse 1';
+                }
+            } catch {}
+        }
+        loadPreferences();
+
+        // ── SAVE DEVICE CONFIG ──
+        document.getElementById('saveDeviceConfigBtn').addEventListener('click', function() {
+            const config = {
+                name: $('deviceName').value,
+                id: $('deviceId').value,
+                ip: $('deviceIp').value,
+                port: parseInt($('devicePort').value),
+                instance: parseInt($('deviceInstance').value)
+            };
+            localStorage.setItem('arc_device_config', JSON.stringify(config));
+            showToast('Device configuration saved!', 'success');
+        });
+
+        // ── LOAD DEVICE CONFIG ──
+        function loadDeviceConfig() {
+            try {
+                const config = JSON.parse(localStorage.getItem('arc_device_config'));
+                if (config) {
+                    $('deviceName').value = config.name || 'ARC-GLASS-01';
+                    $('deviceId').value = config.id || '1001';
+                    $('deviceIp').value = config.ip || '192.168.1.100';
+                    $('devicePort').value = config.port || 47808;
+                    $('deviceInstance').value = config.instance || 101;
+                }
+            } catch {}
+        }
+        loadDeviceConfig();
+
+        // ── SAVE NOTIFICATIONS ──
+        document.getElementById('saveNotificationsBtn').addEventListener('click', function() {
+            const toggles = document.querySelectorAll('#section-notifications .toggle-switch');
+            const settings = [];
+            toggles.forEach(t => {
+                settings.push(t.classList.contains('active'));
+            });
+            localStorage.setItem('arc_notification_settings', JSON.stringify(settings));
+            showToast('Notification settings saved!', 'success');
+        });
+
+        // ── SAVE ROLES ──
+        document.getElementById('saveRolesBtn').addEventListener('click', function() {
+            const toggles = document.querySelectorAll('#section-roles .toggle-switch');
+            const roles = [];
+            const labels = ['Administrator', 'Operator', 'Manager', 'Viewer'];
+            toggles.forEach((t, i) => {
+                if (t.classList.contains('active')) {
+                    roles.push(labels[i].toLowerCase());
+                }
+            });
+            localStorage.setItem('arc_enabled_roles', JSON.stringify(roles));
+            showToast('Role assignments saved!', 'success');
+        });
+
+        // ── SAVE IRRIGATION ──
+        document.getElementById('saveIrrigationBtn').addEventListener('click', function() {
+            const toggles = document.querySelectorAll('#section-irrigation .toggle-switch');
+            const schedules = [];
+            toggles.forEach(t => {
+                schedules.push(t.classList.contains('active'));
+            });
+            localStorage.setItem('arc_irrigation_schedule', JSON.stringify(schedules));
+            showToast('Irrigation schedule saved!', 'success');
+        });
+
+        console.log('⚙️ Settings page loaded');
+
+    })();
+    </script>
+
+</body>
+</html>
