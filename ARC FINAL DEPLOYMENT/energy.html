@@ -4,18 +4,15 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.5, user-scalable=yes" />
     <title>ARC-GLASS · Energy</title>
-    
+
     <!-- Google Fonts -->
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link href="https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,400;14..32,500;14..32,600;14..32,700&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet" />
-    
+
     <!-- Tabler Icons -->
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@latest/tabler-icons.min.css" />
-    
-    <!-- Chart.js -->
-    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
-    
+
     <style>
         /* ── RESET & BASE ── */
         *, *::before, *::after {
@@ -24,683 +21,186 @@
             padding: 0;
         }
 
-        :root {
-            --bg: #0a0f0a;
-            --surface: #111811;
-            --border: rgba(34, 197, 94, 0.15);
-            --accent: #22c55e;
-            --accent-dim: #16a34a;
-            --text-primary: #f0fdf4;
-            --text-secondary: #86efac;
-            --text-muted: #4ade80;
-            --warning: #f59e0b;
-            --danger: #ef4444;
-            --data-color: #4ade80;
-            --shadow: 0 0 0 1px rgba(34,197,94,0.05), 0 4px 24px rgba(0,0,0,0.4);
-            --radius: 12px;
-            --nav-width: 72px;
-            --nav-width-expanded: 220px;
-        }
-
-        html, body {
-            height: 100%;
-            font-family: 'Inter', sans-serif;
-            background: var(--bg);
-            color: var(--text-primary);
-        }
-
-        body {
-            display: flex;
-            min-height: 100vh;
-            padding-left: var(--nav-width);
-            transition: padding-left 0.3s ease;
-            overflow-x: hidden;
-        }
-
-        /* ── SCROLLBAR ── */
-        ::-webkit-scrollbar {
-            width: 4px;
-            height: 4px;
-        }
-        ::-webkit-scrollbar-track {
-            background: var(--bg);
-        }
-        ::-webkit-scrollbar-thumb {
-            background: var(--accent);
-            border-radius: 4px;
-        }
-
-        /* ── SIDEBAR NAVIGATION ── */
-        .sidebar {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: var(--nav-width);
-            height: 100vh;
-            background: var(--surface);
-            border-right: 1px solid var(--border);
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            padding: 20px 0;
-            z-index: 100;
-            transition: width 0.3s ease, transform 0.3s ease;
-            overflow: hidden;
-        }
-
-        .sidebar-brand {
-            font-family: 'Inter', sans-serif;
-            font-weight: 700;
-            font-size: 14px;
-            letter-spacing: 1px;
-            color: var(--accent);
-            text-transform: uppercase;
-            margin-bottom: 30px;
-            white-space: nowrap;
-            padding: 0 12px;
-            display: flex;
-            align-items: center;
-            gap: 10px;
-        }
-
-        .sidebar-brand .brand-icon {
-            font-size: 24px;
-        }
-
-        .sidebar-brand .brand-text {
-            opacity: 0;
-            transition: opacity 0.3s ease;
-            font-size: 13px;
-        }
-
-        .sidebar:hover .brand-text {
-            opacity: 1;
-        }
-
-        .sidebar:hover {
-            width: var(--nav-width-expanded);
-        }
-
-        .sidebar:hover ~ .main-content {
-            padding-left: calc(var(--nav-width-expanded) - var(--nav-width));
-        }
-
-        .sidebar-nav {
-            display: flex;
-            flex-direction: column;
-            gap: 4px;
-            width: 100%;
-            flex: 1;
-            padding: 0 10px;
-        }
-
-        .sidebar-nav .nav-item {
-            display: flex;
-            align-items: center;
-            gap: 14px;
-            padding: 12px 14px;
-            border-radius: var(--radius);
-            color: var(--text-muted);
-            text-decoration: none;
-            font-size: 13px;
-            font-weight: 500;
-            transition: all 0.2s ease;
-            white-space: nowrap;
-            cursor: pointer;
-            border: none;
-            background: transparent;
-            width: 100%;
-            font-family: 'Inter', sans-serif;
-        }
-
-        .sidebar-nav .nav-item .nav-icon {
-            font-size: 20px;
-            min-width: 24px;
-            text-align: center;
-            color: var(--text-muted);
-            transition: color 0.2s ease;
-        }
-
-        .sidebar-nav .nav-item .nav-label {
-            opacity: 0;
-            transition: opacity 0.3s ease;
-            font-size: 13px;
-            font-weight: 500;
-        }
-
-        .sidebar:hover .nav-item .nav-label {
-            opacity: 1;
-        }
-
-        .sidebar-nav .nav-item:hover {
-            background: rgba(34, 197, 94, 0.08);
-            color: var(--text-primary);
-        }
-
-        .sidebar-nav .nav-item:hover .nav-icon {
-            color: var(--accent);
-        }
-
-        .sidebar-nav .nav-item.active {
-            background: rgba(34, 197, 94, 0.12);
-            color: var(--accent);
-        }
-
-        .sidebar-nav .nav-item.active .nav-icon {
-            color: var(--accent);
-        }
-
-        /* ── BOTTOM NAV (mobile) ── */
-        .bottom-nav {
-            display: none;
-            position: fixed;
-            bottom: 0;
-            left: 0;
-            right: 0;
-            background: var(--surface);
-            border-top: 1px solid var(--border);
-            padding: 8px 0 env(safe-area-inset-bottom);
-            z-index: 99;
-            justify-content: space-around;
-            align-items: center;
-        }
-
-        .bottom-nav .nav-item {
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            gap: 2px;
-            padding: 6px 12px;
-            color: var(--text-muted);
-            text-decoration: none;
-            font-size: 10px;
-            font-weight: 500;
-            transition: color 0.2s ease;
-            border: none;
-            background: transparent;
-            cursor: pointer;
-            font-family: 'Inter', sans-serif;
-        }
-
-        .bottom-nav .nav-item .nav-icon {
-            font-size: 22px;
-        }
-
-        .bottom-nav .nav-item.active {
-            color: var(--accent);
-        }
-
-        .bottom-nav .nav-item:hover {
-            color: var(--text-primary);
-        }
-
-        /* ── MAIN CONTENT ── */
+        /* ── MAIN CONTENT (page-specific layout only; shell + tokens from theme.css) ── */
         .main-content {
-            flex: 1;
-            padding: 20px 28px 100px 28px;
-            transition: padding-left 0.3s ease;
+            padding: var(--arc-sp-5) var(--arc-sp-6) 100px;
             max-width: 1440px;
             margin: 0 auto;
             width: 100%;
         }
 
-        /* ── HEADER ── */
+        /* ── PAGE HEADER ── */
         .page-header {
             display: flex;
             justify-content: space-between;
             align-items: center;
-            margin-bottom: 24px;
+            gap: var(--arc-sp-3);
             flex-wrap: wrap;
-            gap: 12px;
+            padding: var(--arc-sp-5) 0 var(--arc-sp-4);
+            margin-bottom: var(--arc-sp-5);
+            border-bottom: 1px solid var(--arc-border);
         }
-
         .page-header .header-left {
             display: flex;
             align-items: center;
-            gap: 12px;
+            gap: var(--arc-sp-3);
         }
-
         .page-header .back-btn {
-            background: var(--surface);
-            border: 1px solid var(--border);
-            border-radius: var(--radius);
-            padding: 8px 16px;
-            color: var(--text-secondary);
-            text-decoration: none;
-            font-size: 13px;
-            font-weight: 500;
-            transition: all 0.2s ease;
-            display: flex;
+            display: inline-flex;
             align-items: center;
             gap: 6px;
-            font-family: 'Inter', sans-serif;
+            min-height: 44px;
+            padding: 0 var(--arc-sp-4);
+            background: var(--arc-surface);
+            border: 1px solid var(--arc-border);
+            border-radius: var(--arc-radius);
+            color: var(--arc-text-secondary);
+            text-decoration: none;
+            font-size: var(--arc-fs-sm);
+            font-weight: var(--arc-fw-medium);
+            transition: border-color var(--arc-transition), color var(--arc-transition);
         }
-
-        .page-header .back-btn:hover {
-            border-color: var(--accent);
-            color: var(--accent);
-        }
-
+        .page-header .back-btn:hover { border-color: var(--arc-accent); color: var(--arc-accent); }
         .page-header h1 {
-            font-size: 22px;
-            font-weight: 700;
-            letter-spacing: -0.3px;
-            color: var(--text-primary);
+            font-size: var(--arc-fs-h1);
+            font-weight: var(--arc-fw-semibold);
+            letter-spacing: -0.01em;
+            color: var(--arc-ink);
         }
-
-        .page-header h1 span {
-            color: var(--accent);
-        }
-
         .page-header .header-right {
             display: flex;
             align-items: center;
-            gap: 12px;
+            gap: var(--arc-sp-3);
+        }
+        .page-header .header-time {
+            font-family: var(--arc-mono);
+            font-variant-numeric: tabular-nums;
+            font-size: var(--arc-fs-sm);
+            color: var(--arc-text-muted);
+            background: var(--arc-surface);
+            padding: 0 var(--arc-sp-4);
+            min-height: 44px;
+            display: inline-flex;
+            align-items: center;
+            border-radius: var(--arc-radius);
+            border: 1px solid var(--arc-border);
         }
 
-        .page-header .header-time {
-            font-family: 'JetBrains Mono', monospace;
-            font-size: 13px;
-            color: var(--text-muted);
-            background: var(--surface);
-            padding: 6px 14px;
-            border-radius: var(--radius);
-            border: 1px solid var(--border);
+        /* ── TELEMETRY NOTICE ── */
+        .telemetry-notice {
+            display: flex;
+            align-items: flex-start;
+            gap: var(--arc-sp-3);
+            padding: var(--arc-sp-4) var(--arc-sp-5);
+            margin-bottom: var(--arc-sp-5);
+            background: var(--arc-warning-soft);
+            border: 1px solid var(--arc-warning);
+            border-left-width: 3px;
+            border-radius: var(--arc-radius);
+        }
+        .telemetry-notice .ti {
+            font-size: 20px;
+            color: var(--arc-warning-ink);
+            flex-shrink: 0;
+            margin-top: 1px;
+        }
+        .telemetry-notice .notice-body strong {
+            display: block;
+            font-size: var(--arc-fs-body);
+            font-weight: var(--arc-fw-semibold);
+            color: var(--arc-warning-ink);
+            margin-bottom: 2px;
+        }
+        .telemetry-notice .notice-body span {
+            font-size: var(--arc-fs-sm);
+            color: var(--arc-text-secondary);
         }
 
         /* ── STATS GRID ── */
         .stats-grid {
             display: grid;
             grid-template-columns: repeat(4, 1fr);
-            gap: 16px;
-            margin-bottom: 24px;
+            gap: var(--arc-sp-4);
+            margin-bottom: var(--arc-sp-5);
         }
-
         .stat-card {
-            background: var(--surface);
-            border: 1px solid var(--border);
-            border-radius: var(--radius);
-            padding: 18px 20px;
-            box-shadow: var(--shadow);
-            position: relative;
-            transition: border-color 0.2s ease, transform 0.2s ease;
+            display: flex;
+            flex-direction: column;
+            gap: var(--arc-sp-2);
+            padding: var(--arc-sp-4) var(--arc-sp-5);
+            background: var(--arc-surface);
+            border: 1px solid var(--arc-border);
+            border-left: 3px solid var(--arc-border-strong);
+            border-radius: var(--arc-radius);
         }
-
-        .stat-card:hover {
-            border-color: rgba(34, 197, 94, 0.3);
-            transform: translateY(-2px);
-        }
-
-        .stat-card .stat-icon {
-            position: absolute;
-            top: 14px;
-            right: 16px;
-            font-size: 20px;
-            color: var(--text-muted);
-            opacity: 0.4;
-        }
-
-        .stat-card .stat-value {
-            font-family: 'JetBrains Mono', monospace;
-            font-size: 28px;
-            font-weight: 500;
-            color: var(--data-color);
-            display: block;
-            line-height: 1.2;
-            margin-bottom: 2px;
-        }
-
         .stat-card .stat-label {
-            font-size: 11px;
-            font-weight: 500;
-            color: var(--text-muted);
+            font-size: var(--arc-label);
+            font-weight: var(--arc-fw-medium);
+            color: var(--arc-text-muted);
             text-transform: uppercase;
-            letter-spacing: 0.06em;
+            letter-spacing: var(--arc-tracking-label);
         }
-
-        .stat-card .stat-change {
-            font-size: 11px;
-            font-weight: 600;
-            margin-top: 4px;
-            display: inline-block;
-            padding: 2px 10px;
-            border-radius: 20px;
-            background: rgba(34, 197, 94, 0.1);
-            color: var(--accent);
+        .stat-card .stat-value {
+            font-family: var(--arc-mono);
+            font-variant-numeric: tabular-nums;
+            font-size: var(--arc-value-md);
+            font-weight: var(--arc-fw-semibold);
+            color: var(--arc-text-faint);
+            line-height: 1.1;
         }
-
-        .stat-card .stat-change.danger {
-            background: rgba(239, 68, 68, 0.1);
-            color: var(--danger);
+        .stat-card .stat-unit {
+            font-size: var(--arc-fs-xs);
+            font-weight: var(--arc-fw-medium);
+            color: var(--arc-text-muted);
+            text-transform: uppercase;
+            letter-spacing: 0.04em;
         }
 
         /* ── CHARTS GRID ── */
         .charts-grid {
             display: grid;
             grid-template-columns: 2fr 1fr;
-            gap: 16px;
-            margin-bottom: 24px;
+            gap: var(--arc-sp-4);
+            margin-bottom: var(--arc-sp-5);
         }
-
         .card {
-            background: var(--surface);
-            border: 1px solid var(--border);
-            border-radius: var(--radius);
-            padding: 20px 22px;
-            box-shadow: var(--shadow);
-            transition: border-color 0.2s ease;
+            background: var(--arc-surface);
+            border: 1px solid var(--arc-border);
+            border-radius: var(--arc-radius-lg);
+            padding: var(--arc-sp-5);
+            box-shadow: var(--arc-shadow-xs);
         }
-
-        .card:hover {
-            border-color: rgba(34, 197, 94, 0.25);
-        }
-
         .card .card-title {
-            font-size: 14px;
-            font-weight: 600;
-            color: var(--text-secondary);
-            text-transform: uppercase;
-            letter-spacing: 0.06em;
-            margin-bottom: 14px;
             display: flex;
             align-items: center;
-            gap: 8px;
+            gap: var(--arc-sp-2);
+            font-size: var(--arc-fs-h2);
+            font-weight: var(--arc-fw-semibold);
+            color: var(--arc-ink);
+            margin-bottom: var(--arc-sp-4);
         }
-
         .card .card-title .title-icon {
-            color: var(--accent);
-            font-size: 18px;
+            color: var(--arc-accent);
+            font-size: 19px;
         }
 
-        .chart-wrapper {
-            position: relative;
-            height: 240px;
-        }
-
-        /* ── RESET BUTTON ── */
-        .reset-btn {
-            background: var(--surface);
-            border: 1px solid var(--border);
-            border-radius: var(--radius);
-            padding: 6px 16px;
-            color: var(--text-secondary);
-            font-size: 12px;
-            font-weight: 500;
-            cursor: pointer;
-            transition: all 0.2s ease;
-            font-family: 'Inter', sans-serif;
-            display: flex;
-            align-items: center;
-            gap: 6px;
-        }
-
-        .reset-btn:hover {
-            border-color: var(--danger);
-            color: var(--danger);
-        }
-
-        /* ── ENERGY TABLE ── */
-        .table-wrapper {
-            overflow-x: auto;
-        }
-
-        .energy-table {
-            width: 100%;
-            border-collapse: collapse;
-            font-size: 13px;
-        }
-
-        .energy-table thead th {
-            text-align: left;
-            padding: 10px 14px;
-            color: var(--text-muted);
-            font-weight: 500;
-            font-size: 11px;
-            text-transform: uppercase;
-            letter-spacing: 0.06em;
-            border-bottom: 1px solid var(--border);
-        }
-
-        .energy-table tbody td {
-            padding: 10px 14px;
-            color: var(--text-primary);
-            border-bottom: 1px solid rgba(34, 197, 94, 0.05);
-            font-family: 'JetBrains Mono', monospace;
-            font-size: 12px;
-        }
-
-        .energy-table tbody .unit-name {
-            font-family: 'Inter', sans-serif;
-            font-weight: 500;
-            color: var(--text-secondary);
-        }
-
-        .energy-table .status-badge {
-            display: inline-block;
-            padding: 2px 12px;
-            border-radius: 20px;
-            font-size: 10px;
-            font-weight: 600;
-            text-transform: uppercase;
-            letter-spacing: 0.04em;
-            font-family: 'Inter', sans-serif;
-        }
-
-        .energy-table .status-badge.online {
-            background: rgba(34, 197, 94, 0.12);
-            color: var(--accent);
-        }
-
-        .energy-table .status-badge.offline {
-            background: rgba(74, 85, 104, 0.15);
-            color: var(--text-muted);
-        }
-
-        .energy-table .status-badge.warning {
-            background: rgba(245, 158, 11, 0.12);
-            color: var(--warning);
-        }
-
-        .energy-table .trend-up {
-            color: var(--accent);
-        }
-
-        .energy-table .trend-down {
-            color: var(--danger);
-        }
-
-        .energy-table .trend-neutral {
-            color: var(--text-muted);
-        }
-
-        /* ── TOAST ── */
-        .toast-container {
-            position: fixed;
-            top: 20px;
-            right: 20px;
-            z-index: 999;
-            display: flex;
-            flex-direction: column;
-            gap: 8px;
-        }
-
-        .toast {
-            background: var(--surface);
-            border: 1px solid var(--border);
-            border-radius: var(--radius);
-            padding: 14px 20px;
-            color: var(--text-primary);
-            font-size: 13px;
-            box-shadow: var(--shadow);
-            min-width: 260px;
-            animation: slideIn 0.3s ease;
-            border-left: 3px solid var(--accent);
-        }
-
-        .toast.error {
-            border-left-color: var(--danger);
-        }
-
-        .toast.warning {
-            border-left-color: var(--warning);
-        }
-
-        @keyframes slideIn {
-            from {
-                transform: translateX(100%);
-                opacity: 0;
-            }
-            to {
-                transform: translateX(0);
-                opacity: 1;
-            }
-        }
+        /* Empty-state body sized like the former chart wells so layout stays stable. */
+        .empty-chart { min-height: 240px; justify-content: center; }
+        .empty-table { min-height: 160px; }
 
         /* ── RESPONSIVE ── */
         @media (max-width: 1200px) {
-            .charts-grid {
-                grid-template-columns: 1fr;
-            }
-            .charts-grid .card:last-child {
-                max-height: 280px;
-            }
+            .charts-grid { grid-template-columns: 1fr; }
         }
-
         @media (max-width: 992px) {
-            .stats-grid {
-                grid-template-columns: repeat(2, 1fr);
-            }
+            .stats-grid { grid-template-columns: repeat(2, 1fr); }
         }
-
         @media (max-width: 768px) {
-            body {
-                padding-left: 0;
-                padding-bottom: 72px;
-            }
-
-            .sidebar {
-                transform: translateX(-100%);
-                width: var(--nav-width-expanded);
-            }
-
-            .sidebar.open {
-                transform: translateX(0);
-            }
-
-            .sidebar .brand-text {
-                opacity: 1;
-            }
-
-            .sidebar .nav-item .nav-label {
-                opacity: 1;
-            }
-
-            .bottom-nav {
-                display: flex;
-            }
-
-            .main-content {
-                padding: 16px 16px 80px 16px;
-            }
-
-            .stats-grid {
-                grid-template-columns: 1fr 1fr;
-                gap: 12px;
-            }
-
-            .stat-card .stat-value {
-                font-size: 22px;
-            }
-
-            .charts-grid {
-                grid-template-columns: 1fr;
-                gap: 12px;
-            }
-
-            .chart-wrapper {
-                height: 180px;
-            }
-
-            .page-header {
-                flex-direction: column;
-                align-items: stretch;
-                gap: 10px;
-            }
-
-            .page-header .header-left {
-                flex-wrap: wrap;
-            }
-
-            .page-header .header-right {
-                flex-wrap: wrap;
-            }
-
-            .energy-table {
-                font-size: 11px;
-            }
-
-            .energy-table thead th,
-            .energy-table tbody td {
-                padding: 6px 10px;
-            }
-        }
-
-        @media (max-width: 480px) {
-            .stats-grid {
-                grid-template-columns: 1fr 1fr;
-                gap: 10px;
-            }
-
-            .stat-card {
-                padding: 14px 16px;
-            }
-
-            .stat-card .stat-value {
-                font-size: 18px;
-            }
-
-            .page-header h1 {
-                font-size: 18px;
-            }
-
-            .card {
-                padding: 14px 16px;
-            }
-
-            .chart-wrapper {
-                height: 150px;
-            }
-
-            .energy-table thead th,
-            .energy-table tbody td {
-                padding: 4px 8px;
-                font-size: 10px;
-            }
-        }
-
-        /* ── MENU TOGGLE (mobile) ── */
-        .menu-toggle {
-            display: none;
-            background: var(--surface);
-            border: 1px solid var(--border);
-            border-radius: var(--radius);
-            color: var(--text-primary);
-            padding: 8px 12px;
-            font-size: 20px;
-            cursor: pointer;
-            font-family: 'Inter', sans-serif;
-        }
-
-        @media (max-width: 768px) {
-            .menu-toggle {
-                display: flex;
-                align-items: center;
-                gap: 8px;
-            }
-            .menu-toggle span {
-                font-size: 12px;
-                font-weight: 500;
-            }
+            .main-content { padding: var(--arc-sp-4) var(--arc-sp-4) 80px; }
+            .stats-grid { grid-template-columns: 1fr 1fr; gap: var(--arc-sp-3); }
+            .charts-grid { gap: var(--arc-sp-3); }
+            .page-header { flex-direction: column; align-items: stretch; }
+            .page-header .header-right { flex-wrap: wrap; }
         }
     </style>
     <link rel="stylesheet" href="theme.css" />
@@ -710,7 +210,7 @@
     <!-- ── SIDEBAR ── -->
     <nav class="sidebar" id="sidebar">
         <div class="sidebar-brand">
-         
+            <div class="logo-mark"><div class="logo-inner"></div></div>
             <span class="brand-text">ARC·GLASSHOUSE</span>
         </div>
 
@@ -775,48 +275,46 @@
         <!-- ── PAGE HEADER ── -->
         <div class="page-header">
             <div class="header-left">
-                <button class="menu-toggle" id="menuToggle" aria-label="Toggle menu">
-                    <span class="ti ti-menu-2"></span>
-                    <span>Menu</span>
-                </button>
                 <a href="dashboard.html" class="back-btn">
                     <span class="ti ti-arrow-left"></span> Back
                 </a>
-                <h1>Energy <span>Dashboard</span></h1>
+                <h1>Energy</h1>
             </div>
             <div class="header-right">
-                <button class="reset-btn" id="resetBtn">
-                    <span class="ti ti-refresh"></span> Reset Data
-                </button>
                 <span class="header-time" id="headerTime">--:--:--</span>
+            </div>
+        </div>
+
+        <!-- ── TELEMETRY NOTICE ── -->
+        <div class="telemetry-notice" role="status">
+            <span class="ti ti-plug-connected-x"></span>
+            <div class="notice-body">
+                <strong>Energy telemetry unavailable</strong>
+                <span>The JACE/BACnet integration does not expose metering points, so no live power, consumption or efficiency source is connected. Figures are shown as unavailable rather than estimated.</span>
             </div>
         </div>
 
         <!-- ── STATS GRID ── -->
         <div class="stats-grid" id="statsGrid">
             <div class="stat-card">
-                <span class="stat-icon ti ti-bolt"></span>
-                <span class="stat-value" id="totalEnergy">0.0</span>
                 <span class="stat-label">Total Energy (Today)</span>
-                <span class="stat-change">kWh</span>
+                <span class="stat-value" id="totalEnergy">—</span>
+                <span class="stat-unit">kWh · unavailable</span>
             </div>
             <div class="stat-card">
-                <span class="stat-icon ti ti-zap"></span>
-                <span class="stat-value" id="currentPower">0.0</span>
                 <span class="stat-label">Current Power (Live)</span>
-                <span class="stat-change">kW</span>
+                <span class="stat-value" id="currentPower">—</span>
+                <span class="stat-unit">kW · unavailable</span>
             </div>
             <div class="stat-card">
-                <span class="stat-icon ti ti-trending-up"></span>
-                <span class="stat-value" id="efficiencyRating">0.0</span>
                 <span class="stat-label">Efficiency Rating</span>
-                <span class="stat-change">%</span>
+                <span class="stat-value" id="efficiencyRating">—</span>
+                <span class="stat-unit">% · unavailable</span>
             </div>
             <div class="stat-card">
-                <span class="stat-icon ti ti-clock"></span>
-                <span class="stat-value" id="peakDemand">0.0</span>
                 <span class="stat-label">Peak Demand</span>
-                <span class="stat-change">kW</span>
+                <span class="stat-value" id="peakDemand">—</span>
+                <span class="stat-unit">kW · unavailable</span>
             </div>
         </div>
 
@@ -827,8 +325,10 @@
                     <span class="title-icon ti ti-chart-line"></span>
                     Energy Consumption Trend
                 </div>
-                <div class="chart-wrapper">
-                    <canvas id="trendChart"></canvas>
+                <div class="arc-empty empty-chart">
+                    <span class="ti ti-chart-line-off"></span>
+                    <span>No live energy source</span>
+                    <span class="arc-unavailable">Unavailable</span>
                 </div>
             </div>
             <div class="card">
@@ -836,34 +336,24 @@
                     <span class="title-icon ti ti-chart-pie"></span>
                     Distribution by Unit
                 </div>
-                <div class="chart-wrapper">
-                    <canvas id="donutChart"></canvas>
+                <div class="arc-empty empty-chart">
+                    <span class="ti ti-chart-donut-3"></span>
+                    <span>No per-unit metering</span>
+                    <span class="arc-unavailable">Unavailable</span>
                 </div>
             </div>
         </div>
 
-        <!-- ── ENERGY TABLE ── -->
+        <!-- ── UNIT ENERGY ── -->
         <div class="card">
             <div class="card-title">
                 <span class="title-icon ti ti-table"></span>
                 Unit Energy Consumption
             </div>
-            <div class="table-wrapper">
-                <table class="energy-table" id="energyTable">
-                    <thead>
-                        <tr>
-                            <th>Unit</th>
-                            <th>Status</th>
-                            <th>Power (kW)</th>
-                            <th>Today (kWh)</th>
-                            <th>Efficiency</th>
-                            <th>Trend</th>
-                        </tr>
-                    </thead>
-                    <tbody id="tableBody">
-                        <!-- Rows rendered by JavaScript -->
-                    </tbody>
-                </table>
+            <div class="arc-empty empty-table" id="tableBody">
+                <span class="ti ti-database-off"></span>
+                <span>Per-unit energy metering is not available from the controller.</span>
+                <span class="arc-unavailable">No data</span>
             </div>
         </div>
 
@@ -877,308 +367,16 @@
     (function() {
         'use strict';
 
-        // ── AUTH CHECK ──
+        // ── AUTH CHECK ── (preserved: gate on arc_auth, warn if not signed in)
         if (localStorage.getItem('arc_auth') !== 'true') {
             // window.location.href = 'login.html';
             setTimeout(() => showToast('Please log in to access the system', 'warning'), 500);
         }
 
-        // ── MOCK DATA ──
-        const unitNames = ['Greenhouse 1', 'Greenhouse 2', 'Greenhouse 3', 'Greenhouse 4', 'Greenhouse 5', 
-                           'Greenhouse 6', 'Greenhouse 7', 'Greenhouse 8', 'Greenhouse 9', 'Greenhouse 10'];
-
-        let energyData = [];
-        let trendChart = null;
-        let donutChart = null;
-        let dataHistory = [];
-        let isResetting = false;
-
-        // ── GENERATE MOCK DATA ──
-        function generateMockData() {
-            const statuses = ['online', 'online', 'online', 'online', 'online', 'online', 'online', 'offline', 'online', 'warning'];
-            const efficiencies = [92, 88, 94, 85, 90, 87, 93, 0, 89, 78];
-
-            return unitNames.map((name, i) => {
-                const basePower = 2.5 + Math.random() * 8;
-                const power = statuses[i] === 'offline' ? 0 : parseFloat((basePower + (Math.random() - 0.5) * 1.5).toFixed(2));
-                const today = statuses[i] === 'offline' ? 0 : parseFloat((15 + Math.random() * 35).toFixed(2));
-                const efficiency = statuses[i] === 'offline' ? 0 : efficiencies[i] + (Math.random() - 0.5) * 4;
-                const trend = (Math.random() - 0.5) * 6;
-                return {
-                    name: name,
-                    status: statuses[i],
-                    power: power,
-                    today: today,
-                    efficiency: Math.max(0, Math.min(100, parseFloat(efficiency.toFixed(1)))),
-                    trend: parseFloat(trend.toFixed(2))
-                };
-            });
-        }
-
-        // ── UPDATE STATS ──
-        function updateStats(data) {
-            const totalToday = data.reduce((sum, d) => sum + d.today, 0);
-            const totalPower = data.reduce((sum, d) => sum + d.power, 0);
-            const avgEfficiency = data.filter(d => d.status !== 'offline').reduce((sum, d) => sum + d.efficiency, 0) / 
-                                  Math.max(1, data.filter(d => d.status !== 'offline').length);
-            const peakPower = Math.max(...data.map(d => d.power));
-
-            document.getElementById('totalEnergy').textContent = totalToday.toFixed(1);
-            document.getElementById('currentPower').textContent = totalPower.toFixed(2);
-            document.getElementById('efficiencyRating').textContent = avgEfficiency.toFixed(1);
-            document.getElementById('peakDemand').textContent = peakPower.toFixed(2);
-
-            // Update change indicators
-            const statCards = document.querySelectorAll('.stat-card .stat-change');
-            statCards[0].textContent = 'kWh';
-            statCards[1].textContent = 'kW';
-            statCards[2].textContent = '%';
-            statCards[3].textContent = 'kW';
-        }
-
-        // ── RENDER TABLE ──
-        function renderTable(data) {
-            const tbody = document.getElementById('tableBody');
-            tbody.innerHTML = '';
-
-            data.forEach(d => {
-                const tr = document.createElement('tr');
-                
-                const statusMap = {
-                    'online': '<span class="status-badge online">● Online</span>',
-                    'offline': '<span class="status-badge offline">○ Offline</span>',
-                    'warning': '<span class="status-badge warning">⚠ Warning</span>'
-                };
-
-                const trendClass = d.trend > 0 ? 'trend-up' : (d.trend < 0 ? 'trend-down' : 'trend-neutral');
-                const trendIcon = d.trend > 0 ? '↑' : (d.trend < 0 ? '↓' : '→');
-
-                tr.innerHTML = `
-                    <td class="unit-name">${d.name}</td>
-                    <td>${statusMap[d.status] || statusMap.online}</td>
-                    <td>${d.power.toFixed(2)}</td>
-                    <td>${d.today.toFixed(2)}</td>
-                    <td>${d.status === 'offline' ? '—' : d.efficiency.toFixed(1) + '%'}</td>
-                    <td class="${trendClass}">${trendIcon} ${Math.abs(d.trend).toFixed(2)}</td>
-                `;
-
-                tbody.appendChild(tr);
-            });
-        }
-
-        // ── UPDATE CHARTS ──
-        function updateCharts(data) {
-            const labels = data.map(d => d.name.replace('Greenhouse ', 'GH '));
-            const powerData = data.map(d => d.power);
-            const todayData = data.map(d => d.today);
-
-            // Trend Chart (Line)
-            if (trendChart) {
-                // Add new data point to history
-                const now = new Date();
-                const timeStr = now.toLocaleTimeString('en-ZA', { hour: '2-digit', minute: '2-digit', hour12: false });
-                
-                const totalPower = data.reduce((sum, d) => sum + d.power, 0);
-                const totalToday = data.reduce((sum, d) => sum + d.today, 0);
-
-                dataHistory.push({
-                    time: timeStr,
-                    power: totalPower,
-                    energy: totalToday
-                });
-
-                if (dataHistory.length > 20) {
-                    dataHistory.shift();
-                }
-
-                const ds = trendChart.data.datasets;
-                ds[0].data = dataHistory.map(d => parseFloat(d.power.toFixed(2)));
-                ds[1].data = dataHistory.map(d => parseFloat(d.energy.toFixed(2)));
-                trendChart.data.labels = dataHistory.map(d => d.time);
-
-                trendChart.update('none');
-            }
-
-            // Donut Chart
-            if (donutChart) {
-                const colors = [
-                    '#22c55e', '#16a34a', '#4ade80', '#86efac', '#15803d',
-                    '#22c55e', '#16a34a', '#4ade80', '#86efac', '#15803d'
-                ];
-                donutChart.data.datasets[0].data = powerData;
-                donutChart.data.datasets[0].backgroundColor = colors;
-                donutChart.update('none');
-            }
-        }
-
-        // ── INIT CHARTS ──
-        function initCharts() {
-            // Trend Chart
-            const ctx1 = document.getElementById('trendChart').getContext('2d');
-            trendChart = new Chart(ctx1, {
-                type: 'line',
-                data: {
-                    labels: [],
-                    datasets: [
-                        {
-                            label: 'Power (kW)',
-                            data: [],
-                            borderColor: '#22c55e',
-                            backgroundColor: 'rgba(34,197,94,0.05)',
-                            borderWidth: 2,
-                            fill: true,
-                            tension: 0.3,
-                            pointRadius: 2,
-                            pointBackgroundColor: '#22c55e',
-                            yAxisID: 'y'
-                        },
-                        {
-                            label: 'Energy (kWh)',
-                            data: [],
-                            borderColor: '#4ade80',
-                            backgroundColor: 'rgba(74,222,128,0.05)',
-                            borderWidth: 2,
-                            fill: true,
-                            tension: 0.3,
-                            pointRadius: 2,
-                            pointBackgroundColor: '#4ade80',
-                            yAxisID: 'y1'
-                        }
-                    ]
-                },
-                options: {
-                    responsive: true,
-                    maintainAspectRatio: false,
-                    interaction: { mode: 'index', intersect: false },
-                    plugins: {
-                        legend: {
-                            labels: {
-                                color: '#86efac',
-                                font: { family: 'Inter', size: 10 },
-                                boxWidth: 12,
-                                padding: 6
-                            }
-                        }
-                    },
-                    scales: {
-                        x: {
-                            grid: { color: 'rgba(34,197,94,0.05)' },
-                            ticks: { color: '#4ade80', maxTicksLimit: 8, font: { size: 9 } }
-                        },
-                        y: {
-                            position: 'left',
-                            grid: { color: 'rgba(34,197,94,0.05)' },
-                            ticks: { color: '#4ade80', font: { size: 9 } },
-                            beginAtZero: true
-                        },
-                        y1: {
-                            position: 'right',
-                            grid: { display: false },
-                            ticks: { color: '#4ade80', font: { size: 9 } },
-                            beginAtZero: true
-                        }
-                    }
-                }
-            });
-
-            // Donut Chart
-            const ctx2 = document.getElementById('donutChart').getContext('2d');
-            donutChart = new Chart(ctx2, {
-                type: 'doughnut',
-                data: {
-                    labels: unitNames.map(n => n.replace('Greenhouse ', 'GH ')),
-                    datasets: [{
-                        data: Array(10).fill(0),
-                        backgroundColor: [
-                            '#22c55e', '#16a34a', '#4ade80', '#86efac', '#15803d',
-                            '#22c55e', '#16a34a', '#4ade80', '#86efac', '#15803d'
-                        ],
-                        borderColor: '#111811',
-                        borderWidth: 2
-                    }]
-                },
-                options: {
-                    responsive: true,
-                    maintainAspectRatio: false,
-                    plugins: {
-                        legend: {
-                            position: 'right',
-                            labels: {
-                                color: '#86efac',
-                                font: { family: 'Inter', size: 9 },
-                                boxWidth: 10,
-                                padding: 4
-                            }
-                        }
-                    },
-                    cutout: '60%'
-                }
-            });
-        }
-
-        // ── REFRESH DATA ──
-        function refreshData() {
-            if (isResetting) return;
-
-            const newData = generateMockData();
-            energyData = newData;
-            updateStats(newData);
-            renderTable(newData);
-            updateCharts(newData);
-
-            // Update time
-            const now = new Date();
-            document.getElementById('headerTime').textContent = now.toLocaleTimeString('en-ZA', { 
-                hour: '2-digit', minute: '2-digit', second: '2-digit', hour12: false 
-            });
-        }
-
-        // ── RESET DATA ──
-        function resetData() {
-            isResetting = true;
-            dataHistory = [];
-            
-            // Reset chart data
-            if (trendChart) {
-                trendChart.data.datasets[0].data = [];
-                trendChart.data.datasets[1].data = [];
-                trendChart.data.labels = [];
-                trendChart.update('none');
-            }
-
-            // Generate fresh data
-            const newData = generateMockData();
-            energyData = newData;
-            
-            // Add initial history points
-            const now = new Date();
-            const totalPower = newData.reduce((sum, d) => sum + d.power, 0);
-            const totalToday = newData.reduce((sum, d) => sum + d.today, 0);
-            
-            for (let i = 0; i < 5; i++) {
-                const pastTime = new Date(now.getTime() - (5 - i) * 60000);
-                dataHistory.push({
-                    time: pastTime.toLocaleTimeString('en-ZA', { hour: '2-digit', minute: '2-digit', hour12: false }),
-                    power: totalPower * (0.8 + Math.random() * 0.4),
-                    energy: totalToday * (0.8 + Math.random() * 0.4) / 5
-                });
-            }
-
-            updateStats(newData);
-            renderTable(newData);
-            updateCharts(newData);
-            
-            document.getElementById('headerTime').textContent = now.toLocaleTimeString('en-ZA', { 
-                hour: '2-digit', minute: '2-digit', second: '2-digit', hour12: false 
-            });
-
-            showToast('Energy data reset successfully', 'success');
-            isResetting = false;
-        }
-
         // ── TOAST SYSTEM ──
         function showToast(message, type = 'info') {
             const container = document.getElementById('toastContainer');
+            if (!container) return;
             const toast = document.createElement('div');
             toast.className = `toast ${type}`;
             const icon = type === 'error' ? '❌' : type === 'warning' ? '⚠️' : '✅';
@@ -1194,60 +392,49 @@
         }
         window.showToast = showToast;
 
-        // ── SIDEBAR TOGGLE ──
-        document.getElementById('menuToggle').addEventListener('click', function() {
-            document.getElementById('sidebar').classList.toggle('open');
-        });
-
-        document.addEventListener('click', function(e) {
-            const sidebar = document.getElementById('sidebar');
-            const toggle = document.getElementById('menuToggle');
-            if (window.innerWidth <= 768) {
-                if (!sidebar.contains(e.target) && !toggle.contains(e.target)) {
-                    sidebar.classList.remove('open');
-                }
-            }
-        });
-
-        // ── RESET BUTTON ──
-        document.getElementById('resetBtn').addEventListener('click', resetData);
-
-        // ── INIT ──
-        function init() {
-            initCharts();
-            
-            // Initial data with history
-            energyData = generateMockData();
-            const now = new Date();
-            const totalPower = energyData.reduce((sum, d) => sum + d.power, 0);
-            const totalToday = energyData.reduce((sum, d) => sum + d.today, 0);
-            
-            for (let i = 0; i < 10; i++) {
-                const pastTime = new Date(now.getTime() - (10 - i) * 60000);
-                dataHistory.push({
-                    time: pastTime.toLocaleTimeString('en-ZA', { hour: '2-digit', minute: '2-digit', hour12: false }),
-                    power: totalPower * (0.7 + Math.random() * 0.6),
-                    energy: totalToday * (0.7 + Math.random() * 0.6) / 5
-                });
-            }
-
-            updateStats(energyData);
-            renderTable(energyData);
-            updateCharts(energyData);
-            document.getElementById('headerTime').textContent = now.toLocaleTimeString('en-ZA', { 
-                hour: '2-digit', minute: '2-digit', second: '2-digit', hour12: false 
+        // ── CLOCK ──
+        // The page carries no live energy telemetry (no metering points exist on
+        // the JACE), so there is intentionally no data-refresh loop here — only a
+        // wall clock so the header timestamp is honest about "now", not readings.
+        function updateClock() {
+            const el = document.getElementById('headerTime');
+            if (!el) return;
+            el.textContent = new Date().toLocaleTimeString('en-ZA', {
+                hour: '2-digit', minute: '2-digit', second: '2-digit', hour12: false
             });
-
-            // Auto-refresh every 10 seconds
-            setInterval(refreshData, 10000);
-            
-            console.log('⚡ Energy Dashboard loaded');
         }
+        updateClock();
+        setInterval(updateClock, 1000);
 
-        init();
-
+        console.log('⚡ Energy page loaded — no live energy telemetry source; showing unavailable states.');
     })();
     </script>
+
+    <!-- ── TOAST STYLES (shared visual language) ── -->
+    <style>
+        .toast-container {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            z-index: 999;
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+        .toast {
+            background: var(--arc-surface);
+            border: 1px solid var(--arc-border);
+            border-left: 3px solid var(--arc-accent);
+            border-radius: var(--arc-radius);
+            padding: 14px 20px;
+            color: var(--arc-ink);
+            font-size: var(--arc-fs-sm);
+            box-shadow: var(--arc-shadow-lift);
+            min-width: 260px;
+        }
+        .toast.error { border-left-color: var(--arc-danger); }
+        .toast.warning { border-left-color: var(--arc-warning); }
+    </style>
 
 </body>
 </html>

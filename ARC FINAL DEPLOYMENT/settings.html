@@ -21,22 +21,30 @@
             padding: 0;
         }
 
+        /* Local palette remapped onto the shared theme.css tokens: muted
+           industrial light theme replaces the former dark neon-green terminal.
+           The sidebar / bottom-nav / brand shell rules are removed below so the
+           shared shell in theme.css (loaded last) renders consistently. */
         :root {
-            --bg: #0a0f0a;
-            --surface: #111811;
-            --border: rgba(34, 197, 94, 0.15);
-            --accent: #22c55e;
-            --accent-dim: #16a34a;
-            --text-primary: #f0fdf4;
-            --text-secondary: #86efac;
-            --text-muted: #4ade80;
-            --warning: #f59e0b;
-            --danger: #ef4444;
-            --data-color: #4ade80;
-            --shadow: 0 0 0 1px rgba(34,197,94,0.05), 0 4px 24px rgba(0,0,0,0.4);
-            --radius: 12px;
-            --nav-width: 72px;
-            --nav-width-expanded: 220px;
+            --bg: #eef0ec;
+            --surface: #fbfcfa;
+            --surface-soft: #f1f3ef;
+            --border: #d6dbd3;
+            --border-strong: #c2c9bf;
+            --accent: #3f6b52;
+            --accent-dim: #2f5240;
+            --accent-soft: #dde7df;
+            --text-primary: #1f2622;
+            --text-secondary: #4e5953;
+            --text-muted: #828d85;
+            --warning: #b7791f;
+            --warning-ink: #8a5a12;
+            --warning-soft: #f6ecd6;
+            --danger: #a53a2f;
+            --info: #3a5b6b;
+            --data-color: #2b4a3a;
+            --shadow: 0 1px 3px rgba(31,38,34,0.07), 0 1px 2px rgba(31,38,34,0.04);
+            --radius: 10px;
         }
 
         html, body {
@@ -49,193 +57,31 @@
         body {
             display: flex;
             min-height: 100vh;
-            padding-left: var(--nav-width);
-            transition: padding-left 0.3s ease;
             overflow-x: hidden;
         }
 
         /* ── SCROLLBAR ── */
         ::-webkit-scrollbar {
-            width: 4px;
-            height: 4px;
+            width: 8px;
+            height: 8px;
         }
         ::-webkit-scrollbar-track {
-            background: var(--bg);
+            background: var(--surface-soft);
         }
         ::-webkit-scrollbar-thumb {
-            background: var(--accent);
+            background: var(--border-strong);
             border-radius: 4px;
         }
 
-        /* ── SIDEBAR NAVIGATION ── */
-        .sidebar {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: var(--nav-width);
-            height: 100vh;
-            background: var(--surface);
-            border-right: 1px solid var(--border);
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            padding: 20px 0;
-            z-index: 100;
-            transition: width 0.3s ease, transform 0.3s ease;
-            overflow: hidden;
-        }
-
-        .sidebar-brand {
-            font-family: 'Inter', sans-serif;
-            font-weight: 700;
-            font-size: 14px;
-            letter-spacing: 1px;
-            color: var(--accent);
-            text-transform: uppercase;
-            margin-bottom: 30px;
-            white-space: nowrap;
-            padding: 0 12px;
-            display: flex;
-            align-items: center;
-            gap: 10px;
-        }
-
-        .sidebar-brand .brand-icon {
-            font-size: 24px;
-        }
-
-        .sidebar-brand .brand-text {
-            opacity: 0;
-            transition: opacity 0.3s ease;
-            font-size: 13px;
-        }
-
-        .sidebar:hover .brand-text {
-            opacity: 1;
-        }
-
-        .sidebar:hover {
-            width: var(--nav-width-expanded);
-        }
-
-        .sidebar:hover ~ .main-content {
-            padding-left: calc(var(--nav-width-expanded) - var(--nav-width));
-        }
-
-        .sidebar-nav {
-            display: flex;
-            flex-direction: column;
-            gap: 4px;
-            width: 100%;
-            flex: 1;
-            padding: 0 10px;
-        }
-
-        .sidebar-nav .nav-item {
-            display: flex;
-            align-items: center;
-            gap: 14px;
-            padding: 12px 14px;
-            border-radius: var(--radius);
-            color: var(--text-muted);
-            text-decoration: none;
-            font-size: 13px;
-            font-weight: 500;
-            transition: all 0.2s ease;
-            white-space: nowrap;
-            cursor: pointer;
-            border: none;
-            background: transparent;
-            width: 100%;
-            font-family: 'Inter', sans-serif;
-        }
-
-        .sidebar-nav .nav-item .nav-icon {
-            font-size: 20px;
-            min-width: 24px;
-            text-align: center;
-            color: var(--text-muted);
-            transition: color 0.2s ease;
-        }
-
-        .sidebar-nav .nav-item .nav-label {
-            opacity: 0;
-            transition: opacity 0.3s ease;
-            font-size: 13px;
-            font-weight: 500;
-        }
-
-        .sidebar:hover .nav-item .nav-label {
-            opacity: 1;
-        }
-
-        .sidebar-nav .nav-item:hover {
-            background: rgba(34, 197, 94, 0.08);
-            color: var(--text-primary);
-        }
-
-        .sidebar-nav .nav-item:hover .nav-icon {
-            color: var(--accent);
-        }
-
-        .sidebar-nav .nav-item.active {
-            background: rgba(34, 197, 94, 0.12);
-            color: var(--accent);
-        }
-
-        .sidebar-nav .nav-item.active .nav-icon {
-            color: var(--accent);
-        }
-
-        /* ── BOTTOM NAV (mobile) ── */
-        .bottom-nav {
-            display: none;
-            position: fixed;
-            bottom: 0;
-            left: 0;
-            right: 0;
-            background: var(--surface);
-            border-top: 1px solid var(--border);
-            padding: 8px 0 env(safe-area-inset-bottom);
-            z-index: 99;
-            justify-content: space-around;
-            align-items: center;
-        }
-
-        .bottom-nav .nav-item {
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            gap: 2px;
-            padding: 6px 12px;
-            color: var(--text-muted);
-            text-decoration: none;
-            font-size: 10px;
-            font-weight: 500;
-            transition: color 0.2s ease;
-            border: none;
-            background: transparent;
-            cursor: pointer;
-            font-family: 'Inter', sans-serif;
-        }
-
-        .bottom-nav .nav-item .nav-icon {
-            font-size: 22px;
-        }
-
-        .bottom-nav .nav-item.active {
-            color: var(--accent);
-        }
-
-        .bottom-nav .nav-item:hover {
-            color: var(--text-primary);
-        }
+        /* ── NAVIGATION SHELL ──
+           The sidebar / sidebar-brand / sidebar-nav / bottom-nav rules that used
+           to live here have been removed; the shared shell in theme.css (loaded
+           after this block) now styles the nav markup consistently. */
 
         /* ── MAIN CONTENT ── */
         .main-content {
             flex: 1;
             padding: 20px 28px 100px 28px;
-            transition: padding-left 0.3s ease;
             max-width: 1440px;
             margin: 0 auto;
             width: 100%;
@@ -349,7 +195,7 @@
         }
 
         .settings-menu .menu-item:hover {
-            background: rgba(34, 197, 94, 0.06);
+            background: var(--surface-soft);
             color: var(--text-primary);
         }
 
@@ -358,8 +204,8 @@
         }
 
         .settings-menu .menu-item.active {
-            background: rgba(34, 197, 94, 0.1);
-            color: var(--accent);
+            background: var(--accent-soft);
+            color: var(--accent-dim);
         }
 
         .settings-menu .menu-item.active .menu-icon {
@@ -442,7 +288,7 @@
 
         .form-group .form-input:focus {
             border-color: var(--accent);
-            box-shadow: 0 0 0 3px rgba(34, 197, 94, 0.05);
+            box-shadow: 0 0 0 3px rgba(63, 107, 82, 0.12);
         }
 
         .form-group .form-input::placeholder {
@@ -462,42 +308,45 @@
         }
 
         .submit-btn {
+            min-height: 44px;
             padding: 10px 24px;
             background: var(--accent);
-            border: none;
+            border: 1px solid var(--accent);
             border-radius: var(--radius);
-            color: var(--bg);
+            color: #fbfcfa;
             font-family: 'Inter', sans-serif;
             font-size: 14px;
             font-weight: 600;
             cursor: pointer;
-            transition: all 0.2s ease;
+            transition: background 0.18s ease, border-color 0.18s ease, color 0.18s ease;
         }
 
         .submit-btn:hover {
             background: var(--accent-dim);
-            box-shadow: 0 4px 20px rgba(34, 197, 94, 0.15);
+            border-color: var(--accent-dim);
         }
 
         .submit-btn.secondary {
-            background: var(--bg);
-            border: 1px solid var(--border);
+            background: var(--surface);
+            border: 1px solid var(--border-strong);
             color: var(--text-secondary);
         }
 
         .submit-btn.secondary:hover {
             border-color: var(--accent);
             color: var(--accent);
-            box-shadow: none;
+            background: var(--surface-soft);
         }
 
         .submit-btn.danger {
             background: var(--danger);
-            color: white;
+            border-color: var(--danger);
+            color: #fbfcfa;
         }
 
         .submit-btn.danger:hover {
-            background: #dc2626;
+            background: #8f2f26;
+            border-color: #8f2f26;
         }
 
         /* ── AVATAR ── */
@@ -512,7 +361,7 @@
             width: 72px;
             height: 72px;
             border-radius: 50%;
-            background: rgba(34, 197, 94, 0.08);
+            background: var(--accent-soft);
             border: 2px solid var(--border);
             display: flex;
             align-items: center;
@@ -647,8 +496,8 @@
             display: flex;
             justify-content: space-between;
             align-items: center;
-            padding: 10px 0;
-            border-bottom: 1px solid rgba(34, 197, 94, 0.06);
+            padding: 12px 0;
+            border-bottom: 1px solid var(--border);
         }
 
         .toggle-row:last-child {
@@ -670,14 +519,14 @@
 
         .toggle-switch {
             position: relative;
-            width: 44px;
-            height: 24px;
-            background: rgba(74, 85, 104, 0.3);
-            border-radius: 12px;
+            width: 52px;
+            height: 30px;
+            background: var(--border-strong);
+            border-radius: 999px;
             cursor: pointer;
-            transition: all 0.3s ease;
+            transition: background 0.18s ease, border-color 0.18s ease;
             flex-shrink: 0;
-            border: 2px solid rgba(34, 197, 94, 0.1);
+            border: 2px solid var(--border-strong);
         }
 
         .toggle-switch.active {
@@ -689,16 +538,16 @@
             position: absolute;
             top: 2px;
             left: 2px;
-            width: 16px;
-            height: 16px;
-            background: white;
+            width: 22px;
+            height: 22px;
+            background: #fbfcfa;
             border-radius: 50%;
-            transition: all 0.3s ease;
-            box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+            transition: left 0.18s ease;
+            box-shadow: 0 1px 3px rgba(31,38,34,0.25);
         }
 
         .toggle-switch.active .toggle-knob {
-            left: 22px;
+            left: 24px;
         }
 
         /* ── USERS TABLE ── */
@@ -722,7 +571,7 @@
         .users-table tbody td {
             padding: 10px 14px;
             color: var(--text-primary);
-            border-bottom: 1px solid rgba(34, 197, 94, 0.05);
+            border-bottom: 1px solid var(--border);
             font-size: 13px;
         }
 
@@ -738,22 +587,22 @@
         }
 
         .users-table .role-badge.admin {
-            background: rgba(34, 197, 94, 0.12);
-            color: var(--accent);
+            background: var(--accent-soft);
+            color: var(--accent-dim);
         }
 
         .users-table .role-badge.operator {
-            background: rgba(74, 222, 128, 0.08);
-            color: var(--text-muted);
+            background: var(--surface-soft);
+            color: var(--text-secondary);
         }
 
         .users-table .role-badge.manager {
-            background: rgba(245, 158, 11, 0.12);
-            color: var(--warning);
+            background: var(--warning-soft);
+            color: var(--warning-ink);
         }
 
         .users-table .role-badge.viewer {
-            background: rgba(74, 85, 104, 0.12);
+            background: var(--surface-soft);
             color: var(--text-muted);
         }
 
@@ -767,11 +616,10 @@
 
         .users-table .status-dot.online {
             background: var(--accent);
-            box-shadow: 0 0 8px rgba(34, 197, 94, 0.3);
         }
 
         .users-table .status-dot.offline {
-            background: #4a5568;
+            background: var(--text-faint, #a7b0a8);
         }
 
         /* ── TOAST ── */
@@ -847,32 +695,8 @@
         }
 
         @media (max-width: 768px) {
-            body {
-                padding-left: 0;
-                padding-bottom: 72px;
-            }
-
-            .sidebar {
-                transform: translateX(-100%);
-                width: var(--nav-width-expanded);
-            }
-
-            .sidebar.open {
-                transform: translateX(0);
-            }
-
-            .sidebar .brand-text {
-                opacity: 1;
-            }
-
-            .sidebar .nav-item .nav-label {
-                opacity: 1;
-            }
-
-            .bottom-nav {
-                display: flex;
-            }
-
+            /* Nav shell responsiveness (rail -> bottom bar) is handled by
+               theme.css. These rules only adjust page content for small widths. */
             .main-content {
                 padding: 16px 16px 80px 16px;
             }

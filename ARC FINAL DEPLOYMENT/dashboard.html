@@ -11,422 +11,253 @@
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@latest/tabler-icons.min.css" />
 
     <style>
+        /* ------------------------------------------------------------------
+           dashboard.html — page-specific layout only.
+           Shared shell, palette, typography and reusable components live in
+           theme.css (linked after this block, so it wins ties). Only rules
+           that are unique to the overview layout remain here, expressed in
+           the shared --arc-* tokens.
+           ------------------------------------------------------------------ */
         * { box-sizing: border-box; margin: 0; padding: 0; }
-
-        :root {
-            --bg: #f0f0f0;
-            --surface: #ffffff;
-            --surface-soft: #f8f8f8;
-            --surface-soft-2: #f5f5f5;
-            --border: rgba(0,0,0,0.05);
-            --accent: #22c55e;
-            --accent-soft: #bbf7d0;
-            --accent-dim: #16a34a;
-            --ink: #1a1a1a;
-            --text-secondary: #666666;
-            --text-muted: #999999;
-            --warning: #f59e0b;
-            --warning-soft: #fef3c7;
-            --danger: #ef4444;
-            --danger-soft: #fee2e2;
-            --shadow: 0 2px 12px rgba(0,0,0,0.05);
-            --shadow-lift: 0 4px 20px rgba(0,0,0,0.08);
-            --radius-lg: 20px;
-            --radius-md: 14px;
-            --radius-sm: 10px;
-        }
-
-        html, body {
-            min-height: 100%;
-            font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
-            background: var(--bg);
-            color: var(--ink);
-        }
-
-        body { padding-bottom: 0; }
 
         a { text-decoration: none; color: inherit; }
 
-        /* ── TOP NAVBAR ── */
-        .navbar {
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            padding: 16px 32px;
-            max-width: 1600px;
-            margin: 0 auto;
-        }
-
-        .nav-left { display: flex; align-items: center; gap: 32px; }
-
-        .logo-mark {
-            width: 36px;
-            height: 36px;
-            background: var(--ink);
-            border-radius: 10px;
-            position: relative;
-            flex-shrink: 0;
-        }
-        .logo-mark::before, .logo-mark::after, .logo-mark .logo-inner {
-            content: '';
-            position: absolute;
-            width: 13px;
-            height: 13px;
-            background: var(--accent);
-            border-radius: 50%;
-        }
-        .logo-mark::before { top: 3px; left: 50%; transform: translateX(-50%); }
-        .logo-mark::after { bottom: 3px; left: 5px; }
-        .logo-mark .logo-inner { bottom: 3px; right: 5px; }
-
-        .brand-name {
-            font-weight: 700;
-            font-size: 13px;
-            letter-spacing: 0.5px;
-            color: var(--ink);
-        }
-
-        .nav-tabs { display: flex; gap: 4px; background: transparent; }
-
-        .nav-tab {
-            display: flex;
-            align-items: center;
-            gap: 8px;
-            padding: 9px 18px;
-            border-radius: 24px;
-            font-size: 13px;
-            font-weight: 500;
-            color: var(--text-secondary);
-            cursor: pointer;
-            transition: all 0.2s;
-            border: none;
-            background: transparent;
-            font-family: inherit;
-        }
-
-        .nav-tab .ti { font-size: 15px; }
-
-        .nav-tab.active {
-            background: #fff;
-            color: var(--ink);
-            box-shadow: var(--shadow);
-        }
-
-        .nav-tab:not(.active):hover { color: var(--ink); }
-
-        .nav-right { display: flex; align-items: center; gap: 12px; }
-
-        .header-time {
-            font-family: 'JetBrains Mono', monospace;
-            font-size: 13px;
-            color: var(--text-secondary);
-            background: #fff;
-            padding: 10px 16px;
-            border-radius: 24px;
-            box-shadow: var(--shadow);
-            display: none;
-        }
-
-        .sound-btn {
-            display: flex;
-            align-items: center;
-            gap: 8px;
-            background: #fff;
-            border: none;
-            border-radius: 24px;
-            padding: 10px 16px;
-            font-size: 13px;
-            font-weight: 500;
-            color: var(--text-secondary);
-            cursor: pointer;
-            box-shadow: var(--shadow);
-            transition: opacity 0.2s;
-            font-family: inherit;
-        }
-        .sound-btn.muted { opacity: 0.6; }
-
-        .sound-dot { width: 7px; height: 7px; border-radius: 50%; flex-shrink: 0; }
-        .sound-dot.active { background: var(--accent); animation: pulse-dot 2s infinite; }
-        .sound-dot.inactive { background: #d4d4d4; }
-        @keyframes pulse-dot { 0%,100% { opacity:1; transform:scale(1);} 50% { opacity:.35; transform:scale(.8);} }
-
-        .icon-btn {
-            width: 40px; height: 40px;
-            border-radius: 50%;
-            background: #fff;
-            border: none;
-            display: flex; align-items: center; justify-content: center;
-            cursor: pointer;
-            box-shadow: var(--shadow);
-            position: relative;
-            color: var(--text-secondary);
-            font-size: 17px;
-        }
-        .notification-badge {
-            position: absolute; top: 8px; right: 9px;
-            width: 7px; height: 7px; border-radius: 50%;
-            background: var(--danger); border: 2px solid #fff;
-        }
-
-        .user-profile {
-            display: flex; align-items: center; gap: 10px;
-            background: #fff;
-            padding: 6px 14px 6px 6px;
-            border-radius: 24px;
-            box-shadow: var(--shadow);
-            cursor: pointer;
-        }
-        .user-avatar {
-            width: 32px; height: 32px; border-radius: 50%;
-            background: var(--ink);
-            display: flex; align-items: center; justify-content: center;
-            color: #fff; font-size: 13px; font-weight: 600;
-        }
-        .user-info { display: none; flex-direction: column; }
-        .user-name { font-size: 13px; font-weight: 600; color: var(--ink); line-height: 1.2; }
-        .user-plan { font-size: 11px; color: var(--text-muted); line-height: 1.2; }
-
-        @media (min-width: 640px) {
-            .header-time { display: block; }
-            .user-info { display: flex; }
-        }
-
-        /* ── BOTTOM NAV (mobile) ── */
-        .bottom-nav {
-            display: none;
-            position: fixed; bottom: 0; left: 0; right: 0;
-            background: #fff;
-            border-top: 1px solid var(--border);
-            padding: 8px 0 calc(8px + env(safe-area-inset-bottom));
-            z-index: 99;
-            justify-content: space-around;
-            align-items: center;
-            box-shadow: 0 -2px 16px rgba(0,0,0,0.05);
-        }
-        .bottom-nav .nav-item {
-            display: flex; flex-direction: column; align-items: center; gap: 3px;
-            padding: 6px 10px;
-            color: var(--text-muted);
-            font-size: 10px; font-weight: 500;
-        }
-        .bottom-nav .nav-item .ti { font-size: 21px; }
-        .bottom-nav .nav-item.active { color: var(--accent-dim); }
-
-        /* ── MAIN ── */
+        /* Main region sits to the right of the fixed rail (theme.css handles
+           the body padding-left for the rail footprint). */
         .main-content {
-            max-width: 1600px;
+            max-width: 1680px;
             margin: 0 auto;
-            padding: 8px 32px 40px;
+            padding: 0 var(--arc-sp-8) var(--arc-sp-10);
         }
 
-        .page-heading {
-            font-size: 22px;
-            font-weight: 600;
-            margin: 8px 0 20px;
+        /* Greeting / identity block in the topbar titles. */
+        .topbar-titles .greeting-sub {
+            display: flex;
+            flex-wrap: wrap;
+            align-items: center;
+            gap: var(--arc-sp-2) var(--arc-sp-4);
+            margin-top: var(--arc-sp-2);
+            font-size: var(--arc-fs-sm);
+            color: var(--arc-text-muted);
+        }
+        .topbar-titles .greeting-sub .sep { color: var(--arc-border-strong); }
+        .conn-status {
+            display: inline-flex;
+            align-items: center;
+            gap: var(--arc-sp-2);
+            font-weight: var(--arc-fw-medium);
+            color: var(--arc-text-secondary);
         }
 
-        /* ── STATS GRID ── */
+        /* ── STATS / KPI GRID ── */
         .stats-grid {
             display: grid;
             grid-template-columns: repeat(4, 1fr);
-            gap: 16px;
-            margin-bottom: 20px;
+            gap: var(--arc-sp-4);
+            margin-bottom: var(--arc-sp-6);
         }
-
         .stat-card {
-            background: #fff;
-            border-radius: var(--radius-lg);
-            padding: 20px 22px;
-            box-shadow: var(--shadow);
             position: relative;
-            transition: transform 0.2s ease;
+            background: var(--arc-surface);
+            border: 1px solid var(--arc-border);
+            border-left: 3px solid var(--arc-accent);
+            border-radius: var(--arc-radius);
+            padding: var(--arc-sp-5) var(--arc-sp-5) var(--arc-sp-4);
         }
-        .stat-card:hover { transform: translateY(-2px); }
-
         .stat-card .stat-icon {
-            position: absolute; top: 20px; right: 20px;
-            font-size: 20px; color: var(--text-muted); opacity: 0.4;
+            position: absolute; top: var(--arc-sp-5); right: var(--arc-sp-5);
+            font-size: 20px; color: var(--arc-text-faint);
         }
         .stat-value {
-            font-family: 'JetBrains Mono', monospace;
-            font-size: 28px; font-weight: 600;
-            color: var(--ink);
+            font-family: var(--arc-mono);
+            font-variant-numeric: tabular-nums;
+            font-size: var(--arc-value-md);
+            font-weight: var(--arc-fw-semibold);
+            color: var(--arc-ink);
             display: block;
+            line-height: 1.1;
             margin-bottom: 6px;
         }
         .stat-label {
-            font-size: 11px; font-weight: 500;
-            color: var(--text-muted);
+            font-size: var(--arc-label); font-weight: var(--arc-fw-medium);
+            color: var(--arc-text-muted);
             text-transform: uppercase;
-            letter-spacing: 0.06em;
+            letter-spacing: var(--arc-tracking-label);
         }
         .stat-change {
             display: inline-block;
-            margin-top: 10px;
-            padding: 3px 10px;
-            border-radius: 20px;
-            font-size: 11px; font-weight: 600;
-            background: var(--accent-soft);
-            color: var(--accent-dim);
+            margin-top: var(--arc-sp-3);
+            padding: 2px 10px;
+            border-radius: var(--arc-radius-sm);
+            font-size: var(--arc-fs-xs); font-weight: var(--arc-fw-semibold);
+            background: var(--arc-ok-soft);
+            color: var(--arc-accent-ink);
         }
-        .stat-change.danger { background: var(--danger-soft); color: #b91c1c; }
+        .stat-change.warning { background: var(--arc-warning-soft); color: var(--arc-warning-ink); }
+        .stat-change.danger  { background: var(--arc-danger-soft);  color: var(--arc-danger); }
+        .stat-change.muted   { background: var(--arc-surface-soft);  color: var(--arc-text-muted); }
 
         /* ── SECTION TITLE ── */
         .section-title {
-            display: flex; align-items: center; gap: 9px;
-            font-size: 15px; font-weight: 600;
-            color: var(--ink);
-            margin: 24px 0 14px;
+            display: flex; align-items: center; gap: var(--arc-sp-2);
+            font-size: var(--arc-fs-h2); font-weight: var(--arc-fw-semibold);
+            color: var(--arc-ink);
+            margin: var(--arc-sp-6) 0 var(--arc-sp-4);
         }
-        .section-title .ti { color: var(--accent-dim); font-size: 18px; }
+        .section-title .ti { color: var(--arc-accent); font-size: 19px; }
 
         /* ── UNITS GRID ── */
         .units-grid {
             display: grid;
             grid-template-columns: repeat(5, 1fr);
-            gap: 14px;
-            margin-bottom: 20px;
+            gap: var(--arc-sp-4);
+            margin-bottom: var(--arc-sp-6);
         }
-
         .unit-card {
-            background: #fff;
-            border-radius: var(--radius-md);
-            padding: 16px 16px 14px;
-            box-shadow: var(--shadow);
             position: relative;
-            transition: transform 0.2s ease;
+            background: var(--arc-surface);
+            border: 1px solid var(--arc-border);
+            border-radius: var(--arc-radius-lg);
+            padding: var(--arc-sp-4) var(--arc-sp-4) var(--arc-sp-4);
+            display: flex;
+            flex-direction: column;
+            gap: var(--arc-sp-3);
         }
-        .unit-card:hover { transform: translateY(-2px); }
+        .unit-card.alerting { border-color: var(--arc-warning); }
+        .unit-card.offline  { opacity: 0.72; }
 
-        .unit-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; }
-        .unit-name { font-size: 13px; font-weight: 600; color: var(--ink); }
-        .unit-status { display: flex; align-items: center; gap: 5px; font-size: 10px; font-weight: 500; color: var(--text-muted); }
-        .status-dot { width: 7px; height: 7px; border-radius: 50%; }
-        .status-dot.active { background: var(--accent); }
-        .status-dot.inactive { background: #d4d4d4; }
+        .unit-header { display: flex; justify-content: space-between; align-items: center; gap: var(--arc-sp-2); }
+        .unit-name { font-size: var(--arc-fs-sm); font-weight: var(--arc-fw-semibold); color: var(--arc-ink); }
+        .unit-status { display: flex; align-items: center; gap: 6px; font-size: var(--arc-fs-xs); font-weight: var(--arc-fw-medium); color: var(--arc-text-muted); }
 
         .unit-readings {
-            display: grid; grid-template-columns: 1fr 1fr 1fr;
-            gap: 6px;
-            background: var(--surface-soft);
-            border-radius: var(--radius-sm);
-            padding: 10px 6px;
-            margin-bottom: 10px;
+            display: grid; grid-template-columns: repeat(3, 1fr);
+            gap: var(--arc-sp-2);
+            background: var(--arc-surface-soft);
+            border: 1px solid var(--arc-border);
+            border-radius: var(--arc-radius);
+            padding: var(--arc-sp-3) var(--arc-sp-2);
         }
-        .unit-reading { text-align: center; }
+        .unit-reading { text-align: center; display: flex; flex-direction: column; gap: 3px; min-width: 0; }
         .reading-value {
-            font-family: 'JetBrains Mono', monospace;
-            font-size: 13px; font-weight: 600;
-            color: var(--ink);
-            display: block;
+            font-family: var(--arc-mono);
+            font-variant-numeric: tabular-nums;
+            font-size: var(--arc-value-sm); font-weight: var(--arc-fw-semibold);
+            color: var(--arc-ink);
+            line-height: 1.1;
         }
-        .reading-value.alert { color: var(--warning); }
-        .reading-value.danger { color: var(--danger); }
+        .reading-value .reading-unit {
+            font-family: var(--arc-font);
+            font-size: 10px; font-weight: var(--arc-fw-medium);
+            color: var(--arc-text-muted);
+            margin-left: 1px;
+        }
+        .reading-value.state-warning { color: var(--arc-warning); }
+        .reading-value.state-danger  { color: var(--arc-danger); }
+        .reading-value.unavailable { color: var(--arc-text-faint); }
         .reading-label {
-            font-size: 9px; font-weight: 500; color: var(--text-muted);
-            text-transform: uppercase; letter-spacing: 0.04em;
+            font-size: 9px; font-weight: var(--arc-fw-medium); color: var(--arc-text-muted);
+            text-transform: uppercase; letter-spacing: 0.05em;
         }
 
-        .sparkline { display: flex; align-items: flex-end; gap: 2px; height: 18px; margin-bottom: 12px; }
-        .sparkline .bar { flex: 1; background: var(--accent); border-radius: 1px; opacity: 0.45; min-height: 2px; }
-        .sparkline .bar.danger { background: var(--danger); }
+        .unit-foot {
+            display: flex; align-items: center; justify-content: space-between;
+            gap: var(--arc-sp-2);
+            min-height: 18px;
+            font-size: var(--arc-fs-xs);
+            color: var(--arc-text-muted);
+        }
 
         .unit-control-btn {
             width: 100%;
-            padding: 9px 0;
-            background: var(--ink);
-            border: none;
-            border-radius: var(--radius-sm);
-            color: #fff;
-            font-size: 12px; font-weight: 500;
+            min-height: 44px;
+            padding: 0 var(--arc-sp-4);
+            background: var(--arc-accent);
+            border: 1px solid var(--arc-accent);
+            border-radius: var(--arc-radius);
+            color: #fbfcfa;
+            font-size: var(--arc-fs-sm); font-weight: var(--arc-fw-medium);
             cursor: pointer;
             display: flex; align-items: center; justify-content: center; gap: 6px;
-            font-family: inherit;
-            transition: opacity 0.2s;
+            font-family: var(--arc-font);
+            transition: background var(--arc-transition);
         }
-        .unit-control-btn:hover { opacity: 0.88; }
+        .unit-control-btn:hover  { background: var(--arc-accent-dim); border-color: var(--arc-accent-dim); }
+        .unit-control-btn:active { background: var(--arc-accent-strong); }
+        .unit-control-btn:focus-visible { outline: 2px solid var(--arc-accent); outline-offset: 2px; }
 
         .unit-alert-badge {
-            position: absolute; top: -6px; right: -6px;
-            background: var(--danger); color: #fff;
-            font-size: 9px; font-weight: 700;
-            padding: 2px 8px; border-radius: 12px;
-            border: 2px solid var(--bg);
+            position: absolute; top: -7px; right: -6px;
+            background: var(--arc-warning); color: #fbfcfa;
+            font-size: 10px; font-weight: var(--arc-fw-bold);
+            padding: 2px 9px; border-radius: 999px;
+            border: 2px solid var(--arc-bg);
         }
+        .unit-alert-badge.danger { background: var(--arc-danger); }
 
         /* ── SUMMARY STRIP ── */
         .summary-strip {
             display: grid;
             grid-template-columns: repeat(4, 1fr);
-            gap: 16px;
-            background: #fff;
-            border-radius: var(--radius-lg);
-            padding: 20px 24px;
-            box-shadow: var(--shadow);
+            gap: var(--arc-sp-5);
+            background: var(--arc-surface);
+            border: 1px solid var(--arc-border);
+            border-radius: var(--arc-radius-lg);
+            padding: var(--arc-sp-5) var(--arc-sp-6);
         }
-        .summary-item { display: flex; flex-direction: column; gap: 4px; }
+        .summary-item { display: flex; flex-direction: column; gap: 6px; }
+        .summary-item + .summary-item { border-left: 1px solid var(--arc-border); padding-left: var(--arc-sp-5); }
         .summary-label {
-            font-size: 11px; font-weight: 500; color: var(--text-muted);
-            text-transform: uppercase; letter-spacing: 0.05em;
+            font-size: var(--arc-label); font-weight: var(--arc-fw-medium); color: var(--arc-text-muted);
+            text-transform: uppercase; letter-spacing: var(--arc-tracking-label);
         }
         .summary-value {
-            font-family: 'JetBrains Mono', monospace;
-            font-size: 19px; font-weight: 600; color: var(--ink);
+            font-family: var(--arc-mono);
+            font-variant-numeric: tabular-nums;
+            font-size: var(--arc-value-md); font-weight: var(--arc-fw-semibold); color: var(--arc-ink);
         }
+        .summary-value.unavailable { color: var(--arc-text-faint); font-size: var(--arc-value-sm); }
 
         /* ── TOASTS ── */
         .toast-container {
-            position: fixed; top: 16px; right: 16px; z-index: 999;
-            display: flex; flex-direction: column; gap: 8px;
+            position: fixed; top: var(--arc-sp-4); right: var(--arc-sp-4); z-index: 999;
+            display: flex; flex-direction: column; gap: var(--arc-sp-2);
         }
         .toast {
-            background: #fff;
-            border-radius: var(--radius-sm);
-            padding: 14px 18px;
-            color: var(--ink);
-            font-size: 13px;
-            box-shadow: var(--shadow-lift);
+            background: var(--arc-surface);
+            border: 1px solid var(--arc-border);
+            border-left: 3px solid var(--arc-accent);
+            border-radius: var(--arc-radius);
+            padding: var(--arc-sp-3) var(--arc-sp-5);
+            color: var(--arc-ink);
+            font-size: var(--arc-fs-sm);
+            box-shadow: var(--arc-shadow-lift);
             min-width: 260px;
-            border-left: 3px solid var(--accent);
-            animation: slideIn 0.3s ease;
+            animation: slideIn 0.25s ease;
         }
-        .toast.error { border-left-color: var(--danger); }
-        .toast.warning { border-left-color: var(--warning); }
-        @keyframes slideIn { from { transform: translateX(100%); opacity:0;} to { transform: translateX(0); opacity:1;} }
+        .toast.error   { border-left-color: var(--arc-danger); }
+        .toast.warning { border-left-color: var(--arc-warning); }
+        @keyframes slideIn { from { transform: translateX(100%); opacity:0; } to { transform: translateX(0); opacity:1; } }
 
         /* ── RESPONSIVE ── */
-        @media (max-width: 1200px) {
+        @media (max-width: 1366px) {
             .units-grid { grid-template-columns: repeat(4, 1fr); }
+            .main-content { padding: 0 var(--arc-sp-6) var(--arc-sp-8); }
         }
-
         @media (max-width: 1024px) {
             .units-grid { grid-template-columns: repeat(3, 1fr); }
             .stats-grid { grid-template-columns: repeat(2, 1fr); }
-            .summary-strip { grid-template-columns: repeat(2, 1fr); }
-            .nav-tabs .nav-tab span.label { display: none; }
+            .summary-strip { grid-template-columns: repeat(2, 1fr); gap: var(--arc-sp-4); }
+            .summary-item + .summary-item { border-left: none; padding-left: 0; }
         }
-
-        @media (max-width: 768px) {
-            body { padding-bottom: 76px; }
-            .navbar { padding: 14px 16px; }
-            .nav-tabs { display: none; }
-            .bottom-nav { display: flex; }
-            .main-content { padding: 4px 16px 24px; }
-            .units-grid { grid-template-columns: repeat(2, 1fr); gap: 10px; }
-            .stats-grid { grid-template-columns: 1fr 1fr; gap: 10px; }
-            .stat-value { font-size: 22px; }
-            .page-heading { font-size: 19px; }
-            .summary-strip { grid-template-columns: 1fr 1fr; gap: 10px; padding: 14px 16px; }
+        @media (max-width: 820px) {
+            .main-content { max-width: 100%; padding: 0 var(--arc-sp-4) var(--arc-sp-8); }
+            .units-grid { grid-template-columns: repeat(2, 1fr); gap: var(--arc-sp-3); }
         }
-
-        @media (max-width: 480px) {
-            .units-grid { grid-template-columns: 1fr 1fr; gap: 8px; }
-            .stats-grid { grid-template-columns: 1fr 1fr; gap: 8px; }
-            .stat-card { padding: 14px 16px; }
-            .stat-value { font-size: 19px; }
-            .unit-readings { grid-template-columns: 1fr; gap: 4px; }
-            .summary-value { font-size: 14px; }
-            .sound-btn span.label { display: none; }
+        @media (max-width: 520px) {
+            .units-grid { grid-template-columns: 1fr; }
+            .stats-grid { grid-template-columns: 1fr 1fr; }
+            .summary-strip { grid-template-columns: 1fr 1fr; }
         }
     </style>
     <link rel="stylesheet" href="theme.css" />
@@ -467,44 +298,50 @@
     <main class="main-content">
         <div class="topbar">
             <div class="topbar-titles">
-                <h1>Overview</h1>
-                <p>Live status across all 10 greenhouse units · <span class="mono" id="headerTime">--:--</span></p>
+                <h1 id="greetingHeading">Overview</h1>
+                <div class="greeting-sub">
+                    <span id="sessionLine">Operator session active</span>
+                    <span class="sep">·</span>
+                    <span class="conn-status" id="connStatus"><span class="arc-dot offline" id="connDot"></span><span id="connText">Checking…</span></span>
+                    <span class="sep">·</span>
+                    <span>Last update <span class="mono" id="headerTime">--:--</span></span>
+                </div>
             </div>
             <div class="topbar-actions">
                 <label class="topbar-search">
                     <i class="ti ti-search"></i>
                     <input type="text" id="unitSearch" placeholder="Search units…" />
                 </label>
-                <button class="topbar-icon-btn"><i class="ti ti-bell"></i></button>
-                <a href="settings.html" class="topbar-icon-btn"><i class="ti ti-settings"></i></a>
-                <div class="topbar-avatar" title="Operator">TJ</div>
+                <button class="topbar-icon-btn" aria-label="Alerts"><i class="ti ti-bell"></i></button>
+                <a href="settings.html" class="topbar-icon-btn" aria-label="Settings"><i class="ti ti-settings"></i></a>
+                <div class="topbar-avatar" id="userAvatar" title="Account">··</div>
             </div>
         </div>
 
         <div class="stats-grid" id="statsGrid">
             <div class="stat-card">
                 <span class="stat-icon ti ti-cube"></span>
-                <span class="stat-value" id="totalUnits">10</span>
+                <span class="stat-value" id="totalUnits">—</span>
                 <span class="stat-label">Total Units</span>
-                <span class="stat-change" id="totalUnitsChange">10 active</span>
+                <span class="stat-change" id="totalUnitsChange">—</span>
             </div>
             <div class="stat-card">
                 <span class="stat-icon ti ti-leaf"></span>
-                <span class="stat-value" id="activeGreenhouses">10</span>
+                <span class="stat-value" id="activeGreenhouses">—</span>
                 <span class="stat-label">Active Greenhouses</span>
-                <span class="stat-change" id="uptimeChange">100% uptime</span>
+                <span class="stat-change" id="uptimeChange">—</span>
             </div>
             <div class="stat-card">
                 <span class="stat-icon ti ti-temperature"></span>
-                <span class="stat-value" id="avgTemp">22.4°C</span>
+                <span class="stat-value" id="avgTemp">—</span>
                 <span class="stat-label">Average Temperature</span>
-                <span class="stat-change" id="tempChange">+0.8°C</span>
+                <span class="stat-change" id="tempChange">—</span>
             </div>
             <div class="stat-card">
                 <span class="stat-icon ti ti-bell-ringing"></span>
-                <span class="stat-value" id="totalAlerts">0</span>
+                <span class="stat-value" id="totalAlerts">—</span>
                 <span class="stat-label">Total Alerts</span>
-                <span class="stat-change" id="alertChange">All clear</span>
+                <span class="stat-change" id="alertChange">—</span>
             </div>
         </div>
 
@@ -514,24 +351,29 @@
         <div class="summary-strip">
             <div class="summary-item">
                 <span class="summary-label">Average Temperature</span>
-                <span class="summary-value" id="avgTempSummary">22.4°C</span>
+                <span class="summary-value" id="avgTempSummary">—</span>
             </div>
             <div class="summary-item">
                 <span class="summary-label">Average Humidity</span>
-                <span class="summary-value" id="avgHumiditySummary">58%</span>
+                <span class="summary-value" id="avgHumiditySummary">—</span>
             </div>
             <div class="summary-item">
                 <span class="summary-label">Average CO₂</span>
-                <span class="summary-value" id="avgCo2Summary">415 ppm</span>
+                <span class="summary-value" id="avgCo2Summary">—</span>
             </div>
             <div class="summary-item">
                 <span class="summary-label">Energy Today</span>
-                <span class="summary-value" id="energySummary">44.3 kWh</span>
+                <span class="summary-value unavailable" id="energySummary">Unavailable</span>
             </div>
         </div>
     </main>
 
     <div class="toast-container" id="toastContainer"></div>
+
+    <!-- api.js exposes window.readMultiplePoints / isPointLive / USE_LIVE_API / MOCK_DATA
+         (same include that control.html and energy.html use). Loaded before the page
+         script so those globals are available. We only READ via it — no logic changes. -->
+    <script src="api.js"></script>
 
     <script>
     (function() {
@@ -539,6 +381,50 @@
 
         if (localStorage.getItem('arc_auth') !== 'true') {
             setTimeout(() => showToast('Please log in to access the system', 'warning'), 500);
+        }
+
+        // ── IDENTITY (real logged-in user, never hardcoded) ──
+        function initIdentity() {
+            let user = '';
+            try { user = (localStorage.getItem('arc_user') || '').trim(); } catch (e) {}
+
+            const heading = document.getElementById('greetingHeading');
+            const avatar  = document.getElementById('userAvatar');
+
+            if (user) {
+                const hour = new Date().getHours();
+                const partOfDay = hour < 12 ? 'morning' : hour < 18 ? 'afternoon' : 'evening';
+                heading.textContent = `Good ${partOfDay}, ${user}`;
+                avatar.textContent = initialsFrom(user);
+                avatar.title = user;
+            } else {
+                // No authenticated identity available — stay neutral, do not invent one.
+                heading.textContent = 'Overview';
+                avatar.textContent = '··';
+                avatar.title = 'Account';
+            }
+        }
+
+        function initialsFrom(name) {
+            const parts = name.replace(/[._-]+/g, ' ').trim().split(/\s+/).filter(Boolean);
+            if (parts.length === 0) return '··';
+            if (parts.length === 1) return parts[0].slice(0, 2).toUpperCase();
+            return (parts[0][0] + parts[parts.length - 1][0]).toUpperCase();
+        }
+
+        // ── THRESHOLDS (mirror control.html's getAlertLevel intent) ──
+        const THRESHOLDS = {
+            SPACE_TEMP:        { low: 15,  high: 30  },
+            RELATIVE_HUMIDITY: { low: 40,  high: 80  },
+            CO2:               { low: 350, high: 1200 }
+        };
+
+        function getAlertLevel(point, value) {
+            const t = THRESHOLDS[point];
+            if (!t || value == null) return 'normal';
+            if (value >= t.high) return 'high';
+            if (value <= t.low)  return 'low';
+            return 'normal';
         }
 
         // ── SOUND SYSTEM ──
@@ -649,7 +535,7 @@
             }
         });
 
-        // ── UNIT STATE ──
+        // ── UNIT ENABLE/STATUS OVERLAY (real app state from localStorage) ──
         function loadUnitStates() {
             const defaultState = {};
             for (let i = 1; i <= 10; i++) defaultState['UNIT' + i] = { enabled: true, status: 'Active' };
@@ -672,33 +558,92 @@
             return defaultState;
         }
 
-        function buildGreenhouseData() {
-            const unitStates = loadUnitStates();
-            const baseData = [
-                { id: 1, name: 'Greenhouse 1', unitKey: 'UNIT1', temp: 23.2, humidity: 58, co2: 415, alerts: 0 },
-                { id: 2, name: 'Greenhouse 2', unitKey: 'UNIT2', temp: 21.8, humidity: 63, co2: 408, alerts: 0 },
-                { id: 3, name: 'Greenhouse 3', unitKey: 'UNIT3', temp: 24.1, humidity: 55, co2: 420, alerts: 1 },
-                { id: 4, name: 'Greenhouse 4', unitKey: 'UNIT4', temp: 22.0, humidity: 60, co2: 410, alerts: 0 },
-                { id: 5, name: 'Greenhouse 5', unitKey: 'UNIT5', temp: 19.5, humidity: 45, co2: 390, alerts: 0 },
-                { id: 6, name: 'Greenhouse 6', unitKey: 'UNIT6', temp: 22.9, humidity: 62, co2: 418, alerts: 0 },
-                { id: 7, name: 'Greenhouse 7', unitKey: 'UNIT7', temp: 23.7, humidity: 57, co2: 425, alerts: 2 },
-                { id: 8, name: 'Greenhouse 8', unitKey: 'UNIT8', temp: 21.2, humidity: 65, co2: 405, alerts: 0 },
-                { id: 9, name: 'Greenhouse 9', unitKey: 'UNIT9', temp: 24.5, humidity: 52, co2: 430, alerts: 0 },
-                { id: 10, name: 'Greenhouse 10', unitKey: 'UNIT10', temp: 22.6, humidity: 59, co2: 412, alerts: 0 }
-            ];
+        // ── LIVE DATA ──
+        // Each unit's readings come from readMultiplePoints (api.js), exactly as
+        // control.html does. The returned object carries a `_live` map:
+        // data._live[point] === false means that point was a SILENT MOCK
+        // substitution (read failed) and must NOT be shown as a real number.
+        const UNIT_COUNT = 10;
+        const READ_POINTS = ['SPACE_TEMP', 'RELATIVE_HUMIDITY', 'CO2', 'UNIT_STATUS'];
 
-            return baseData.map(unit => {
-                const state = unitStates[unit.unitKey];
-                return state ? { ...unit, status: state.enabled ? 'active' : 'inactive' } : unit;
+        function isLive(data, point) {
+            return data && (!data._live || data._live[point] !== false);
+        }
+
+        async function readUnit(unitKey) {
+            try {
+                const data = await readMultiplePoints(unitKey, READ_POINTS);
+                return data || {};
+            } catch (e) {
+                console.warn('readUnit failed for ' + unitKey + ':', e);
+                return {};
+            }
+        }
+
+        // Build the per-unit view model from REAL reads + real enable overlay.
+        async function buildGreenhouseData() {
+            const unitStates = loadUnitStates();
+            const unitKeys = [];
+            for (let i = 1; i <= UNIT_COUNT; i++) unitKeys.push('UNIT' + i);
+
+            const reads = await Promise.all(unitKeys.map(readUnit));
+
+            return unitKeys.map((unitKey, idx) => {
+                const data = reads[idx];
+                const state = unitStates[unitKey] || { enabled: true, status: 'Active' };
+
+                const tempLive  = isLive(data, 'SPACE_TEMP')        && data.SPACE_TEMP        != null;
+                const humLive   = isLive(data, 'RELATIVE_HUMIDITY') && data.RELATIVE_HUMIDITY != null;
+                const co2Live   = isLive(data, 'CO2')               && data.CO2               != null;
+
+                const temp = tempLive ? parseFloat(data.SPACE_TEMP) : null;
+                const hum  = humLive  ? parseFloat(data.RELATIVE_HUMIDITY) : null;
+                const co2  = co2Live  ? parseFloat(data.CO2) : null;
+
+                // Alerts derive ONLY from live readings; a non-live point can't alert.
+                let alerts = 0;
+                let worstLevel = 'normal';
+                [['SPACE_TEMP', tempLive, temp], ['RELATIVE_HUMIDITY', humLive, hum], ['CO2', co2Live, co2]]
+                    .forEach(([point, live, value]) => {
+                        if (!live) return;
+                        const level = getAlertLevel(point, value);
+                        if (level !== 'normal') {
+                            alerts++;
+                            if (level === 'high') worstLevel = 'high';
+                            else if (worstLevel !== 'high') worstLevel = 'low';
+                        }
+                    });
+
+                return {
+                    name: 'Greenhouse ' + unitKey.replace('UNIT', ''),
+                    unitKey,
+                    enabled: state.enabled,
+                    status: state.enabled ? 'active' : 'inactive',
+                    temp, hum, co2,
+                    tempLive, humLive, co2Live,
+                    alerts, worstLevel,
+                    anyLive: tempLive || humLive || co2Live
+                };
             });
         }
 
-        function createReading(value, label, isAlert) {
+        function createReading(valueText, unitText, label, stateClass, unavailable) {
             const div = document.createElement('div');
             div.className = 'unit-reading';
             const val = document.createElement('span');
-            val.className = `reading-value${isAlert ? ' alert' : ''}`;
-            val.textContent = value;
+            val.className = 'reading-value' + (stateClass ? ' ' + stateClass : '') + (unavailable ? ' unavailable' : '');
+            if (unavailable) {
+                val.textContent = '—';
+                val.title = 'Unavailable — no live reading';
+            } else {
+                val.textContent = valueText;
+                if (unitText) {
+                    const u = document.createElement('span');
+                    u.className = 'reading-unit';
+                    u.textContent = unitText;
+                    val.appendChild(u);
+                }
+            }
             const lbl = document.createElement('span');
             lbl.className = 'reading-label';
             lbl.textContent = label;
@@ -707,18 +652,29 @@
             return div;
         }
 
-        function renderUnits() {
-            const greenhouseData = buildGreenhouseData();
+        function levelClass(point, live, value) {
+            if (!live) return '';
+            const level = getAlertLevel(point, value);
+            if (level === 'high') return 'state-danger';
+            if (level === 'low')  return 'state-warning';
+            return '';
+        }
+
+        async function renderUnits() {
+            const greenhouseData = await buildGreenhouseData();
             const grid = document.getElementById('unitsGrid');
+            const q = unitSearchInput ? unitSearchInput.value.trim().toLowerCase() : '';
             grid.innerHTML = '';
 
             greenhouseData.forEach(unit => {
                 const card = document.createElement('div');
                 card.className = 'unit-card';
+                if (unit.alerts > 0) card.classList.add('alerting');
+                if (unit.status === 'inactive') card.classList.add('offline');
 
                 if (unit.alerts > 0) {
                     const badge = document.createElement('span');
-                    badge.className = 'unit-alert-badge';
+                    badge.className = 'unit-alert-badge' + (unit.worstLevel === 'high' ? ' danger' : '');
                     badge.textContent = unit.alerts;
                     card.appendChild(badge);
                 }
@@ -731,7 +687,7 @@
                 const status = document.createElement('span');
                 status.className = 'unit-status';
                 const dot = document.createElement('span');
-                dot.className = `status-dot ${unit.status}`;
+                dot.className = 'arc-dot ' + (unit.status === 'active' ? 'ok' : 'offline');
                 status.appendChild(dot);
                 status.appendChild(document.createTextNode(unit.status === 'active' ? 'Active' : 'Inactive'));
                 header.appendChild(name);
@@ -740,22 +696,30 @@
 
                 const readings = document.createElement('div');
                 readings.className = 'unit-readings';
-                readings.appendChild(createReading(unit.temp.toFixed(1) + '°C', 'Temp', unit.temp > 26 || unit.temp < 18));
-                readings.appendChild(createReading(unit.humidity + '%', 'Humidity', unit.humidity > 80 || unit.humidity < 30));
-                readings.appendChild(createReading(unit.co2 + 'ppm', 'CO₂', unit.co2 > 800 || unit.co2 < 300));
+                readings.appendChild(createReading(
+                    unit.temp != null ? unit.temp.toFixed(1) : '', '°C', 'Temp',
+                    levelClass('SPACE_TEMP', unit.tempLive, unit.temp), !unit.tempLive));
+                readings.appendChild(createReading(
+                    unit.hum != null ? Math.round(unit.hum).toString() : '', '%', 'Humidity',
+                    levelClass('RELATIVE_HUMIDITY', unit.humLive, unit.hum), !unit.humLive));
+                readings.appendChild(createReading(
+                    unit.co2 != null ? Math.round(unit.co2).toString() : '', 'ppm', 'CO₂',
+                    levelClass('CO2', unit.co2Live, unit.co2), !unit.co2Live));
                 card.appendChild(readings);
 
-                const sparkline = document.createElement('div');
-                sparkline.className = 'sparkline';
-                const values = [12, 18, 14, 22, 16, 20, 15, 19, 17, 21, 13, 18];
-                values.forEach(v => {
-                    const bar = document.createElement('div');
-                    bar.className = 'bar';
-                    bar.style.height = (v / 22 * 100) + '%';
-                    if (unit.status === 'inactive') bar.style.opacity = '0.2';
-                    sparkline.appendChild(bar);
-                });
-                card.appendChild(sparkline);
+                // Honest data-state line instead of a fabricated sparkline.
+                const foot = document.createElement('div');
+                foot.className = 'unit-foot';
+                const liveness = document.createElement('span');
+                if (!unit.anyLive) {
+                    liveness.textContent = 'No live data';
+                } else if (unit.alerts > 0) {
+                    liveness.textContent = unit.alerts + (unit.alerts === 1 ? ' alert' : ' alerts');
+                } else {
+                    liveness.textContent = 'Nominal';
+                }
+                foot.appendChild(liveness);
+                card.appendChild(foot);
 
                 const btn = document.createElement('button');
                 btn.className = 'unit-control-btn';
@@ -763,7 +727,7 @@
                 btn.addEventListener('click', function(e) {
                     e.stopPropagation();
                     localStorage.setItem('selectedUnit', unit.unitKey);
-                    showToast(`Navigating to ${unit.name} controls...`, 'info');
+                    showToast('Navigating to ' + unit.name + ' controls…', 'info');
                     window.location.href = 'control.html';
                 });
                 card.appendChild(btn);
@@ -771,66 +735,129 @@
                 grid.appendChild(card);
             });
 
+            // Reapply any active search filter after re-render.
+            if (q) {
+                document.querySelectorAll('#unitsGrid .unit-card').forEach(card => {
+                    const nm = card.querySelector('.unit-name');
+                    card.style.display = (nm && nm.textContent.toLowerCase().includes(q)) ? '' : 'none';
+                });
+            }
+
             updateStats(greenhouseData);
+            updateConnStatus(greenhouseData);
+            lastUpdate = new Date();
+            updateClock();
+        }
+
+        function setStat(id, text) { document.getElementById(id).textContent = text; }
+
+        function avgLive(data, prop, liveFlag) {
+            const vals = data.filter(u => u[liveFlag] && u[prop] != null).map(u => u[prop]);
+            if (!vals.length) return null;
+            return vals.reduce((a, b) => a + b, 0) / vals.length;
         }
 
         function updateStats(greenhouseData) {
             const total = greenhouseData.length;
             const active = greenhouseData.filter(u => u.status === 'active').length;
             const inactive = total - active;
-            const temps = greenhouseData.filter(u => u.status === 'active').map(u => u.temp);
-            const avgTemp = temps.length ? (temps.reduce((a, b) => a + b, 0) / temps.length) : 0;
             const alerts = greenhouseData.reduce((sum, u) => sum + u.alerts, 0);
 
-            document.getElementById('totalUnits').textContent = total;
-            document.getElementById('activeGreenhouses').textContent = active;
-            document.getElementById('avgTemp').textContent = avgTemp.toFixed(1) + '°C';
-            document.getElementById('totalAlerts').textContent = alerts;
+            const avgTemp = avgLive(greenhouseData, 'temp', 'tempLive');
+            const avgHum  = avgLive(greenhouseData, 'hum',  'humLive');
+            const avgCo2  = avgLive(greenhouseData, 'co2',  'co2Live');
+
+            setStat('totalUnits', total);
+            setStat('activeGreenhouses', active);
+
+            const avgTempEl = document.getElementById('avgTemp');
+            if (avgTemp != null) { avgTempEl.textContent = avgTemp.toFixed(1) + '°C'; avgTempEl.classList.remove('unavailable'); }
+            else { avgTempEl.textContent = '—'; avgTempEl.classList.add('unavailable'); }
+
+            setStat('totalAlerts', alerts);
 
             if (alerts > 0 && isSoundEnabled) startBeeping(); else stopBeeping();
 
             const totalChange = document.getElementById('totalUnitsChange');
-            totalChange.textContent = `${active} active, ${inactive} inactive`;
-            totalChange.className = `stat-change ${active === total ? '' : 'danger'}`;
+            totalChange.textContent = active + ' active, ' + inactive + ' inactive';
+            totalChange.className = 'stat-change ' + (active === total ? '' : 'muted');
 
             const uptimeChange = document.getElementById('uptimeChange');
             const uptime = total > 0 ? Math.round((active / total) * 100) : 0;
-            uptimeChange.textContent = `${uptime}% uptime`;
-            uptimeChange.className = `stat-change ${uptime < 80 ? 'danger' : ''}`;
+            uptimeChange.textContent = uptime + '% enabled';
+            uptimeChange.className = 'stat-change ' + (uptime < 80 ? 'warning' : '');
 
             const tempChange = document.getElementById('tempChange');
-            const tempDiff = (avgTemp - 22).toFixed(1);
-            tempChange.textContent = `${tempDiff >= 0 ? '+' : ''}${tempDiff}°C`;
-            tempChange.className = `stat-change ${Math.abs(avgTemp - 22) > 3 ? 'danger' : ''}`;
+            if (avgTemp != null) {
+                tempChange.textContent = 'Live average';
+                tempChange.className = 'stat-change';
+            } else {
+                tempChange.textContent = 'No live data';
+                tempChange.className = 'stat-change muted';
+            }
 
             const alertChange = document.getElementById('alertChange');
-            alertChange.textContent = alerts === 0 ? 'All clear' : `${alerts} alerts`;
-            alertChange.className = `stat-change ${alerts > 0 ? 'danger' : ''}`;
+            alertChange.textContent = alerts === 0 ? 'All clear' : (alerts + (alerts === 1 ? ' alert' : ' alerts'));
+            alertChange.className = 'stat-change ' + (alerts > 0 ? 'danger' : '');
 
-            const humidities = greenhouseData.filter(u => u.status === 'active').map(u => u.humidity);
-            const avgHumidity = humidities.length ? (humidities.reduce((a, b) => a + b, 0) / humidities.length) : 0;
-            const co2s = greenhouseData.filter(u => u.status === 'active').map(u => u.co2);
-            const avgCo2 = co2s.length ? (co2s.reduce((a, b) => a + b, 0) / co2s.length) : 0;
-            const energy = 40 + Math.random() * 15;
+            // Summary strip — averages ONLY from live values; otherwise honest "—".
+            const avgTempSummary = document.getElementById('avgTempSummary');
+            const avgHumSummary  = document.getElementById('avgHumiditySummary');
+            const avgCo2Summary  = document.getElementById('avgCo2Summary');
 
-            document.getElementById('avgTempSummary').textContent = avgTemp.toFixed(1) + '°C';
-            document.getElementById('avgHumiditySummary').textContent = Math.round(avgHumidity) + '%';
-            document.getElementById('avgCo2Summary').textContent = Math.round(avgCo2) + ' ppm';
-            document.getElementById('energySummary').textContent = energy.toFixed(1) + ' kWh';
+            setSummary(avgTempSummary, avgTemp != null ? avgTemp.toFixed(1) + '°C' : null);
+            setSummary(avgHumSummary,  avgHum  != null ? Math.round(avgHum) + '%'  : null);
+            setSummary(avgCo2Summary,  avgCo2  != null ? Math.round(avgCo2) + ' ppm' : null);
+
+            // Energy Today: the application exposes NO real energy telemetry, so this
+            // stays honestly Unavailable rather than fabricating a kWh figure.
+            const energyEl = document.getElementById('energySummary');
+            energyEl.textContent = 'Unavailable';
+            energyEl.classList.add('unavailable');
+        }
+
+        function setSummary(el, text) {
+            if (text != null) { el.textContent = text; el.classList.remove('unavailable'); }
+            else { el.textContent = '—'; el.classList.add('unavailable'); }
+        }
+
+        // ── REAL JACE / CONNECTION STATUS ──
+        // Derived from the SAME real signals control.html uses: USE_LIVE_API plus
+        // whether this refresh actually got live reads back (isPointLive). Never a
+        // hardcoded "connected" dot.
+        let lastUpdate = null;
+
+        function updateConnStatus(greenhouseData) {
+            const dot = document.getElementById('connDot');
+            const text = document.getElementById('connText');
+            const liveMode = (typeof USE_LIVE_API !== 'undefined') ? USE_LIVE_API : false;
+            const anyLive = greenhouseData.some(u => u.anyLive);
+
+            if (!liveMode) {
+                dot.className = 'arc-dot offline';
+                text.textContent = 'Mock data';
+            } else if (anyLive) {
+                dot.className = 'arc-dot live';
+                text.textContent = 'JACE connected';
+            } else {
+                dot.className = 'arc-dot warning';
+                text.textContent = 'JACE unreachable';
+            }
         }
 
         function updateClock() {
-            const now = new Date();
-            document.getElementById('headerTime').textContent =
-                now.toLocaleTimeString('en-ZA', { hour: '2-digit', minute: '2-digit', second: '2-digit', hour12: false });
+            const el = document.getElementById('headerTime');
+            if (!lastUpdate) { el.textContent = '--:--'; return; }
+            el.textContent = lastUpdate.toLocaleTimeString('en-ZA', { hour: '2-digit', minute: '2-digit', second: '2-digit', hour12: false });
         }
 
-        function showToast(message, type = 'info') {
+        function showToast(message, type) {
+            type = type || 'info';
             const container = document.getElementById('toastContainer');
             const toast = document.createElement('div');
-            toast.className = `toast ${type}`;
+            toast.className = 'toast ' + type;
             const icon = type === 'error' ? '⚠️' : type === 'warning' ? '⚡' : '✓';
-            toast.textContent = `${icon} ${message}`;
+            toast.textContent = icon + ' ' + message;
             container.appendChild(toast);
             setTimeout(() => {
                 toast.style.opacity = '0';
@@ -841,22 +868,28 @@
         }
         window.showToast = showToast;
 
+        // Re-render immediately when per-unit enable/status changes in another tab.
         window.addEventListener('storage', function(e) {
-            if (e.key === 'arc_unit_state') renderUnits();
+            if (e.key === 'arc_unit_state') refreshDashboard();
         });
 
-        let lastState = JSON.stringify(loadUnitStates());
-        setInterval(() => {
-            const currentState = JSON.stringify(loadUnitStates());
-            if (currentState !== lastState) { lastState = currentState; renderUnits(); }
-        }, 3000);
+        // Non-blocking refresh loop. refreshDashboard() is async; we never await it
+        // inside setInterval so a slow/failed read can't stall the timer.
+        let refreshing = false;
+        function refreshDashboard() {
+            if (refreshing) return;
+            refreshing = true;
+            renderUnits().finally(() => { refreshing = false; });
+        }
+        window.refreshDashboard = refreshDashboard;
 
-        renderUnits();
+        // Initial paint + loops.
+        initIdentity();
         updateClock();
-        setInterval(updateClock, 1000);
+        refreshDashboard();
+        setInterval(refreshDashboard, 5000);
 
-        window.refreshDashboard = renderUnits;
-        console.log('🌱 ARC-GLASS Dashboard (light theme) loaded');
+        console.log('🌱 ARC-GLASS Dashboard loaded (live reads via api.js)');
     })();
     </script>
 </body>
