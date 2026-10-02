@@ -1,11 +1,224 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8" /><meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="theme-color" content="#f4f9f4" /><title>ARC-GLASS · Precision greenhouse control</title>
-<link rel="preconnect" href="https://fonts.googleapis.com" /><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin /><link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Plus+Jakarta+Sans:wght@600;700;800&display=swap" rel="stylesheet" /><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@latest/tabler-icons.min.css" />
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<meta name="theme-color" content="#eef0ec" />
+<title>ARC-GLASS · Precision greenhouse control</title>
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,400;14..32,500;14..32,600;14..32,700&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet" />
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@latest/tabler-icons.min.css" />
 <style>
-:root{--bg:#f4f9f4;--surface:#fff;--line:#d8eadb;--ink:#102016;--softink:#49624f;--muted:#78917c;--green:#16a34a;--dark:#087b34;--bright:#22c55e;--pale:#dcfce7;--shadow:0 2px 12px rgba(22,163,74,.08),0 14px 34px rgba(26,82,39,.05);--radius:18px}*{box-sizing:border-box}html{scroll-behavior:smooth}body{margin:0;color:var(--ink);font-family:Inter,sans-serif;background:var(--bg)}a{color:inherit}.page{overflow:hidden}.hero{position:relative;min-height:680px;color:white;background:#102a18}.hero-image{position:absolute;inset:0;background-image:url('https://images.unsplash.com/photo-1585320806297-9794b3e4eeae?auto=format&fit=crop&w=2200&q=85');background-size:cover;background-position:center;animation:kenburns 22s ease-in-out infinite alternate}.hero-image:after{content:'';position:absolute;inset:0;background:linear-gradient(115deg,#07150ddd 0%,#0d2610b8 46%,#0d26104a 100%)}@keyframes kenburns{from{transform:scale(1)}to{transform:scale(1.08) translate(-1%,-1%)}}.hero-content{position:relative;z-index:1;width:min(1240px,100%);min-height:680px;margin:auto;padding:27px 34px 48px;display:flex;flex-direction:column}.nav{display:flex;align-items:center;justify-content:space-between;gap:20px}.brand{display:flex;align-items:center;gap:11px;text-decoration:none}.brand-mark{display:grid;width:40px;height:40px;place-items:center;color:white;background:linear-gradient(145deg,var(--bright),var(--dark));border-radius:13px 13px 13px 4px;box-shadow:0 8px 18px #16a34a55;font-size:22px}.brand-name{font:800 14px 'Plus Jakarta Sans',sans-serif;letter-spacing:.04em}.brand-sub{display:block;margin-top:2px;color:#c5eecb;font-size:9px;font-weight:600;letter-spacing:.12em;text-transform:uppercase}.nav-links{display:flex;align-items:center;gap:24px;color:#dbf4df;font-size:12px;font-weight:600}.nav-links a{text-decoration:none;opacity:.83}.nav-links a:hover{color:var(--bright);opacity:1}.nav-cta{display:inline-flex;align-items:center;gap:7px;padding:10px 15px;color:var(--dark)!important;background:#fff;border-radius:999px;opacity:1!important}.hero-copy{max-width:700px;margin:auto 0;padding:95px 0 95px}.eyebrow{display:inline-flex;align-items:center;gap:8px;margin-bottom:21px;padding:7px 11px;color:#ccf6d5;background:#ffffff18;border:1px solid #ffffff2c;border-radius:999px;font-size:10px;font-weight:700;letter-spacing:.12em;text-transform:uppercase}.eyebrow i{color:var(--bright);font-size:14px}.hero h1{max-width:700px;margin:0;font:800 clamp(42px,6.5vw,78px)/1.03 'Plus Jakarta Sans',sans-serif;letter-spacing:-.07em}.hero h1 em{color:var(--bright);font-style:normal}.hero-description{max-width:550px;margin:25px 0 28px;color:#d5ebd8;font-size:16px;line-height:1.65}.hero-actions{display:flex;gap:11px;flex-wrap:wrap}.btn{display:inline-flex;align-items:center;gap:8px;min-height:46px;padding:0 19px;border-radius:10px;text-decoration:none;font-size:12px;font-weight:700;transition:.2s}.btn-primary{color:#083317;background:var(--bright)}.btn-primary:hover{background:#4ade80;transform:translateY(-2px);box-shadow:0 8px 22px #22c55e45}.btn-secondary{color:#e1f7e5;background:#ffffff12;border:1px solid #ffffff45}.btn-secondary:hover{background:#ffffff22;border-color:#ffffff88}.hero-meta{display:flex;align-items:center;gap:17px;margin-top:24px;color:#b8dbbe;font-size:10px}.hero-meta span{display:inline-flex;align-items:center;gap:6px}.hero-meta i{color:var(--bright);font-size:14px}.stats-wrap{position:relative;z-index:2;width:min(1110px,calc(100% - 38px));margin:-55px auto 0;padding:7px;background:#ffffffeb;border:1px solid var(--line);border-radius:18px;box-shadow:0 12px 35px #17582720}.stats{display:grid;grid-template-columns:repeat(3,1fr);gap:1px;background:var(--line);border-radius:12px;overflow:hidden}.stat{padding:21px 25px;background:white}.stat-value{display:block;color:var(--dark);font:700 27px 'Plus Jakarta Sans',sans-serif}.stat-label{display:block;margin-top:5px;color:var(--muted);font-size:10px;font-weight:700;letter-spacing:.1em;text-transform:uppercase}.section{width:min(1150px,100%);margin:auto;padding:95px 30px}.section-intro{max-width:670px;margin-bottom:34px}.section-kicker{color:var(--green);font-size:10px;font-weight:700;letter-spacing:.13em;text-transform:uppercase}.section h2{margin:10px 0 12px;font:800 clamp(27px,4vw,42px)/1.1 'Plus Jakarta Sans',sans-serif;letter-spacing:-.055em}.section-intro p{margin:0;color:var(--softink);font-size:14px;line-height:1.7}.features{display:grid;grid-template-columns:repeat(3,1fr);gap:14px}.feature{padding:22px;background:white;border:1px solid var(--line);border-radius:var(--radius);box-shadow:var(--shadow);transition:.2s}.feature:hover{transform:translateY(-4px);border-color:#b6d9bc;box-shadow:0 10px 25px #17582713}.feature-icon{display:grid;width:42px;height:42px;place-items:center;margin-bottom:19px;color:var(--green);background:var(--pale);border-radius:12px;font-size:21px}.feature h3{margin:0 0 8px;font:700 14px 'Plus Jakarta Sans',sans-serif}.feature p{margin:0;color:var(--softink);font-size:12px;line-height:1.65}.system-panel{display:grid;grid-template-columns:1.1fr .9fr;gap:16px;align-items:stretch}.panel-card{padding:28px;color:white;background:linear-gradient(140deg,#0d3b1a,#087b34);border-radius:var(--radius);box-shadow:var(--shadow)}.panel-card h3{margin:0 0 8px;font:700 20px 'Plus Jakarta Sans',sans-serif}.panel-card p{max-width:480px;margin:0 0 21px;color:#c8ebce;font-size:12px;line-height:1.7}.panel-link{display:inline-flex;align-items:center;gap:7px;padding:11px 14px;color:var(--dark);background:white;border-radius:9px;text-decoration:none;font-size:11px;font-weight:700}.panel-points{display:grid;grid-template-columns:1fr 1fr;gap:10px;padding:21px;background:white;border:1px solid var(--line);border-radius:var(--radius);box-shadow:var(--shadow)}.point{padding:14px;background:var(--bg);border-radius:12px}.point i{color:var(--green);font-size:19px}.point strong{display:block;margin-top:10px;color:var(--ink);font-size:11px}.point span{display:block;margin-top:4px;color:var(--muted);font-size:10px}.footer{display:flex;align-items:center;justify-content:space-between;gap:20px;width:min(1150px,100%);margin:auto;padding:22px 30px 30px;border-top:1px solid var(--line);color:var(--muted);font-size:10px}.footer-brand{color:var(--dark);font-weight:700}.footer-links{display:flex;gap:17px}.footer-links a{text-decoration:none}.footer-links a:hover{color:var(--green)}
-@media(max-width:800px){.hero,.hero-content{min-height:650px}.hero-content{padding:21px 20px 35px}.nav-links{display:none}.hero-copy{padding:82px 0 80px}.hero h1{font-size:clamp(40px,12vw,62px)}.hero-description{font-size:14px}.stats-wrap{width:calc(100% - 24px);margin-top:-42px}.stat{padding:17px 13px;text-align:center}.stat-value{font-size:22px}.stat-label{font-size:8px}.section{padding:72px 18px}.features{grid-template-columns:1fr 1fr}.system-panel{grid-template-columns:1fr}.footer{align-items:flex-start;flex-direction:column;padding-right:18px;padding-left:18px}}@media(max-width:480px){.brand-name{font-size:12px}.hero-meta{align-items:flex-start;flex-direction:column;gap:8px}.stats{grid-template-columns:1fr}.stat{text-align:left;padding:15px 17px}.features{grid-template-columns:1fr}.panel-points{grid-template-columns:1fr 1fr}.footer-links{flex-wrap:wrap}.hero-actions .btn{flex:1;justify-content:center}}
+/* ============================================================================
+   ARC·GLASSHOUSE — public landing. Self-contained, muted industrial palette
+   that mirrors the system's shared theme.css tokens (no new dependencies, no
+   photographic / stock / scenery background, no display font, no bright
+   eco-green). Fonts: Inter (text) + JetBrains Mono (numeric) + Tabler icons.
+   ========================================================================== */
+:root{
+    --bg:#eef0ec;            /* warm off-white, faint eucalyptus cast */
+    --surface:#fbfcfa;
+    --surface-soft:#f1f3ef;
+    --line:#d6dbd3;
+    --line-strong:#c2c9bf;
+    --ink:#1f2622;           /* graphite */
+    --softink:#4e5953;
+    --muted:#828d85;
+    --faint:#a7b0a8;
+    --accent:#3f6b52;        /* deep eucalyptus */
+    --accent-dim:#2f5240;
+    --accent-strong:#244033;
+    --accent-soft:#dde7df;
+    --olive:#6b7a4f;
+    --radius:12px;
+    --radius-sm:8px;
+    --mono:'JetBrains Mono',ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;
+}
+*{box-sizing:border-box}
+html{scroll-behavior:smooth}
+body{margin:0;color:var(--ink);font-family:'Inter',-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;background:var(--bg);line-height:1.5;-webkit-font-smoothing:antialiased;overflow-x:hidden}
+a{color:inherit}
+.page{width:100%}
+
+/* ── TOP BAR ── */
+.topnav{position:sticky;top:0;z-index:10;display:flex;align-items:center;justify-content:space-between;gap:20px;width:100%;padding:18px clamp(20px,4vw,48px);background:var(--surface);border-bottom:1px solid var(--line)}
+.brand{display:flex;align-items:center;gap:12px;text-decoration:none}
+.brand-mark{position:relative;width:40px;height:40px;flex-shrink:0;background:var(--accent-strong);border-radius:10px}
+.brand-mark::before{content:'';position:absolute;inset:11px;background:#4a7d60;border-radius:0 70% 0 70%}
+.brand-mark::after{content:'';position:absolute;top:13px;left:50%;width:2px;height:14px;background:var(--accent-soft);transform:translateX(-50%);border-radius:2px;opacity:.8}
+.brand-name{font-size:14px;font-weight:700;letter-spacing:.08em;text-transform:uppercase}
+.brand-sub{display:block;margin-top:3px;color:var(--muted);font-size:9px;font-weight:600;letter-spacing:.12em;text-transform:uppercase}
+.nav-links{display:flex;align-items:center;gap:28px;font-size:13px;font-weight:500}
+.nav-links a{text-decoration:none;color:var(--softink);transition:color .18s ease}
+.nav-links a:hover{color:var(--ink)}
+.nav-cta{display:inline-flex;align-items:center;gap:7px;min-height:40px;padding:0 16px;color:#fbfcfa!important;background:var(--accent);border:1px solid var(--accent);border-radius:var(--radius-sm);font-weight:600;transition:background .18s ease}
+.nav-cta:hover{background:var(--accent-dim)}
+
+/* ── HERO ── */
+.hero{width:min(1180px,100%);margin:auto;padding:clamp(56px,8vw,96px) clamp(20px,4vw,48px) clamp(40px,5vw,64px)}
+.eyebrow{display:inline-flex;align-items:center;gap:8px;margin-bottom:22px;padding:7px 12px;color:var(--accent-ink,#2b4a3a);background:var(--accent-soft);border:1px solid transparent;border-radius:999px;font-size:10px;font-weight:700;letter-spacing:.12em;text-transform:uppercase}
+.eyebrow i{color:var(--accent);font-size:14px}
+.hero h1{max-width:760px;margin:0;font-size:clamp(34px,5.5vw,60px);font-weight:700;line-height:1.08;letter-spacing:-.02em;color:var(--ink)}
+.hero h1 em{color:var(--accent);font-style:normal}
+.hero-description{max-width:620px;margin:22px 0 28px;color:var(--softink);font-size:16px;line-height:1.65}
+.hero-actions{display:flex;gap:12px;flex-wrap:wrap}
+.btn{display:inline-flex;align-items:center;gap:8px;min-height:48px;padding:0 20px;border-radius:var(--radius-sm);text-decoration:none;font-size:14px;font-weight:600;transition:background .18s ease,border-color .18s ease,color .18s ease}
+.btn-primary{color:#fbfcfa;background:var(--accent);border:1px solid var(--accent)}
+.btn-primary:hover{background:var(--accent-dim);border-color:var(--accent-dim)}
+.btn-secondary{color:var(--softink);background:var(--surface);border:1px solid var(--line-strong)}
+.btn-secondary:hover{border-color:var(--accent);color:var(--accent)}
+.hero-meta{display:flex;align-items:center;gap:22px;margin-top:28px;flex-wrap:wrap;color:var(--muted);font-size:12px;font-weight:500}
+.hero-meta span{display:inline-flex;align-items:center;gap:7px}
+.hero-meta i{color:var(--accent);font-size:15px}
+
+/* ── STATS STRIP ── */
+.stats-wrap{width:min(1180px,100%);margin:0 auto;padding:0 clamp(20px,4vw,48px)}
+.stats{display:grid;grid-template-columns:repeat(3,1fr);gap:1px;background:var(--line);border:1px solid var(--line);border-radius:var(--radius);overflow:hidden}
+.stat{padding:22px 26px;background:var(--surface)}
+.stat-value{display:block;color:var(--ink);font-family:var(--mono);font-variant-numeric:tabular-nums;font-size:28px;font-weight:600}
+.stat-label{display:block;margin-top:6px;color:var(--muted);font-size:10px;font-weight:600;letter-spacing:.1em;text-transform:uppercase}
+
+/* ── SECTIONS ── */
+.section{width:min(1180px,100%);margin:auto;padding:clamp(64px,7vw,96px) clamp(20px,4vw,48px)}
+.section-intro{max-width:680px;margin-bottom:36px}
+.section-kicker{color:var(--accent);font-size:10px;font-weight:700;letter-spacing:.13em;text-transform:uppercase}
+.section h2{margin:12px 0;font-size:clamp(26px,3.6vw,40px);font-weight:700;line-height:1.12;letter-spacing:-.02em;color:var(--ink)}
+.section-intro p{margin:0;color:var(--softink);font-size:15px;line-height:1.7}
+
+/* ── FEATURES ── */
+.features{display:grid;grid-template-columns:repeat(3,1fr);gap:16px}
+.feature{padding:24px;background:var(--surface);border:1px solid var(--line);border-radius:var(--radius);transition:border-color .18s ease}
+.feature:hover{border-color:var(--line-strong)}
+.feature-icon{display:grid;width:44px;height:44px;place-items:center;margin-bottom:18px;color:var(--accent);background:var(--accent-soft);border-radius:var(--radius-sm);font-size:21px}
+.feature h3{margin:0 0 8px;font-size:15px;font-weight:600;color:var(--ink)}
+.feature p{margin:0;color:var(--softink);font-size:13px;line-height:1.65}
+
+/* ── SYSTEM PANEL ── */
+.system-panel{display:grid;grid-template-columns:1.1fr .9fr;gap:16px;align-items:stretch}
+.panel-card{display:flex;flex-direction:column;padding:30px;color:#eef0ec;background:var(--accent-strong);border:1px solid var(--accent-strong);border-radius:var(--radius)}
+.panel-card h3{margin:0 0 10px;font-size:20px;font-weight:600;color:#fbfcfa}
+.panel-card p{max-width:480px;margin:0 0 22px;color:#c4d2c8;font-size:14px;line-height:1.7}
+.panel-link{display:inline-flex;align-items:center;gap:7px;align-self:flex-start;min-height:44px;padding:0 16px;color:var(--accent-strong);background:#eef0ec;border-radius:var(--radius-sm);text-decoration:none;font-size:13px;font-weight:600;transition:background .18s ease}
+.panel-link:hover{background:#fbfcfa}
+.panel-points{display:grid;grid-template-columns:1fr 1fr;gap:12px;padding:22px;background:var(--surface);border:1px solid var(--line);border-radius:var(--radius)}
+.point{padding:16px;background:var(--surface-soft);border:1px solid var(--line);border-radius:var(--radius-sm)}
+.point i{color:var(--accent);font-size:20px}
+.point strong{display:block;margin-top:12px;color:var(--ink);font-size:12px;font-weight:600}
+.point span{display:block;margin-top:4px;color:var(--muted);font-size:11px}
+
+/* ── FOOTER ── */
+.footer{display:flex;align-items:center;justify-content:space-between;gap:20px;flex-wrap:wrap;width:min(1180px,100%);margin:auto;padding:24px clamp(20px,4vw,48px) 32px;border-top:1px solid var(--line);color:var(--muted);font-size:11px}
+.footer-brand{color:var(--softink);font-weight:600}
+.footer-links{display:flex;gap:18px}
+.footer-links a{text-decoration:none;transition:color .18s ease}
+.footer-links a:hover{color:var(--accent)}
+
+/* ── RESPONSIVE ── */
+@media(max-width:820px){
+    .nav-links a:not(.nav-cta){display:none}
+    .features{grid-template-columns:1fr 1fr}
+    .system-panel{grid-template-columns:1fr}
+}
+@media(max-width:560px){
+    .stats{grid-template-columns:1fr}
+    .features{grid-template-columns:1fr}
+    .panel-points{grid-template-columns:1fr 1fr}
+    .hero-meta{flex-direction:column;align-items:flex-start;gap:10px}
+    .hero-actions .btn{flex:1;justify-content:center}
+    .footer{flex-direction:column;align-items:flex-start}
+}
+@media(prefers-reduced-motion:reduce){*{transition:none!important}}
 </style>
 </head>
-<body><div class="page"><section class="hero"><div class="hero-image"></div><div class="hero-content"><nav class="nav"><a class="brand" href="index.html"><span class="brand-mark"><i class="ti ti-leaf"></i></span><span><span class="brand-name">ARC·GLASSHOUSE</span><span class="brand-sub">Agricultural Research Council</span></span></a><div class="nav-links"><a href="#platform">Platform</a><a href="#features">Capabilities</a><a href="#contact">Support</a><a class="nav-cta" href="login.html">Sign in <i class="ti ti-arrow-up-right"></i></a></div></nav><div class="hero-copy"><div class="eyebrow"><i class="ti ti-sparkles"></i> Precision agriculture platform</div><h1>Precision control for <em>every compartment.</em></h1><p class="hero-description">A calm, intelligent command centre for the climate systems that help research grow. Monitor, understand and control every ARC greenhouse from one clear view.</p><div class="hero-actions"><a class="btn btn-primary" href="login.html">Open the command centre <i class="ti ti-arrow-right"></i></a><a class="btn btn-secondary" href="#features">Explore the platform <i class="ti ti-chevron-down"></i></a></div><div class="hero-meta"><span><i class="ti ti-shield-check"></i> Secure BACnet/IP</span><span><i class="ti ti-clock-24"></i> 24/7 monitoring</span><span><i class="ti ti-leaf"></i> Built for ARC-LNR</span></div></div></div></section><div class="stats-wrap"><div class="stats"><div class="stat"><span class="stat-value">10</span><span class="stat-label">Independent units</span></div><div class="stat"><span class="stat-value">3</span><span class="stat-label">Climate parameters</span></div><div class="stat"><span class="stat-value">24/7</span><span class="stat-label">Live monitoring</span></div></div></div><section class="section" id="platform"><div class="section-intro"><span class="section-kicker">One connected view</span><h2>Make every growing environment measurable.</h2><p>ARC-GLASSHOUSE brings live climate intelligence, direct control and a reliable operating history together in one premium workspace.</p></div><div class="system-panel"><div class="panel-card"><h3>From signal to decision.</h3><p>See what each unit needs at a glance, then move from insight to action without leaving the operational context.</p><a class="panel-link" href="login.html">Enter the platform <i class="ti ti-arrow-up-right"></i></a></div><div class="panel-points"><div class="point"><i class="ti ti-chart-line"></i><strong>Live visibility</strong><span>Real-time readings at a glance</span></div><div class="point"><i class="ti ti-adjustments-horizontal"></i><strong>Direct control</strong><span>Safe setpoints and overrides</span></div><div class="point"><i class="ti ti-bell-ringing"></i><strong>Early alerts</strong><span>Know when conditions shift</span></div><div class="point"><i class="ti ti-history"></i><strong>Clear history</strong><span>Every action accounted for</span></div></div></div></section><section class="section" id="features"><div class="section-intro"><span class="section-kicker">Designed for operators</span><h2>Clarity for the work that matters.</h2><p>Simple, focused tools for the people responsible for healthy, repeatable research environments.</p></div><div class="features"><article class="feature"><span class="feature-icon"><i class="ti ti-layout-dashboard"></i></span><h3>Operational overview</h3><p>Scan all ten greenhouse units, active states and climate summaries from one dashboard.</p></article><article class="feature"><span class="feature-icon"><i class="ti ti-adjustments-horizontal"></i></span><h3>Confident control</h3><p>Apply temperature, humidity and CO₂ setpoints with clear feedback and safe visual states.</p></article><article class="feature"><span class="feature-icon"><i class="ti ti-chart-dots-3"></i></span><h3>Trend intelligence</h3><p>Understand changes over time with focused charts and environmental history.</p></article><article class="feature"><span class="feature-icon"><i class="ti ti-bolt"></i></span><h3>Energy awareness</h3><p>See power demand, efficiency and consumption distribution by unit.</p></article><article class="feature"><span class="feature-icon"><i class="ti ti-clipboard-list"></i></span><h3>Traceable actions</h3><p>Keep a practical activity record of controls, changes, users and system events.</p></article><article class="feature"><span class="feature-icon"><i class="ti ti-device-desktop-analytics"></i></span><h3>Built for the field</h3><p>Responsive screens keep essential information accessible across desktop and mobile.</p></article></div></section><footer class="footer" id="contact"><span class="footer-brand">ARC·GLASSHOUSE · ARC-LNR</span><span>Secure · BACnet/IP · Research operations</span><span class="footer-links"><a href="login.html">Sign in</a><a href="#platform">Platform</a></span></footer></div></body></html>
+<body>
+<div class="page">
+
+    <nav class="topnav">
+        <a class="brand" href="index.html">
+            <span class="brand-mark"></span>
+            <span>
+                <span class="brand-name">ARC·GLASSHOUSE</span>
+                <span class="brand-sub">Agricultural Research Council</span>
+            </span>
+        </a>
+        <div class="nav-links">
+            <a href="#platform">Platform</a>
+            <a href="#features">Capabilities</a>
+            <a href="#contact">Support</a>
+            <a class="nav-cta" href="login.html">Sign in <i class="ti ti-arrow-up-right"></i></a>
+        </div>
+    </nav>
+
+    <section class="hero">
+        <div class="eyebrow"><i class="ti ti-leaf"></i> Precision agriculture platform</div>
+        <h1>Precision control for <em>every compartment.</em></h1>
+        <p class="hero-description">A calm, intelligent command centre for the climate systems that help research grow. Monitor, understand and control every ARC greenhouse from one clear view.</p>
+        <div class="hero-actions">
+            <a class="btn btn-primary" href="login.html">Open the command centre <i class="ti ti-arrow-right"></i></a>
+            <a class="btn btn-secondary" href="#features">Explore the platform <i class="ti ti-chevron-down"></i></a>
+        </div>
+        <div class="hero-meta">
+            <span><i class="ti ti-shield-check"></i> Secure · BACnet/IP</span>
+            <span><i class="ti ti-clock-24"></i> 24/7 monitoring</span>
+            <span><i class="ti ti-leaf"></i> Built for ARC-LNR</span>
+        </div>
+    </section>
+
+    <div class="stats-wrap">
+        <div class="stats">
+            <div class="stat"><span class="stat-value">10</span><span class="stat-label">Independent units</span></div>
+            <div class="stat"><span class="stat-value">3</span><span class="stat-label">Climate parameters</span></div>
+            <div class="stat"><span class="stat-value">24/7</span><span class="stat-label">Live monitoring</span></div>
+        </div>
+    </div>
+
+    <section class="section" id="platform">
+        <div class="section-intro">
+            <span class="section-kicker">One connected view</span>
+            <h2>Make every growing environment measurable.</h2>
+            <p>ARC-GLASSHOUSE brings live climate intelligence, direct control and a reliable operating history together in one workspace.</p>
+        </div>
+        <div class="system-panel">
+            <div class="panel-card">
+                <h3>From signal to decision.</h3>
+                <p>See what each unit needs at a glance, then move from insight to action without leaving the operational context.</p>
+                <a class="panel-link" href="login.html">Enter the platform <i class="ti ti-arrow-up-right"></i></a>
+            </div>
+            <div class="panel-points">
+                <div class="point"><i class="ti ti-chart-line"></i><strong>Live visibility</strong><span>Real-time readings at a glance</span></div>
+                <div class="point"><i class="ti ti-adjustments-horizontal"></i><strong>Direct control</strong><span>Safe setpoints and overrides</span></div>
+                <div class="point"><i class="ti ti-bell-ringing"></i><strong>Early alerts</strong><span>Know when conditions shift</span></div>
+                <div class="point"><i class="ti ti-history"></i><strong>Clear history</strong><span>Every action accounted for</span></div>
+            </div>
+        </div>
+    </section>
+
+    <section class="section" id="features">
+        <div class="section-intro">
+            <span class="section-kicker">Designed for operators</span>
+            <h2>Clarity for the work that matters.</h2>
+            <p>Simple, focused tools for the people responsible for healthy, repeatable research environments.</p>
+        </div>
+        <div class="features">
+            <article class="feature"><span class="feature-icon"><i class="ti ti-layout-dashboard"></i></span><h3>Operational overview</h3><p>Scan all ten greenhouse units, active states and climate summaries from one dashboard.</p></article>
+            <article class="feature"><span class="feature-icon"><i class="ti ti-adjustments-horizontal"></i></span><h3>Confident control</h3><p>Apply temperature, humidity and CO₂ setpoints with clear feedback and safe visual states.</p></article>
+            <article class="feature"><span class="feature-icon"><i class="ti ti-chart-dots-3"></i></span><h3>Trend intelligence</h3><p>Understand changes over time with focused charts and environmental history.</p></article>
+            <article class="feature"><span class="feature-icon"><i class="ti ti-bolt"></i></span><h3>Energy awareness</h3><p>See power demand, efficiency and consumption distribution by unit.</p></article>
+            <article class="feature"><span class="feature-icon"><i class="ti ti-clipboard-list"></i></span><h3>Traceable actions</h3><p>Keep a practical activity record of controls, changes, users and system events.</p></article>
+            <article class="feature"><span class="feature-icon"><i class="ti ti-device-desktop-analytics"></i></span><h3>Built for the field</h3><p>Responsive screens keep essential information accessible across desktop and mobile.</p></article>
+        </div>
+    </section>
+
+    <footer class="footer" id="contact">
+        <span class="footer-brand">ARC·GLASSHOUSE · ARC-LNR</span>
+        <span>Secure · BACnet/IP · Research operations</span>
+        <span class="footer-links">
+            <a href="login.html">Sign in</a>
+            <a href="#platform">Platform</a>
+        </span>
+    </footer>
+
+</div>
+</body>
+</html>
