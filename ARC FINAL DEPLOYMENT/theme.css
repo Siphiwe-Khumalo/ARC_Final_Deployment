@@ -1,0 +1,820 @@
+/* ============================================================================
+   ARC·GLASSHOUSE — Shared design system (theme.css)
+   One coherent industrial / environmental-monitoring language shared by every
+   page. Loaded AFTER each page's inline <style>, so these rules form the
+   authoritative shell and token layer.
+
+   This file is foundation-only: design tokens, the shared navigation shell
+   (sidebar / bottom-nav / topbar) and reusable, purposeful panel components.
+   It does not change any page logic, element id, class hook or API behaviour.
+   ========================================================================== */
+
+/* ----------------------------------------------------------------------------
+   1. DESIGN TOKENS
+   Muted environmental / industrial palette. Deliberately NOT bright eco-green
+   (#22c55e / #4ade80 / #00ff00) and NOT a near-black neon-green terminal.
+   Accents are deep forest / eucalyptus / olive-verdigris on a warm off-white.
+   -------------------------------------------------------------------------- */
+:root {
+    /* Surfaces & neutrals -------------------------------------------------- */
+    --arc-bg:            #eef0ec;  /* warm off-white, faint eucalyptus cast   */
+    --arc-surface:       #fbfcfa;  /* panel / card surface                    */
+    --arc-surface-soft:  #f1f3ef;  /* inset / nested surface                  */
+    --arc-surface-soft-2:#e9ece7;
+    --arc-surface-sunk:  #e6e9e3;  /* readout wells, inputs                   */
+
+    /* Ink / text ----------------------------------------------------------- */
+    --arc-ink:           #1f2622;  /* graphite, primary text                  */
+    --arc-text-secondary:#4e5953;  /* secondary text                          */
+    --arc-text-muted:    #828d85;  /* quiet labels                            */
+    --arc-text-faint:    #a7b0a8;  /* placeholder / disabled                  */
+
+    /* Borders & lines ------------------------------------------------------ */
+    --arc-border:        #d6dbd3;  /* restrained hairline                     */
+    --arc-border-strong: #c2c9bf;
+    --arc-border-sunk:   #cdd3c9;
+
+    /* Brand accents — muted forest / eucalyptus / verdigris ---------------- */
+    --arc-accent:        #3f6b52;  /* deep eucalyptus green (primary accent)  */
+    --arc-accent-dim:    #2f5240;  /* darker forest, hover / pressed          */
+    --arc-accent-strong: #244033;  /* deepest forest                          */
+    --arc-accent-soft:   #dde7df;  /* tinted fill for active states           */
+    --arc-accent-ink:    #2b4a3a;  /* accent used as text on light            */
+    --arc-olive:         #6b7a4f;  /* olive / verdigris secondary accent      */
+    --arc-olive-soft:    #e4e8d9;
+
+    /* State colours -------------------------------------------------------- */
+    --arc-ok:            #3f6b52;  /* confirmed / live (matches forest)       */
+    --arc-ok-soft:       #dde7df;
+    --arc-live:          #4a7d60;  /* a touch brighter forest for "live" dot  */
+    --arc-warning:       #b7791f;  /* subtle amber for warnings / stale       */
+    --arc-warning-soft:  #f6ecd6;
+    --arc-warning-ink:   #8a5a12;
+    --arc-danger:        #a53a2f;  /* muted brick red, not neon               */
+    --arc-danger-soft:   #f3dcd8;
+    --arc-info:          #3a5b6b;  /* muted slate-teal for neutral info       */
+    --arc-info-soft:     #dde6ea;
+
+    /* Typography ----------------------------------------------------------- */
+    --arc-font: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+    --arc-mono: 'JetBrains Mono', ui-monospace, 'SFMono-Regular', Menlo, Consolas, monospace;
+
+    --arc-fw-regular: 400;
+    --arc-fw-medium:  500;
+    --arc-fw-semibold:600;
+    --arc-fw-bold:    700;
+
+    /* Readout scale: big value + small unit + quiet label ------------------ */
+    --arc-value-xl:   40px;  /* hero reading                                  */
+    --arc-value-lg:   30px;  /* primary reading                               */
+    --arc-value-md:   22px;  /* KPI / summary value                           */
+    --arc-value-sm:   16px;  /* compact reading                               */
+    --arc-unit:       13px;  /* unit suffix beside a value                    */
+    --arc-label:      11px;  /* quiet uppercase label                         */
+
+    --arc-fs-h1:      22px;
+    --arc-fs-h2:      16px;
+    --arc-fs-body:    14px;
+    --arc-fs-sm:      13px;
+    --arc-fs-xs:      11px;
+    --arc-lh:         1.5;
+    --arc-tracking-label: 0.07em;
+
+    /* Spacing scale (4px base) -------------------------------------------- */
+    --arc-sp-1: 4px;
+    --arc-sp-2: 8px;
+    --arc-sp-3: 12px;
+    --arc-sp-4: 16px;
+    --arc-sp-5: 20px;
+    --arc-sp-6: 24px;
+    --arc-sp-8: 32px;
+    --arc-sp-10:40px;
+
+    /* Radius (restrained, not pill-everything) ---------------------------- */
+    --arc-radius-sm: 6px;
+    --arc-radius:    8px;
+    --arc-radius-md: 10px;
+    --arc-radius-lg: 12px;
+
+    /* Shadows — restrained; prefer borders over heavy shadow -------------- */
+    --arc-shadow-xs: 0 1px 2px rgba(31, 38, 34, 0.05);
+    --arc-shadow:    0 1px 3px rgba(31, 38, 34, 0.07), 0 1px 2px rgba(31, 38, 34, 0.04);
+    --arc-shadow-lift: 0 6px 18px rgba(31, 38, 34, 0.10);
+
+    /* Shell geometry ------------------------------------------------------- */
+    --arc-nav-width:          68px;
+    --arc-nav-width-expanded: 224px;
+    --arc-topbar-gap:         var(--arc-sp-6);
+
+    /* Motion — functional only, no theatrics ------------------------------ */
+    --arc-transition: 0.18s ease;
+}
+
+/* ----------------------------------------------------------------------------
+   2. BASE
+   Scoped lightly so pages keep their own layout, but the shared background,
+   font and content offset are consistent. Loaded last so it wins ties.
+   -------------------------------------------------------------------------- */
+body {
+    font-family: var(--arc-font);
+    background: var(--arc-bg);
+    color: var(--arc-ink);
+    line-height: var(--arc-lh);
+    /* Reserve the fixed sidebar rail so content never sits under it. Every
+       page's main region lives to the right of the rail. */
+    padding-left: var(--arc-nav-width);
+    overflow-x: hidden;
+    -webkit-font-smoothing: antialiased;
+    text-rendering: optimizeLegibility;
+}
+
+/* Shared mono helper used by markup (e.g. dashboard header time). */
+.mono {
+    font-family: var(--arc-mono);
+    font-variant-numeric: tabular-nums;
+}
+
+/* ----------------------------------------------------------------------------
+   3. SIDEBAR SHELL (collapse-on-hover rail)
+   Matches the markup contract used by every page:
+     .sidebar > .sidebar-brand > (.logo-mark > .logo-inner) + .brand-text
+             > .sidebar-nav   > a.nav-item > .nav-icon + .nav-label
+             > .sidebar-footer
+   The rail keeps a FIXED footprint; on hover it expands as an overlay so page
+   content does not jump. Active state is explicit and does not rely on hover.
+   -------------------------------------------------------------------------- */
+.sidebar {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: var(--arc-nav-width);
+    height: 100vh;
+    background: var(--arc-surface);
+    border-right: 1px solid var(--arc-border);
+    display: flex;
+    flex-direction: column;
+    align-items: stretch;
+    padding: var(--arc-sp-4) 0;
+    z-index: 100;
+    overflow: hidden;
+    transition: width var(--arc-transition);
+}
+.sidebar:hover,
+.sidebar:focus-within {
+    width: var(--arc-nav-width-expanded);
+    box-shadow: var(--arc-shadow-lift);
+}
+
+/* Brand ------------------------------------------------------------------- */
+.sidebar-brand {
+    display: flex;
+    align-items: center;
+    gap: var(--arc-sp-3);
+    padding: var(--arc-sp-2) 0 var(--arc-sp-5);
+    margin: 0 var(--arc-sp-3) var(--arc-sp-4);
+    border-bottom: 1px solid var(--arc-border);
+    white-space: nowrap;
+    min-height: 44px;
+}
+
+/* CSS-only logo mark — no image. A graphite tile with a eucalyptus leaf-dot. */
+.logo-mark {
+    width: 40px;
+    height: 40px;
+    flex-shrink: 0;
+    border-radius: var(--arc-radius-md);
+    background: var(--arc-accent-strong);
+    position: relative;
+    margin-left: 14px;   /* centres the 40px mark within the 68px rail */
+}
+.logo-mark::before {
+    /* leaf blade */
+    content: '';
+    position: absolute;
+    inset: 11px;
+    background: var(--arc-live);
+    border-radius: 0 70% 0 70%;
+}
+.logo-mark .logo-inner {
+    /* leaf vein / highlight */
+    position: absolute;
+    top: 13px;
+    left: 50%;
+    width: 2px;
+    height: 14px;
+    background: var(--arc-accent-soft);
+    transform: translateX(-50%) rotate(0deg);
+    border-radius: 2px;
+    opacity: 0.8;
+}
+
+.brand-text {
+    font-weight: var(--arc-fw-bold);
+    font-size: var(--arc-fs-sm);
+    letter-spacing: 0.08em;
+    color: var(--arc-ink);
+    text-transform: uppercase;
+    opacity: 0;
+    transition: opacity var(--arc-transition);
+}
+.sidebar:hover .brand-text,
+.sidebar:focus-within .brand-text {
+    opacity: 1;
+}
+
+/* Nav list ---------------------------------------------------------------- */
+.sidebar-nav {
+    display: flex;
+    flex-direction: column;
+    gap: var(--arc-sp-1);
+    flex: 1;
+    padding: 0 var(--arc-sp-3);
+    min-height: 0;
+}
+
+.sidebar-nav .nav-item,
+.sidebar-footer .nav-item {
+    display: flex;
+    align-items: center;
+    gap: var(--arc-sp-3);
+    /* >=44px touch target */
+    min-height: 46px;
+    padding: 0 10px;
+    border-radius: var(--arc-radius);
+    color: var(--arc-text-secondary);
+    text-decoration: none;
+    font-family: var(--arc-font);
+    font-size: var(--arc-fs-sm);
+    font-weight: var(--arc-fw-medium);
+    white-space: nowrap;
+    cursor: pointer;
+    border: none;
+    background: transparent;
+    width: 100%;
+    transition: background var(--arc-transition), color var(--arc-transition);
+}
+
+.nav-icon {
+    font-size: 21px;
+    min-width: 24px;
+    text-align: center;
+    flex-shrink: 0;
+    color: var(--arc-text-muted);
+    transition: color var(--arc-transition);
+}
+
+.nav-label {
+    opacity: 0;
+    transition: opacity var(--arc-transition);
+}
+.sidebar:hover .nav-label,
+.sidebar:focus-within .nav-label {
+    opacity: 1;
+}
+
+/* Active state is explicit (persists without hover) for touchscreens. */
+.sidebar-nav .nav-item.active,
+.sidebar-footer .nav-item.active {
+    background: var(--arc-accent-soft);
+    color: var(--arc-accent-ink);
+    font-weight: var(--arc-fw-semibold);
+}
+.sidebar-nav .nav-item.active .nav-icon,
+.sidebar-footer .nav-item.active .nav-icon {
+    color: var(--arc-accent);
+}
+
+/* Pointer feedback (not relied upon for state). */
+.sidebar-nav .nav-item:hover,
+.sidebar-footer .nav-item:hover {
+    background: var(--arc-surface-soft);
+    color: var(--arc-ink);
+}
+.sidebar-nav .nav-item:active,
+.sidebar-footer .nav-item:active {
+    background: var(--arc-accent-soft);
+}
+.sidebar-nav .nav-item:focus-visible,
+.sidebar-footer .nav-item:focus-visible {
+    outline: 2px solid var(--arc-accent);
+    outline-offset: -2px;
+}
+
+/* Footer ------------------------------------------------------------------ */
+.sidebar-footer {
+    padding: var(--arc-sp-3) var(--arc-sp-3) 0;
+    margin-top: auto;
+    border-top: 1px solid var(--arc-border);
+}
+.sidebar-footer .nav-item.muted {
+    color: var(--arc-text-faint);
+}
+.sidebar-footer .nav-item.muted .nav-icon {
+    color: var(--arc-text-faint);
+}
+
+/* ----------------------------------------------------------------------------
+   4. BOTTOM NAV (mobile)
+   Hidden on desktop, shown under a small-screen breakpoint. Dashboard /
+   control reference .bottom-nav .nav-item with icon + label.
+   -------------------------------------------------------------------------- */
+.bottom-nav {
+    display: none;
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    background: var(--arc-surface);
+    border-top: 1px solid var(--arc-border);
+    padding: var(--arc-sp-2) 0 calc(var(--arc-sp-2) + env(safe-area-inset-bottom));
+    z-index: 99;
+    justify-content: space-around;
+    align-items: stretch;
+}
+.bottom-nav .nav-item {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 3px;
+    flex: 1;
+    min-height: 48px;
+    padding: var(--arc-sp-1) var(--arc-sp-2);
+    color: var(--arc-text-muted);
+    text-decoration: none;
+    font-family: var(--arc-font);
+    font-size: 10px;
+    font-weight: var(--arc-fw-medium);
+    background: transparent;
+    border: none;
+    cursor: pointer;
+}
+.bottom-nav .nav-item .ti,
+.bottom-nav .nav-item .nav-icon {
+    font-size: 22px;
+}
+.bottom-nav .nav-item.active {
+    color: var(--arc-accent);
+}
+.bottom-nav .nav-item:active {
+    color: var(--arc-accent-dim);
+}
+
+/* ----------------------------------------------------------------------------
+   5. TOPBAR (dashboard greeting / search / status / avatar)
+   .topbar > .topbar-titles (h1 + p)
+          > .topbar-actions > .topbar-search > input
+                            > .topbar-icon-btn
+                            > .topbar-avatar
+   -------------------------------------------------------------------------- */
+.topbar {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: var(--arc-topbar-gap);
+    flex-wrap: wrap;
+    padding: var(--arc-sp-5) 0 var(--arc-sp-4);
+    margin-bottom: var(--arc-sp-5);
+    border-bottom: 1px solid var(--arc-border);
+}
+.topbar-titles h1 {
+    font-size: var(--arc-fs-h1);
+    font-weight: var(--arc-fw-semibold);
+    letter-spacing: -0.01em;
+    color: var(--arc-ink);
+    line-height: 1.2;
+}
+.topbar-titles p {
+    margin-top: var(--arc-sp-1);
+    font-size: var(--arc-fs-sm);
+    color: var(--arc-text-muted);
+}
+.topbar-actions {
+    display: flex;
+    align-items: center;
+    gap: var(--arc-sp-3);
+}
+.topbar-search {
+    display: flex;
+    align-items: center;
+    gap: var(--arc-sp-2);
+    background: var(--arc-surface);
+    border: 1px solid var(--arc-border);
+    border-radius: var(--arc-radius);
+    padding: 0 var(--arc-sp-3);
+    height: 44px;
+    color: var(--arc-text-muted);
+    transition: border-color var(--arc-transition);
+}
+.topbar-search:focus-within {
+    border-color: var(--arc-accent);
+}
+.topbar-search .ti {
+    font-size: 17px;
+}
+.topbar-search input {
+    border: none;
+    background: transparent;
+    outline: none;
+    font-family: var(--arc-font);
+    font-size: var(--arc-fs-sm);
+    color: var(--arc-ink);
+    width: 170px;
+    max-width: 42vw;
+}
+.topbar-search input::placeholder {
+    color: var(--arc-text-faint);
+}
+.topbar-icon-btn {
+    width: 44px;
+    height: 44px;
+    flex-shrink: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: var(--arc-radius);
+    background: var(--arc-surface);
+    border: 1px solid var(--arc-border);
+    color: var(--arc-text-secondary);
+    font-size: 18px;
+    cursor: pointer;
+    text-decoration: none;
+    transition: border-color var(--arc-transition), color var(--arc-transition);
+}
+.topbar-icon-btn:hover {
+    border-color: var(--arc-border-strong);
+    color: var(--arc-ink);
+}
+.topbar-icon-btn:active {
+    background: var(--arc-surface-soft);
+}
+.topbar-avatar {
+    width: 44px;
+    height: 44px;
+    flex-shrink: 0;
+    border-radius: var(--arc-radius);
+    background: var(--arc-accent-strong);
+    color: #fbfcfa;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: var(--arc-fw-semibold);
+    font-size: var(--arc-fs-sm);
+    letter-spacing: 0.02em;
+    cursor: pointer;
+}
+
+/* ----------------------------------------------------------------------------
+   6. REUSABLE PANELS & CARDS
+   Purposeful variety — not identical rounded rectangles. Namespaced with
+   `arc-` so pages can adopt them without colliding with existing classes.
+   -------------------------------------------------------------------------- */
+
+/* Base panel: restrained border, minimal shadow. */
+.arc-panel {
+    background: var(--arc-surface);
+    border: 1px solid var(--arc-border);
+    border-radius: var(--arc-radius-lg);
+    padding: var(--arc-sp-5);
+    box-shadow: var(--arc-shadow-xs);
+}
+.arc-panel-head {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: var(--arc-sp-3);
+    margin-bottom: var(--arc-sp-4);
+}
+.arc-panel-title {
+    display: flex;
+    align-items: center;
+    gap: var(--arc-sp-2);
+    font-size: var(--arc-fs-h2);
+    font-weight: var(--arc-fw-semibold);
+    color: var(--arc-ink);
+}
+.arc-panel-title .ti {
+    color: var(--arc-accent);
+    font-size: 19px;
+}
+
+/* 6a. KPI / stat card — left accent rule marks it as a headline metric. */
+.arc-kpi {
+    background: var(--arc-surface);
+    border: 1px solid var(--arc-border);
+    border-left: 3px solid var(--arc-accent);
+    border-radius: var(--arc-radius);
+    padding: var(--arc-sp-4) var(--arc-sp-5);
+    display: flex;
+    flex-direction: column;
+    gap: var(--arc-sp-2);
+}
+.arc-kpi-label {
+    font-size: var(--arc-label);
+    font-weight: var(--arc-fw-medium);
+    text-transform: uppercase;
+    letter-spacing: var(--arc-tracking-label);
+    color: var(--arc-text-muted);
+}
+.arc-kpi-value {
+    font-family: var(--arc-mono);
+    font-variant-numeric: tabular-nums;
+    font-size: var(--arc-value-md);
+    font-weight: var(--arc-fw-semibold);
+    color: var(--arc-ink);
+    line-height: 1.1;
+}
+.arc-kpi-delta {
+    align-self: flex-start;
+    font-size: var(--arc-fs-xs);
+    font-weight: var(--arc-fw-semibold);
+    padding: 2px 8px;
+    border-radius: var(--arc-radius-sm);
+    background: var(--arc-ok-soft);
+    color: var(--arc-accent-ink);
+}
+.arc-kpi-delta.warning { background: var(--arc-warning-soft); color: var(--arc-warning-ink); }
+.arc-kpi-delta.danger  { background: var(--arc-danger-soft);  color: var(--arc-danger); }
+
+/* 6b. Monitoring / reading panel — big value + small unit + quiet label. */
+.arc-reading {
+    background: var(--arc-surface);
+    border: 1px solid var(--arc-border);
+    border-radius: var(--arc-radius-lg);
+    padding: var(--arc-sp-5);
+    display: flex;
+    flex-direction: column;
+    gap: var(--arc-sp-2);
+}
+.arc-reading-label {
+    display: flex;
+    align-items: center;
+    gap: var(--arc-sp-2);
+    font-size: var(--arc-label);
+    font-weight: var(--arc-fw-medium);
+    text-transform: uppercase;
+    letter-spacing: var(--arc-tracking-label);
+    color: var(--arc-text-muted);
+}
+.arc-reading-value {
+    display: flex;
+    align-items: baseline;
+    gap: 6px;
+    font-family: var(--arc-mono);
+    font-variant-numeric: tabular-nums;
+    font-size: var(--arc-value-lg);
+    font-weight: var(--arc-fw-semibold);
+    color: var(--arc-ink);
+    line-height: 1;
+}
+.arc-reading-value.xl { font-size: var(--arc-value-xl); }
+.arc-reading-unit {
+    font-family: var(--arc-font);
+    font-size: var(--arc-unit);
+    font-weight: var(--arc-fw-medium);
+    color: var(--arc-text-muted);
+}
+.arc-reading-value.state-warning { color: var(--arc-warning); }
+.arc-reading-value.state-danger  { color: var(--arc-danger); }
+
+/* 6c. Control panel — slightly firmer frame; houses toggles / setpoints. */
+.arc-control {
+    background: var(--arc-surface);
+    border: 1px solid var(--arc-border-strong);
+    border-radius: var(--arc-radius-lg);
+    padding: var(--arc-sp-5);
+}
+.arc-control-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: var(--arc-sp-3);
+    padding: var(--arc-sp-3) 0;
+    border-bottom: 1px solid var(--arc-border);
+}
+.arc-control-row:last-child { border-bottom: none; }
+
+/* Shared button styling for controls (large, touch-friendly). */
+.arc-btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: var(--arc-sp-2);
+    min-height: 44px;
+    padding: 0 var(--arc-sp-5);
+    border-radius: var(--arc-radius);
+    border: 1px solid var(--arc-border-strong);
+    background: var(--arc-surface);
+    color: var(--arc-ink);
+    font-family: var(--arc-font);
+    font-size: var(--arc-fs-sm);
+    font-weight: var(--arc-fw-medium);
+    cursor: pointer;
+    transition: background var(--arc-transition), border-color var(--arc-transition);
+}
+.arc-btn:hover { border-color: var(--arc-accent); }
+.arc-btn:active { background: var(--arc-surface-soft); }
+.arc-btn.primary {
+    background: var(--arc-accent);
+    border-color: var(--arc-accent);
+    color: #fbfcfa;
+}
+.arc-btn.primary:hover { background: var(--arc-accent-dim); border-color: var(--arc-accent-dim); }
+.arc-btn:focus-visible { outline: 2px solid var(--arc-accent); outline-offset: 2px; }
+
+/* 6d. Trend / chart panel — fills to hold a canvas chart. */
+.arc-chart {
+    background: var(--arc-surface);
+    border: 1px solid var(--arc-border);
+    border-radius: var(--arc-radius-lg);
+    padding: var(--arc-sp-5);
+    display: flex;
+    flex-direction: column;
+    gap: var(--arc-sp-4);
+}
+.arc-chart-body {
+    position: relative;
+    width: 100%;
+    min-height: 180px;
+}
+.arc-chart-body canvas {
+    max-width: 100%;
+}
+
+/* 6e. Status row / unit-summary row — compact horizontal strip. */
+.arc-status-row {
+    display: flex;
+    align-items: center;
+    gap: var(--arc-sp-4);
+    padding: var(--arc-sp-3) var(--arc-sp-4);
+    background: var(--arc-surface);
+    border: 1px solid var(--arc-border);
+    border-radius: var(--arc-radius);
+}
+.arc-status-row + .arc-status-row { margin-top: var(--arc-sp-2); }
+.arc-status-row .arc-status-name {
+    font-weight: var(--arc-fw-semibold);
+    font-size: var(--arc-fs-sm);
+    color: var(--arc-ink);
+}
+.arc-status-row .arc-status-metric {
+    font-family: var(--arc-mono);
+    font-variant-numeric: tabular-nums;
+    font-size: var(--arc-value-sm);
+    color: var(--arc-ink);
+    margin-left: auto;
+}
+
+/* Status dot — meaning via colour, not decoration. */
+.arc-dot {
+    width: 9px;
+    height: 9px;
+    border-radius: 50%;
+    flex-shrink: 0;
+    background: var(--arc-text-faint);
+    display: inline-block;
+}
+.arc-dot.live    { background: var(--arc-live); }
+.arc-dot.ok      { background: var(--arc-ok); }
+.arc-dot.warning { background: var(--arc-warning); }
+.arc-dot.danger  { background: var(--arc-danger); }
+.arc-dot.offline { background: var(--arc-text-faint); }
+
+/* Pill badges for state labels. */
+.arc-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    font-size: var(--arc-fs-xs);
+    font-weight: var(--arc-fw-semibold);
+    padding: 3px 10px;
+    border-radius: 999px;
+    background: var(--arc-surface-soft);
+    color: var(--arc-text-secondary);
+    border: 1px solid var(--arc-border);
+}
+.arc-badge.ok      { background: var(--arc-ok-soft);      color: var(--arc-accent-ink); border-color: transparent; }
+.arc-badge.warning { background: var(--arc-warning-soft); color: var(--arc-warning-ink); border-color: transparent; }
+.arc-badge.danger  { background: var(--arc-danger-soft);  color: var(--arc-danger); border-color: transparent; }
+
+/* ----------------------------------------------------------------------------
+   7. NO-FAKE-DATA STATES
+   Honest, professional treatment for values that are not confirmed live.
+   Restrained amber (never neon). Reusable as .unconfirmed / .stale /
+   .unavailable on any value element, and as .arc-unavailable blocks.
+   -------------------------------------------------------------------------- */
+.unconfirmed,
+.stale {
+    color: var(--arc-warning) !important;
+    position: relative;
+}
+/* A quiet dotted underline signals "not confirmed live" without shouting. */
+.unconfirmed {
+    text-decoration: underline dotted var(--arc-warning);
+    text-underline-offset: 3px;
+}
+
+.unavailable {
+    color: var(--arc-text-faint) !important;
+    font-family: var(--arc-mono);
+}
+
+.arc-unavailable {
+    display: inline-flex;
+    align-items: center;
+    gap: var(--arc-sp-2);
+    padding: 2px 10px;
+    border-radius: var(--arc-radius-sm);
+    background: var(--arc-warning-soft);
+    color: var(--arc-warning-ink);
+    font-size: var(--arc-fs-xs);
+    font-weight: var(--arc-fw-semibold);
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+}
+.arc-unavailable::before {
+    content: '';
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background: var(--arc-warning);
+}
+
+/* Empty-state block for panels with nothing honest to show. */
+.arc-empty {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: var(--arc-sp-2);
+    padding: var(--arc-sp-8);
+    text-align: center;
+    color: var(--arc-text-muted);
+    font-size: var(--arc-fs-sm);
+}
+.arc-empty .ti {
+    font-size: 28px;
+    color: var(--arc-text-faint);
+}
+
+/* ----------------------------------------------------------------------------
+   8. SHARED GRID HELPERS (used by multiple pages for KPI / reading rows)
+   -------------------------------------------------------------------------- */
+.arc-grid {
+    display: grid;
+    gap: var(--arc-sp-4);
+}
+.arc-grid.cols-2 { grid-template-columns: repeat(2, 1fr); }
+.arc-grid.cols-3 { grid-template-columns: repeat(3, 1fr); }
+.arc-grid.cols-4 { grid-template-columns: repeat(4, 1fr); }
+
+/* ----------------------------------------------------------------------------
+   9. RESPONSIVE
+   No horizontal scroll at 1920x1080 or 1366x768. Collapse grids and swap the
+   rail for the bottom nav on small / touch widths. Transitions stay minimal.
+   -------------------------------------------------------------------------- */
+@media (max-width: 1366px) {
+    .arc-grid.cols-4 { grid-template-columns: repeat(3, 1fr); }
+}
+
+@media (max-width: 1024px) {
+    .arc-grid.cols-4,
+    .arc-grid.cols-3 { grid-template-columns: repeat(2, 1fr); }
+    .topbar-search input { width: 130px; }
+}
+
+@media (max-width: 820px) {
+    /* Hand navigation to the bottom bar; free the full width for content. */
+    body {
+        padding-left: 0;
+        padding-bottom: 72px;
+    }
+    .sidebar {
+        display: none;
+    }
+    .bottom-nav {
+        display: flex;
+    }
+    .topbar {
+        padding-top: var(--arc-sp-4);
+    }
+    .arc-grid.cols-2,
+    .arc-grid.cols-3,
+    .arc-grid.cols-4 { grid-template-columns: 1fr 1fr; }
+}
+
+@media (max-width: 520px) {
+    .arc-grid.cols-2,
+    .arc-grid.cols-3,
+    .arc-grid.cols-4 { grid-template-columns: 1fr; }
+    .topbar-search { display: none; }
+    .arc-reading-value { font-size: var(--arc-value-md); }
+}
+
+/* Respect reduced-motion preferences. */
+@media (prefers-reduced-motion: reduce) {
+    * {
+        transition: none !important;
+        animation: none !important;
+    }
+}
